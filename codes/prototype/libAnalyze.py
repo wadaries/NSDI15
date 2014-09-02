@@ -1,5 +1,6 @@
 import libUtility
 
+# 2014/09/02 02:24:49
 # 2014/09/01 16:20:54
 # verification
 def get_borders (cursor):
@@ -388,9 +389,27 @@ def obs_init (dict_cur, size):
         except psycopg2.DatabaseError, e:
             print "Unable to create obs view" 
             print 'Error %s' % e
-    
-def obs_del (dict_cur, updates):
+
+def obs_add (dict_cur, obs_id, flow_id, src, dst):
     pass
+    
+def obs_del (dict_cur, obs_id):
+    try:
+        dict_cur.execute ("UPDATE topology SET subnet_id = Null WHERE subnet_id = "+ str (obs_id) + ";")
+    except:
+        pass
+
+    try:
+        dict_cur.execute ("DELETE FROM subnet WHERE subnet_id = %s;", ([obs_id]))
+    except: pass
+
+    try:
+        dict_cur.execute ("DROP VIEW obs_" + str (obs_id) + "_config ;")
+    except: pass
+
+    # except psycopg2.DatabaseError, e:
+    #     print "Unable to delete obs"
+    #     print "Error %s" % e
 
 def synthesize (username, dbname,
                update_edges):
@@ -415,12 +434,13 @@ def synthesize (username, dbname,
         print "nodes: " + str (n1) + ", " + str (n2)
         
         # e2e_add (dict_cur, f1, n1, n2)
-
         # e2e_del_src (dict_cur, f1, n1)
-
         # e2e_del_dst (dict_cur, f1, n2)
-        
-        obs_init (dict_cur, 4)
+        # obs_init (dict_cur, 4)
+        # obs_del (dict_cur, 11)
+        # obs_del (dict_cur, 13)
+        # obs_del (dict_cur, 14)
+        # obs_del (dict_cur, 15)
 
         # for update in updates:
         #     peerIP = update.split ()[0]
