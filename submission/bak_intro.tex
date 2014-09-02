@@ -1,0 +1,144 @@
+\section{Introduction}
+\label{sec:intro}
+
+To bring about the needed abstraction capable of reconciling what a
+human mind perfects and how today's network performs, we champion a
+shift from OS/PL to database system (DB)
+technique~\cite{Abiteboul:1995:alice,db-concept,db-meta}, like it has
+taken place for online commercial data management in 1980s. OS/PL was
+proven to fall short for mediating between an increasingly complex
+online data management system and multiple users of little computer
+specialty, whereas DB arose with two abstractions: data independence
+and transaction processing. Data independence is the data abstraction
+that simplifies human interaction by hiding data storage and
+representation, whereas transaction processing abstraction achieves
+concurrency and recovery control without severely hurting
+performance. By adapting data independence and transaction processing
+into networking, we propose a Software-defined network (SDN) database
+design that features two-levels abstraction, which we call \TI and \TR
+respectively.
+
+
+
+To simplify and renovate networking, many recent efforts decouple
+logical abstractions from physical infrastructure via operating system
+(OS) and programming language (PL)
+means~\cite{ethane-sigcomm07,rethinking-enterprise,shenker-tue}.  For
+example, software-defined networks (SDN), by exploiting the idea of
+network operating system~\cite{onix,nox}, exposes and maintains a
+separate network-wide abstraction -- a network representation
+(analogous to RIB) and control primitive (routing, access control
+\etc).  From a user perspective, the abstraction forms a programming
+API~\cite{composing,sdn-lang-frenetic} -- high-level data-structures
+and operations that manipulate them.  Similarly, virtualized networks
+(VN) separates logical services / functionality from the underlying
+physical networks, gives tenants an abstract network representation
+(virtual topology, address \etc), through APIs over a spectrum of
+granularity.
+% This is analogous to pre\hyp{}database day computerized management
+% of commercial data, when programmers write applications over
+% data\footnote{Unlike the file-system used in conventional operating
+% system, today's SDN OS employs a graph databases which is
+% essentially a key\hyp{}value storage optimized for graphs.}
+% supported by an operating system: For example, \todo the OS provides
+% APIs that enable the applications to read and write the appropriate
+% data.
+
+
+% To simplify network operation and ease innovation, the networking
+% community sees an endlessly growing new techniques that are built
+% around operation system (OS) and programming language (PL) techniques.
+% For example, active networks, programmable networks, network
+% virtualization, routing control platforms, and software-defined
+% networks (SDN)~\cite{shenker-tue}. \todo Despite these OS/PL powered
+% efforts, network operation remains manual, tedious, and error-prone.
+
+However, network operation and innovation remain manual and difficult,
+due to the grand challenge in finding the right abstractions that
+strikes a balance between two conflicting goals: human convenience and
+reasonable (feature-rich) system performance, over a distributed,
+shared, unreliable network of heterogeneous devices. %  As shown in
+% Figure~\ref{fig:abstraction-space},
+Existing approaches either achieves simplicity, performance, or
+moderate gain on both both.  On one extreme, L2 LAN abstraction,
+though simple and configuration-free, does not scale beyond certain
+topology (\eg spanning tree) and network size (due to flat address);
+On the other, L3 IP-routing offers an end-to-end abstraction that
+scales to the entire Interest, however, imposes administration burden
+through manual configurations. Abstraction sitting in the middle
+includes SDN and virtual networks. SDN reduces program logic
+complexity by introducing a simpler logically centralized controller,
+at the expense of forcing the programmer to explicitly deal with data
+redudency, isolation, consistency, and recovery to get reasonable
+performance, a task that is notoriously challenging.  Virtualized
+networks, on the other, offers a spectrum of abstractions: the
+logically simpler ``one-big-switch'', though gentler to the logical
+tenants, requires some efforts when it comes to the mapping into
+physical infrastructure; a fuller virtualized abstraction that
+supports arbitrary topology, on the other end of the spectrum, can be
+realized with a more straightforward mapping, but requires significant
+work on the tenant side, actually closer to that needed for a physical
+network\footnote{For example, to isolate user programs by different
+  tenants, a fuller virtualized network could utilize the tenant
+  network namespace as indexes; whereas the the one-big-switch
+  abstraction needs to explicitly inspect user program context.}.
+
+% (More examples and details are also in Table~\ref{tab:tradeoff} of
+% Appendix~\ref{app:space}.)
+
+% \begin{figure}[h!]
+%   \centering
+%   \includegraphics[width=.8\linewidth]{figure-source/abstraction-space.pdf}
+%   \caption{Abstraction space for networking, divided by human
+%     convenience and system performance: existing approaches achieve
+%     either, or moderate on both; SDN databases combines the strength
+%     of both.}
+%   \label{fig:abstraction-space}
+% \end{figure}
+
+
+\TI offers a programmable user-level abstraction exposing a human
+interface that simplifies user logic, together with a language that
+creates the abstraction on demand, and a mechanism that pushes
+abstract operation back into the network device.  The key is that,
+rather than seeking for one pre-defined abstraction \footnote{We use
+  user program to refer to any control program, \eg network-wide
+  controller program by an administrator, or application programs by
+  end users with limited network access.}  that fits every existing
+user application (and potentially future ones) right, we turn SDN
+network (collection of FIBs) into a distributed relational database,
+using the SQL language to create user abstraction on demand --
+permitting application-specific views that hide irrelevant details as
+well as data restructuring. After the creation of the view, more
+importantly, the user program shall be able to manipulate the network
+through the views. To this end, we utilize DB view mechanisms, namely
+view maintenance that keeps abstractions fresh, verifying user
+intention against the latest network states (FIB change); and view
+update that compiles an abstract view operation into a collection of
+network FIBs operations, synthesizing the actual FIB implementation.
+
+\TR, on the other hand, provides a separate transactional device-level
+abstraction, is responsible for efficient execution of user programs
+that preserves an isolated, sequential, and recoverable semantics. The
+key is that, rather than adding concurrency control to user program's
+data -- the virtual view abstraction, \TR chooses the switch-level
+FIBs abstraction for implemention, hence achieves concurrency and
+recovery control without severely hindering system performance. For
+example, if transaction processing is implemented by two-phase
+locking, rather than grabbing and releasing global locks over the
+views, which is in-efficient and complicated, \TR translates the view
+locking into FIB lockings that can be directly implemented on relevant
+switch hardware. Note that the FIBs correspond to the base tables from
+which a user view is derived, therefore, the same SQL query that
+creates the view is used to compile the global view locks into the
+local switch-level locks.
+
+The rest of the paper is organized as
+follows. Section~\ref{sec:design} outlines the SDN database design,
+featureing \TI and \TR.  Section~\ref{sec:details} describes \TI in
+more details, presents early stage implementation that evaluates the
+\TI design. Section~\ref{sec:discussion} discusses the opportunities,
+challenges, and limits of SDN database. Section~\ref{sec:related}
+connects SDN database to relevant OS/PL
+efforts. Section~\ref{sec:conclusion} concludes the paper.
+

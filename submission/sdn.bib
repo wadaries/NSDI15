@@ -1,0 +1,2434 @@
+%% Conference name definitions
+% For every conference, there should be two strings:  one with the
+% base name, and one prefixed by "l-".  The l-version is the "long"
+% name and the base version is the short name.  The bibtex script
+% will generate zives-long.bib and zives-short.bib from zives.bib.
+% In the .tex file, include the appropriate bib file depending on
+% whether you want short or long names.
+%
+% New 4/03: a series of new BibTeX fields has been added:
+%  url = {url}    Becomes a note field with "Available from" the
+%                 specified URL
+%  urlpub = {url} Becomes a howpublished filed with "Available from" URL
+%  urlXXX = {url} Becomes a note field with XXX URL (substitute your
+%                 text)
+%  organization   Removed from short file
+%  publisher      Removed from short file
+%  isbn           Removed from short file
+%  publisher      Denotes a publisher that shows up in short or long file
+%
+%
+% Long/short version by zives, 5/7/02
+%
+% Re-organization of file by category, zives 7/21/02
+
+@string{vldb       = "Proceedings of VLDB Conference"}
+@string{vldbDemo   = "Proceedings of VLDB Conference Demonstrations"}
+@string{cidr       = "Proceedings of Conference on Innovative Data Systems Research"}
+@string{sigmod     = "Proceedings of ACM SIGMOD International Conference on Management of Data"}
+@string{sigcomm     = "Proceedings of ACM SIGCOMM Conference on Data Communication"}
+@string{icde       = "Proceedings of IEEE Conference on Data Engineering"}
+@string{icdm       = "Proceedings of IEEE Conference on Data Mining"}
+@string{soda       = "Proceedings of ACM-SIAM Symposium on Discrete Algorithms"}
+@string{osdi       = "Proceedings of Usenix Symposium on Operating Systems Design and Implementation"}
+@string{edbt       = "Proceedings of Conference on Extensible Database Technology"}
+@string{sigmodrec  = "SIGMOD Record"}
+@string{ieeepcomm  = "IEEE Personal Communications"}
+@string{acmcs      = "ACM Computing Surveys"}
+@string{pods       = "ACM Symposium on Principles of Database Systems"}
+@string{ipl        = "Information Processing Letters"}
+@string{tods       = "ACM Transactions on Database Systems"}
+@string{ieeetkde   = "IEEE Transactions on Knowledge and Data Engineering"}
+@string{cacm       = "Communications of the ACM"}
+@string{debull     = "IEEE Data Engineering Bulletin"}
+@string{tocs       = "ACM Transactions on Computer Systems"}
+@string{lisa       = "USENIX LISA Conference"}
+@string{usenixatc  = "USENIX Annual Technical Conference"}
+@string{vldbj      = "VLDB Journal"}
+@string{icac       = "ICAC"}
+@string{icppw      = "ICPPW"}
+@string{hotnets    = "ACM SIGCOMM Hot Topics in Networks"}
+@string{dsom       = "Distributed Systems: Operations and Management Workshop"}
+@string{iptps      = "International Workshop on Peer-to-Peer Systems"},
+@string{nsdi      = "USENIX Symposium on Networked Systems Design and Implementation"},
+@string{sosp      = "ACM Symposium on Operating Systems Principles"},
+@string{security     = "USENIX Security Symposium"},
+@string{ndss        = "Network and Distributed System Security"}, 
+@string{usenix       = "USENIX Technical Conference"}
+
+% Random conferences
+@string{s-sigcomm98    = "SIGCOMM"}
+@string{sigcomm98    = "Proc. of ACM SIGCOMM '98"}
+@string{s-sigcomm01    = "SIGCOMM"}
+@string{sigcomm01    = "Proceedings of ACM SIGCOMM 2001, August 27 -
+                  31, San Diego, CA USA"}
+@string(ICAC04 = "ICAC '04")
+@string(l-ICAC04 = "1st International Conference on Autonomic Computing (ICAC
+               2004)")
+
+@string{s-ASPLOS00 = "ASPLOS 2000"}
+@string{ASPLOS00 = "Proceedings of the Ninth international
+                  Conference on Architectural Support for Programming
+                  Languages and Operating Systems (ASPLOS 2000),
+                  November 2000, Boston, MA"}
+@string{s-SOSP99 = "SOSP '99"}
+@string{SOSP99 = "Proceedings of the 17th ACM Symposium on Operating
+                  Systems Principles (SOSP '99)"}
+@string{s-MW98 = "Middleware '98"}
+@string{MW98 = "Proc. of IFIP Int. Conf. on Distributed Systems
+                  Platforms and Open Distributed Processing
+                  (Middleware '98)"}
+@string{s-MW01 = "Middleware"}
+@string{MW01 = "Proc. of IFIP Int. Conf. on Distributed Systems
+                  Platforms
+                  (Middleware)"}
+@string{s-measmodel00 = "Proc. Measurement and Modeling of Computer
+                  Systems, 2000"}
+@string{measmodel00 = "Proceedings of the International Conference
+                  on Measurement and Modeling of Computer Systems,
+                  2000"}
+@string{s-www3cache    = "Proc. of the 3rd Int. {WWW} Caching Workshop"}
+@string{www3cache    = "Proc. of the 3rd Int. {WWW} Caching
+                  Workshop"}
+@string{s-CIKM95 = "CIKM '95"}
+@string{CIKM95 = "Proceedings of the Fourth International Conference
+                  on Information and Knowledge Management"}
+@string{s-CIKM96 = "CIKM '96"}
+@string{CIKM96 = "CIKM '96, Proceedings of the Fifth International
+                  Conference on Information and Knowledge Management,
+                  November 12 - 16, 1996, Rockville, Maryland, USA"}
+@string{s-CIKM98 = "CIKM '98"}
+@string{CIKM98 = "CIKM '98, Proceedings of the Seventh International
+                  Conference on Information and Knowledge Management,
+                  November 1998, Bethesda, Maryland, USA"}
+@string{s-CIKM03 = "CIKM '03"}
+@string{CIKM03 = "Proceedings of the 2003 ACM CIKM
+                  Conference on Information and Knowledge Management,
+                  New Orleans, LA, USA, November 2-8, 2003"}
+@string{s-FQAS00 = "Flexible Query Answering Systems (FQAS)
+                  2000"}
+@string{FQAS00 = "Flexible Query Answering Systems, Recent Advances,
+                  Proceedings of the Fourth International Conference
+                  on Flexible Query Answering Systems, FQAS 2000,
+                  October 25-28, 2000, Warsaw, Poland"}
+@string{s-CAISE02 = "Proceedings of the 14th International
+                  Conference on Advanced Information Systems Engineering"}
+@string{CAISE02 = "Proceedings of CAiSE 2002, the 14th International
+                  Conference on Advanced Information Systems
+                  Engineering, Toronto, Canada, May 2002"}
+@string{s-CoopIS = "CoopIS"}
+@string{CoopIS = "Cooperative Information Systems (CoopIS)"}
+@string{s-NSDI04  = "NSDI"}
+@string{NSDI04  = "Proceedings of the First USENIX/ACM Symposium on 
+Networked Systems Design and Implementation (NSDI '04)"},
+@string{s-DMSN04  = "DMSN"}
+@string{DMSN04  = "Proceedings of the First Workshop on Data Management for
+    Sensor Networks (DMSN 2004)"}
+@string{s-DMSN05  = "DMSN"}
+@string{DMSN05  = "Proceedings of the Second Workshop on Data Management for
+    Sensor Networks (DMSN 2005)"}
+@string{s-PDIS91 = "PDIS"}
+@string{PDIS91 = "Proc. First International Conference on Parallel and
+                  Distributed Information Systems (PDIS)"}
+
+% Web conferences
+@string{s-WWW8 = "8th World Wide Web Conference"}
+@string{WWW8 = "Proceedings of the Eighth International Word Wide Web
+                  Conference, Toronto, CA, 1999"}
+@string{s-WWW9 = "9th World Wide Web Conference"}
+@string{WWW9 = "Proceedings of the Ninth International World Wide
+                  Web Conference, Amsterdam, NL, 2000"}
+@string{s-WWW01 = "10th World Wide Web Conference"}
+@string{WWW01 = "Proceedings of the Tenth International World Wide
+                  Web Conference, Hong Kong, China, May 1-5, 2001"}
+@string{s-WWW02 = "11th World Wide Web Conference"}
+@string{WWW02 = "Proceedings of the Eleventh International World Wide
+                  Web Conference, Honolulu, Hawaii, May 2002"}
+@string{s-WWW03 = "12th World Wide Web Conference"}
+@string{WWW03 = "Proceedings of the Twelfth International World Wide
+                  Web Conference, Budapest, Hungary, May 20-24 2003"}
+@string{s-WWW04 = "13th World Wide Web Conference"}
+@string{WWW04 = "Proceedings of the Thirteenth International World Wide
+                  Web Conference, New York, NY 2004"}
+
+@string{s-WebDB99 = "WebDB '99"}
+@string{WebDB99 = "ACM SIGMOD Workshop on the Web (WebDB) 1999, Philadelphia, PA"}
+@string{s-WebDB00 = "WebDB '00"}
+@string{WebDB00 = "ACM SIGMOD Workshop on the Web (WebDB) 2000, Dallas, TX"}
+@string{s-WebDB01 = "WebDB '01"}
+@string{WebDB01 = "ACM SIGMOD Workshop on the Web (WebDB) 2001, Santa Barbara, CA"}
+@string{s-WebDB02 = "WebDB '02"}
+@string{WebDB02 = "ACM SIGMOD Workshop on the Web (WebDB) 2002, Madison, WI"}
+
+@string{s-SEMWEB02 = "Int'l Semantic Web Conference '02"}
+@string{SEMWEB02 = "International Semantic Web Conference 2002,
+                  Sardinia, Italy, June 9-12, 2002"}
+
+% AI conferences
+@String{IJCAI97	= "IJCAI '97"}
+@String{l-IJCAI97 = "Proceedings of the Fifteenth International 
+                  Joint Conference on Artificial Intelligence"}
+@String{IJCAI01	= "IJCAI '01"}
+@String{l-IJCAI01 = "Proceedings of the Seventeenth International
+                  Joint Conference on Artificial Intelligence,
+                  Seattle, WA, August 4-10, 2001"}
+@string{s-AAAI97 = "AAAI '97"}
+@string{AAAI97 = "Proceedings of the {AAAI} Fourteenth  National
+                  Conference on Artificial Intelligence, Providence,
+                  RI USA"}
+@string{s-AAAI98 = "AAAI '98"}
+@string{AAAI98 = "Proceedings of the {AAAI} Fifteenth  National
+                  Conference on Artificial Intelligence, Madison, WI
+                  USA"}
+@string{s-AAAI99 = "AAAI '99"}
+@string{AAAI99 = "Proceedings of the {AAAI} Sixteenth  National
+                  Conference on Artificial Intelligence, Orlando, FL USA"}
+@string{s-AAAI00 = "AAAI '00"}
+@string{AAAI00 = "Proceedings of the {AAAI} Seventeenth  National
+                  Conference on Artificial Intelligence, Austin, TX USA"}
+@string{s-AAAI02 = "AAAI '02"}
+@string{AAAI02 = "Proceedings of the {AAAI} Eighteenth  National
+                  Conference on Artificial Intelligence, Edmonton,
+                  Alberta Canada"}
+
+% General DB conferences
+@string{s-SIGMOD = "Proc. of ACM SIGMOD Conf. on Management of Data"}
+@string{SIGMOD = "Proceedings of the ACM SIGMOD Conference on Management of Data"}
+@string{s-SIGMOD78 = "SIGMOD"}
+@string{SIGMOD78 = "Proceedings of the 1978 ACM SIGMOD International Conference on
+               Management of Data, Austin, Texas, May 31 - June 2, 1978"}
+@string{s-SIGMOD79 = "SIGMOD"}
+@string{SIGMOD79 = "Proceedings of the 1979 ACM SIGMOD International
+                  Conference on Management of Data, Boston,
+                  Massachusetts, May 30 - June 1"}
+@string{s-SIGMOD84 = "SIGMOD"}
+@string{SIGMOD84 = "SIGMOD'84, Proceedings of Annual Meeting,
+                  Boston, Massachusetts, June 18-21, 1984"}
+@string{s-SIGMOD85 = "SIGMOD"}
+@string{SIGMOD85 = "Proceedings of the 1985 ACM SIGMOD International
+                  Conference on Management of Data, Austin, TX,
+                  May 28-31, 1985"}
+@string{s-SIGMOD86 = "SIGMOD"}
+@string{SIGMOD86 = "Proceedings of the 1986 ACM SIGMOD International
+                  Conference on Management of Data, Washington, D.C.,
+                  May 28-30, 1986"}
+@string{s-SIGMOD87 = "SIGMOD"}
+@string{SIGMOD87 = "Proceedings of the 1987 ACM SIGMOD International
+                  Conference on Management of Data, San Francisco, California, United States"}
+@string{s-SIGMOD88 = "SIGMOD"}
+@string{SIGMOD88 = "Proceedings of the 1988 ACM SIGMOD International
+                  Conference on Management of Data, Chicago, Illinois,
+                  June 1-3, 1988"}
+@string{s-SIGMOD89 = "SIGMOD"}
+@string{SIGMOD89 = "Proceedings of the 1989 ACM SIGMOD International
+                  Conference on Management of Data, Portland, Oregon,
+                  May 31 - June 2, 1989"}
+@string{s-SIGMOD90 = "SIGMOD"}
+@string{SIGMOD90 = "SIGMOD 1990, Proceedings of the 1990 ACM SIGMOD
+                  International Conference on Management of Data,
+                  Atlantic City, NJ, May 23-25, 1990"}
+@string{s-SIGMOD91 = "SIGMOD"}
+@string{SIGMOD91 = "Proceedings of the 1991 ACM SIGMOD International
+                  Conference on Management of Data, Denver, Colorado,
+                  May 29-31, 1991"}
+@string{s-SIGMOD93 = "SIGMOD"}
+@string{SIGMOD93 = "Proceedings of the 1993 ACM SIGMOD International
+                  Conference on Management of Data, Washington, D.C.,
+                  May 26-28, 1993"}
+@string{s-SIGMOD94 = "SIGMOD"}
+@string{SIGMOD94 = "Proceedings of the 1994 ACM SIGMOD International
+                  Conference on Management of Data, Minneapolis,
+                  Minnesota, May 24-27, 1994"}
+@string{s-SIGMOD95 = "SIGMOD"}
+@string{SIGMOD95 = "Proceedings of the 1995 ACM SIGMOD International
+                  Conference on Management of Data, San Jose, CA,
+                  May 26-26, 1995"}
+@string{s-SIGMOD96 = "SIGMOD"}
+@string{SIGMOD96 = "Proceedings of the 1996 ACM SIGMOD International
+                  Conference on Management of Data, Montreal, Quebec,
+                  Canada, June 4-6, 1996"}
+@string{s-SIGMOD97 = "SIGMOD"}
+@string{SIGMOD97 = "SIGMOD 1997, Proceedings of the ACM SIGMOD
+                  International Conference on Management of Data, May
+                  13-15, 1997, Tucson, Arizona, USA"}
+@string{s-SIGMOD98 = "SIGMOD"}
+@string{SIGMOD98 = "SIGMOD 1998, Proceedings of the ACM SIGMOD
+                  International Conference on Management of Data, June
+                  2-4, 1998, Seattle, Washington, USA"}
+@string{s-SIGMOD99 = "SIGMOD"}
+@string{SIGMOD99 = "SIGMOD 1999, Proceedings of the ACM SIGMOD
+                  International Conference on Management of Data, June
+                  1-3, 1999, Philadelphia, Pennsylvania, USA"}
+@string{s-SIGMOD00 = "SIGMOD"}
+@string{SIGMOD00 = "SIGMOD 2000, Proceedings of the ACM SIGMOD
+                  International Conference on Management of Data, May
+                  16-18, 2000, Dallas, Texas, USA"}
+@string{s-SIGMOD01 = "SIGMOD"}
+@string{SIGMOD01 = "SIGMOD 2001, Proceedings of the ACM SIGMOD
+                  International Conference on Management of Data, May
+                  21-24, 2001, Santa Barbara, California, USA"}
+@string{s-SIGMOD02 = "SIGMOD"}
+@string{SIGMOD02 = "SIGMOD 2002, Proceedings of the ACM SIGMOD
+                  International Conference on Management of Data, June
+                  3-6, 2002, Madison, Wisconsin, USA"}
+@string{s-SIGMOD03 = "SIGMOD"}
+@string{SIGMOD03 = "SIGMOD 2003, Proceedings of the ACM SIGMOD
+                  International Conference on Management of Data, June
+                  9-12, 2003, San Diego, California, USA"}
+@string{s-SIGMOD04 = "SIGMOD"}
+@string{SIGMOD04 = "SIGMOD 2004, Proceedings of the ACM SIGMOD
+                  International Conference on Management of Data, June
+                  13-18, 2004, Paris, France"}
+@string{s-SIGMOD05 = "SIGMOD"}
+@string{SIGMOD05 = "SIGMOD 2005, Proceedings of the ACM
+                  International Conference on Management of Data, June
+                  14-16, 2005, Baltimore, MD"}
+@string{s-SIGMOD06 = "SIGMOD"}
+@string{SIGMOD06 = "SIGMOD 2006, Proceedings of the ACM
+                  International Conference on Management of Data, June
+                  27-29, 2006, Chicago, IL"}
+
+@string{s-EDBT92 = "EDBT"}
+@string{EDBT92 = "Advances in Database Technology - EDBT'92, 3rd
+                  International Conference on Extending Database
+                  Technology, Vienna, Austria, March 23-27, 1992,
+                  Proceedings"}
+@string{s-EDBT98 = "EDBT"}
+@string{EDBT98 = "Advances in Database Technology - EDBT 1998, 5th
+                  International Conference on Extending Database
+                  Technology, Valencia, Spain, March 23-27, 1998,
+                  Proceedings"}
+@string{s-EDBT00 = "EDBT"}
+@string{EDBT00 = "Advances in Database Technology - EDBT 2000, 7th
+                  International Conference on Extending Database
+                  Technology, Konstanz, Germany, March 27-31, 2000,
+                  Proceedings"}
+
+@string{s-VLDB79 = "VLDB"}
+@string{VLDB79 = "Fifth International Conference on Very Large Data
+                  Bases, October 3-5, 1979, Rio de Janeiro, Brazil,
+                  Proceedings"}
+@string{s-VLDB85 = "VLDB"}
+@string{VLDB85 = "VLDB '85, Proceedings of 11th International
+                  Conference on Very Large Data Bases, August 21-23,
+                  1985, Stockholm, Sweden"}
+@string{s-VLDB86 = "VLDB"}
+@string{VLDB86 = "VLDB'86, Proceedings of 12th International
+                  Conference on Very Large Data Bases, August 25-28,
+                  1986, Kyoto, Japan"}
+@string{s-VLDB87 = "VLDB"}
+@string{VLDB87 = "Proceedings of 13th International Conference on
+                  Very Large Data Bases, September 1-4, 1987,
+                  Brighton, England"}
+@string{s-VLDB93 = "VLDB"}
+@string{VLDB93 = "19th International Conference on Very Large Data
+                  Bases, August 24-27, 1993, Dublin, Ireland,
+                  Proceedings"}
+@string{s-VLDB94 = "VLDB"}
+@string{VLDB94 = "VLDB'94, Proceedings of 20th International
+                  Conference on Very Large Data Bases, September
+                  12-15, 1994, Santiago de Chile, Chile"}
+@string{s-VLDB95 = "VLDB"}
+@string{VLDB95 = "VLDB'95, Proceedings of 21th International Conference on Very
+               Large Data Bases, September 11-15, 1995, Zurich,
+                  Switzerland"}
+
+@string{s-VLDB96 = "VLDB"}
+@string{VLDB96 = "VLDB'96, Proceedings of 22th International Conference on Very Large
+                  Data Bases, September 3-6, 1996, Mumbai (Bombay),
+                  India"}
+@string{s-VLDB97 = "VLDB"}
+@string{VLDB97 = "VLDB'97, Proceedings of 23rd International
+                  Conference on Very Large Data Bases, August 25-29,
+                  1997, Athens, Greece"}
+@string{s-VLDB98 = "VLDB"}
+@string{VLDB98 = "VLDB '98, Proceedings of 24th International
+                  Conference on Very Large Data Bases, August 24-27,
+                  1998, New York, USA"}
+@string{s-VLDB99 = "VLDB"}
+@string{VLDB99 = "VLDB'99, Proceedings of 25th International
+                  Conference on Very Large Data Bases, Edinburgh,
+                  Scotland"}
+@string{s-VLDB00 = "VLDB"}
+@string{VLDB00 = "VLDB 2000, Proceedings of 26th International
+                  Conference on Very Large Data Bases, September
+                  10-14, 2000, Cairo, Egypt"}
+@string{s-VLDB01 = "VLDB"}
+@string{VLDB01 = "VLDB 2001, Proceedings of 27th International
+                  Conference on Very Large Data Bases, September
+                  11-14, 2001, Roma, Italy"}
+@string{s-VLDB02 = "VLDB"}
+@string{VLDB02 = "VLDB 2002, Proceedings of 28th International
+                  Conference on Very Large Data Bases, Hong Kong, China"}
+@string{s-VLDB03 = "VLDB"}
+@string{VLDB03 = "VLDB 2003, Proceedings of 29th International
+                  Conference on Very Large Data Bases, September 9-12, 2003, 
+		  Berlin, Germany"}
+@string{s-VLDB04 = "VLDB"}
+@string{VLDB04 = "VLDB 2004, Proceedings of 30th International
+                  Conference on Very Large Data Bases, August
+                  29-September 3, 2004, Toronto, Canada"}
+@string{s-VLDB05 = "VLDB"}
+@string{VLDB05 = "VLDB 2005, Proceedings of 30th International
+                  Conference on Very Large Data Bases, August
+                  30-September 2, 2005, Trondheim, Norway"}
+@string{s-VLDB06 = "VLDB"}
+@string{VLDB06 = "VLDB 2006, Proceedings of 31st International
+                  Conference on Very Large Data Bases, September
+                  12-15, 2006, Seoul, Korea"}
+
+@string{s-ICDE93 = "ICDE"}
+@string{ICDE93 = "Proceedings of the Ninth International
+                  Conference on Data Engineering, April 19-23, 1993,
+                  Vienna, Austria"}
+@string{s-ICDE95 = "ICDE"}
+@string{ICDE95 = "Proceedings of the Eleventh International
+                  Conference on Data Engineering, March 6-10, 1995, Taipei, Taiwan"}
+@string{s-ICDE96 = "ICDE"}
+@string{ICDE96 = "Proceedings of the Twelfth International
+                  Conference on Data Engineering, February 26 - March
+                  1, 1996, New Orleans, Louisiana"}
+@string{s-ICDE97 = "ICDE"}
+@string{ICDE97 = "Proceedings of the Thirteenth International
+                  Conference on Data Engineering, April 7-11, 1997
+                  Birmingham U.K"}
+@string{s-ICDE98 = "ICDE"}
+@string{ICDE98 = "Proceedings of the Fourteenth International
+                  Conference on Data Engineering, February 23-27, 
+		  1998, Orlando, Florida, USA"}
+@string{s-ICDE00 = "ICDE"}
+@string{ICDE00 = "Proceedings of the 16th International Conference
+                  on Data Engineering, San Diego, CA USA"}
+@string{s-ICDE01 = "ICDE"}
+@string{ICDE01 = "Proceedings of the 17th International Conference
+                  on Data Engineering, April 2-6, 2001, Heidelberg, Germany"}
+@string{s-ICDE02 = "ICDE"}
+@string{ICDE02 = "Proceedings of the 18th International Conference
+                  on Data Engineering, February 26-March 1, 2002, San Jose, CA USA"}
+@string{s-ICDE03 = "ICDE"}
+@string{ICDE03 = "Proceedings of the 19th International Conference
+                  on Data Engineering, March 5-8, 2003, Bangalore, India"}
+@string{s-ICDE04 = "ICDE"}
+@string{ICDE04 = "Proceedings of the 20th International Conference
+                  on Data Engineering, March 30-April 2, 2004, Boston, MA"}
+@string{s-ICDE05 = "ICDE"}
+@string{ICDE05 = "Proceedings of the 21st International Conference
+                  on Data Engineering, April 5-8, 2005, Tokyo, Japan"}
+
+@string{s-CIDR03 = "CIDR"}
+@string{CIDR03 = "CIDR 2003: First Biennial Conference on Innovative
+                  Data Systems Research, Asilomar, CA"}
+@string{s-CIDR05 = "CIDR"}
+@string{CIDR05 = "CIDR 2005: Second Biennial Conference on Innovative
+                  Data Systems Research, Asilomar, CA"}
+
+% Theory conferences
+@string{s-PODS86 = "PODS"}
+@string{PODS86 = "Proceedings of the Fifth ACM SIGACT-SIGMOD
+                  Symposium on Principles of Database Systems, March
+                  24-26, 1986, Cambridge, Massachusetts"}
+@string{s-PODS87 = "PODS"}
+@string{PODS87 = "Proceedings of the Association for Computing
+                  Machinery Special Interest Group on Management of
+                  Data 1987 Annual Conference, May 27-29, 1987, San
+                  Francisco, California"}
+@string{s-PODS95 = "PODS"}
+@string{PODS95 = "Proceedings of the Fourteenth ACM
+                  SIGACT-SIGMOD-SIGART Symposium on Principles of
+                  Database Systems, May 22-25, 1995, San Jose,
+                  California"}
+
+@string{s-PODS97 = "PODS"}
+@string{PODS97 = "Proceedings of the Sixteenth ACM
+                  SIGMOD-SIGACT-SIGART Symposium on Principles of
+                  Database Systems, May 12-14, 1997, Tucson, Arizona,
+                  USA"}
+@string{s-PODS98 = "PODS"}
+@string{PODS98 = "Proceedings of the Seventeenth ACM
+                  SIGMOD-SIGACT-SIGART Symposium on Principles of
+                  Database Systems, June 1-3, 1998, Seattle, Washington,
+                  USA"}
+@string{s-PODS99 = "PODS"}
+@string{PODS99 = "Proceedings of the Seventeenth ACM
+                  SIGMOD-SIGACT-SIGART Symposium on Principles of
+                  Database Systems, May 31-June 2, 1999, Philadelphia, Pennsylvania,
+                  USA"}
+@string{s-PODS00 = "PODS"}
+@string{PODS00 = "Proceedings of the Nineteenth ACM
+                  SIGMOD-SIGACT-SIGART Symposium on Principles of
+                  Database Systems, May 15-17, 2000, Dallas, Texas
+                  USA"}
+@string{s-PODS02 = "PODS"}
+@string{PODS02 = "Proceedings of the Twenty-first ACM
+                  SIGMOD-SIGACT-SIGART Symposium on Principles of
+                  Database Systems, June 3-5, 2002, Madison, Wisconsin
+                  USA"}
+@string{s-PODS03 = "PODS"}
+@string{PODS03 = "Proceedings of the Twent-second ACM
+                  SIGMOD-SIGACT-SIGART Symposium on Principles of
+                  Database Systems, June 9-12, 2003, San Diego, CA"}
+@string{s-PODS04 = "PODS"}
+@string{PODS04 = "Proceedings of the Twenty-third ACM
+                  SIGMOD-SIGACT-SIGART Symposium on Principles of
+                  Database Systems, June 14-16, 2004, Paris, France"}
+@string{s-PODS05 = "PODS"}
+@string{PODS05 = "Proceedings of the Twenty-fourth ACM
+                  SIGMOD-SIGACT-SIGART Symposium on Principles of
+                  Database Systems, June 13-15, 2005, Baltimore, MD"}
+@string{s-PODS06 = "PODS"}
+@string{PODS06 = "Proceedings of the Twenty-fifth ACM
+                  SIGMOD-SIGACT-SIGART Symposium on Principles of
+                  Database Systems, June 26-28, 2006, Chicago, IL"}
+
+@string{s-ICDT="Proc. of ICDT"}
+@string{ICDT="Proceedings of the International Conference on
+                  Database Theory"}
+@string{s-ICDT97="ICDT"}
+@string{ICDT97 = "Database Theory --- ICDT '97, 6th International
+                  Conference, Delphi, Greece, January 8-10, 1997,
+                  Proceedings"}
+@string{s-ICDT99="ICDT"}
+@string{ICDT99="Database Theory --- ICDT '99, 7th International
+                  Conference, Jerusalem, Israel, January 10-12, 1999,
+                  Proceedings"}
+@string{s-ICDT01="ICDT"}
+@string{ICDT01="Database Theory --- ICDT 2001, 8th International Conference, London,
+               UK, January 4-6, 2001, Proceedings"}
+@string{s-ICDT03="ICDT"}
+@string{ICDT03="Database Theory --- ICDT 2003, 9th International
+                  Conference, Siena, Italy, January 8-10, 2003,
+                  Proceedings"}
+
+@string{s-KRDB02="KRDB '02"}
+@string{KRDB02="Proceedings of the 9th International Workshop on
+                  Knowledge Representation meets Databases (KRDB
+                  2002), Toulouse France, April 21, 2002"}
+
+@string{s-PODC87="PODC '87"}
+@string{PODC87="Proceedings of the Sixth Annual ACM Symposium on
+                  Principles of Distributed Computing (PODC)"}
+@string{s-PODC99="PODC '99"}
+@string{PODC99="Proceedings of the 18th Annual ACM SIGACT-SIGOPS Symposium on Principles of Distributed Computing (PODC)"}
+@string{s-PODC01="PODC '01"}
+@string{PODC01="Proceedings of the 20th annual ACM SIGACT-SIGOPS
+                  Symposium on Principles of Distributed Computing
+                  (PODC)"}
+
+@string{s-UIST97="UIST '97"}
+@string{UIST97="Proceedings of the 10th annual ACM Symposium on User
+                  Interface Software and Technology, Banff, Alberta, Canada"}
+
+@string{AMIA01="Proceedings of the American Medical Informatics
+                  Association (AMIA) Annual Symposium, American
+                  Medical Informatics Association, Washington DC,
+                  November 2001"}
+@string{s-AMIA01="American Medical Informatics Association (AMIA) Symposium, 2001"}
+@string{AMIA02="Proceedings of the American Medical Informatics
+                  Association (AMIA) Annual Symposium, American
+                  Medical Informatics Association, San Antonio, TX,
+                  November 2002"}
+@string{s-AMIA02="American Medical Informatics Association (AMIA) Symposium, 2002"}
+
+@string{SENSYS03="Proceedings of the First ACM Conference on
+                  Embedded Networked Sensor Systems (SenSys 2003)"}
+@string{s-SENSYS03="SenSys"}
+
+% Journals
+@string{s-TODS="TODS"}
+@string{TODS="ACM Transactions on Database Systems"}
+@string{s-TKDE="TKDE"}
+@string{TKDE="IEEE Transactions on Knowledge and Data Engineering (TKDE)"}
+
+@string{s-AIJ = "Artificial Intelligence"}
+@string{s-JAIR = "Journal of Artificial Intelligence Research"}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%% Web Sites %%%%%%%%%%%%%%%%%%%%%
+
+@article{sdsi,
+    author = "{SDSI (Simple Distributed Security Infrastructure)}",
+    note = "\link{http://groups.csail.mit.edu/cis/sdsi.html}",
+}
+
+@article{gnutella, 
+     author = "{Gnutella}",
+     note  = "\link{http://www.gnutella.com}",
+}
+
+@article{orbit,
+     note = "\link{http://www.winlab.rutgers.edu/docs/focus/ORBIT.html}",
+     author = "{ORBIT Wireless Network Testbed}",
+}
+
+@article{bbn, 
+     author = "{BBN Technologies}",
+     note  = "\link{http://www.bbn.com}"
+}
+
+@article{openflow, 
+     author = "{OpenFlow}",
+     note  = "\link{http://www.openflowswitch.org/}"
+}
+
+@article{simbgp,
+     author = "{simBGP}",
+     note = "{\link{http://www.bgpvista.com/simbgp.php}}"
+}
+
+
+@article{yicesencoding, 
+     author = "{Examples of Yices and Maude Encoding of Routing Policies}",
+     note  = "\link{http://netdb.cis.upenn.edu/fsr/}"
+}
+
+@article{fsrtr, 
+     author = "{FSR Technical Report}",
+     note  = "\link{http://netdb.cis.upenn.edu/fsr/fsrtr.pdf}"
+}
+
+
+@article{wand,
+    note = "\link{http://www.bbn.com/news_and_events/press_releases/2007_press_releases/pr_wand_10907}",
+    year = 2007,
+    author = "{Wireless Adaptive Network Development (WAND) program}"
+}
+
+
+@article{geniweb, author = "{GENI}", title = "{Global Environment for
+     Network Innovations}", note = "{http://www.geni.net/}", year = 2006
+     }
+
+@article{findweb,
+     author = "{FIND}",
+     title = "{NSF NETS Future INternet Design Program}",
+     note = "{http://find.isi.edu/}",
+     year = 2006
+}
+
+@article{Planetlab,
+    author = "{PlanetLab}",
+    title = "{Global testbed}",
+    note = "\link{http://www.planet-lab.org/}",
+    year = 2006
+}
+
+
+@article{emulab, 
+     author = "{Emulab}",
+     title = "{Network Emulation Testbed}",
+     note  = "\link{http://www.emulab.net}",
+     year = 2006
+}
+
+
+%%% start of entry %%%%%%%%%%%
+
+@inproceedings{gaorexford,
+ author = {Gao, Lixin and Rexford, Jennifer},
+ title = {Stable {Internet} routing without global coordination},
+ booktitle = "ACM SIGMETRICS",
+ year = {2000}
+}
+
+@inproceedings{gao-infocom2001,
+   author = "Lixin Gao and Timothy G. Griffin and Jennifer Rexford",
+   title = "Inherently Safe Backup Routing with {BGP}",
+   year = { 2001 },
+   keywords = { routing, bgp },
+   booktitle = { IEEE INFOCOM }
+}
+
+
+@inproceedings{Griffin2003,
+  author = 	 {Timothy G. Griffin and Aaron Jaggard and Vijay Ramachandran},
+  title = 	 {Design Principles of Policy Languages for Path Vector Protocols},
+  booktitle = "ACM SIGCOMM",  
+  year = 2003
+}
+
+@inproceedings{feamster2005implications,
+   author =       "Nick Feamster and Ramesh Johari and Hari Balakrishnan",
+   title =        "Implications of Autonomy for the Expressiveness of Policy Routing",
+   booktitle =    {ACM SIGCOMM},
+   year =         {2005}
+}
+
+@inproceedings{stratified,
+author = "Timothy G. Griffin",
+title = "The Stratified Shortest-Paths Problem",
+booktitle = "COMSNETS",
+year = 2010
+}
+
+@inproceedings{next-hop,
+author = "Michael Schapira and Yaping Zhu and Jennifer Rexford",
+title = "Putting {BGP} on the Right Path: A Case for Next-Hop Routing",
+booktitle = "ACM SIGCOMM HotNets",
+month = OCT,
+year = 2010
+}
+
+@inproceedings{backup,
+  author = 	 {Lixin Gao and Timothy G. Griffin and Jennifer Rexford},
+  title = 	 {Inherently Safe Backup Routing with {BGP}},
+  booktitle = "IEEE INFOCOM",
+  month = APR,
+  year = 2001
+}
+
+
+@inproceedings{cacm09,
+  title = "Declarative Networking",
+  author = {Boon Thau Loo and Tyson Condie and Minos Garofalakis and David E. Gay and Joseph M. Hellerstein and Petros Maniatis and Raghu Ramakrishnan and Timothy Roscoe and Ion Stoica},
+  booktitle =  cacm,
+  year = 2009
+}
+
+@inproceedings{declareOverlays,
+    author = "Boon Thau Loo and Tyson Condie and Joseph M. Hellerstein and Petros Maniatis and Timothy Roscoe and Ion Stoica",
+    title = "{Implementing Declarative Overlays}",
+    booktitle = "SOSP",
+    year = 2005
+}
+
+
+@inproceedings{metarouting,
+ author = {Timothy G. Griffin and Joao Luis Sobrinho},
+ title = {Metarouting},
+ booktitle = "ACM SIGCOMM",
+ year = {2005},
+}
+
+@inproceedings{sobrinho_algebra,
+ author = {JoaoLuis Sobrinho},
+ title = {Network routing with path vector protocols: theory and applications},
+ booktitle = "SIGCOMM",
+ year = {2003},
+ }
+
+@article{sobrinho:2005,
+ author = {Sobrinho, {Jo\~{a}o Lu\'{\i}s}},
+ title = {An algebraic theory of dynamic network routing},
+ journal = {IEEE/ACM Trans. Netw.},
+ volume = {13},
+ issue = {5},
+ month = {October},
+ year = {2005},
+}
+
+
+@inproceedings{rcc,
+    title = "Detecting {BGP} Configuration Faults with Static Analysis",
+    author = "{N. Feamster and H. Balakrishnan}",
+    booktitle = "NSDI",
+    year = 2005
+}
+
+
+@inproceedings{spvp,
+   author = "T. G. Griffin and G. Wilfong",
+   title = "{A Safe Path Vector Protocol}",
+   booktitle = "INFOCOM",
+   year = 2000
+}
+
+@article{stablepaths,
+   title = "The Stable Paths Problem and Interdomain Routing",
+   author = {Timothy G. Griffin and F. Bruce Shepherd and Gordon Wilfong},
+   journal = "{IEEE Trans. on Networking}",
+   volume = "10",
+   pages = "232-243",
+   year = "2002"
+}
+
+@inproceedings{bgpmodel,
+    title = {An Analysis of {BGP} Convergence Properties},
+    author = {Timothy G. Griffin and  Gordon Wilfong},
+    booktitle = "SIGCOMM",
+    year = 1999
+}
+
+
+@article{rapidneturl,
+    author = "{RapidNet: A Declarative Toolkit for Rapid Network Simulation and Experimentation}",
+    note = "\url{http://netdb.cis.upenn.edu/rapidnet/}",
+}
+
+@misc{Yices,
+  author = "{Yices}",
+  title = "\link{http://yices.csl.sri.com/}"
+}
+
+@TechReport{psnicdttr,
+         title = "{Maintaining Distributed Recursive Views Incremenetally}",
+         author = {Vivek Nigam and Limin Jia and Boon Thau Loo and Andrew Scedrov},
+ institution =  {CIS Dept. University of Pennsylvania}, 
+  number = {MS-CIS-10-26},
+        year = 2010
+} 
+
+@inproceedings{griffinpresto09,
+   title = "{A model of configuration languages for routing protocols}",
+   author = "Philip Taylor and Timothy Griffin",
+   booktitle = "PRESTO",
+  year = 2009
+}
+
+@article{click,
+    author = {Eddie Kohler and Robert Morris and Benjie Chen and John Jannotti and M. Frans Kaashoek},
+    title = "{The Click Modular Router}",
+    journal = {ACM TOCS},
+    volume = "18(3)",
+    year = 2000,
+    pages = "263-297",
+}
+
+@inproceedings{rootcausesigcomm04,
+   title = "Locating {Internet} Routing Instabilities",
+   author = {Anja Feldmann and Olaf Maennel and Z. Morley Mao and Arthur Berger and Bruce Maggs},
+   booktitle = "ACM SIGCOMM",
+   year = 2004
+}
+
+@inproceedings{netreview,
+  author = {Andreas Haeberlen and Ioannis Avramopoulos and Jennifer Rexford and Peter Druschel},
+  title = {{NetReview}: Detecting when interdomain routing goes wrong},
+  booktitle = "NSDI",
+  year = {2009}
+}
+
+@inproceedings{virtually, 
+  title = "{Virtually Eliminating Router Bugs}",
+  author = {Eric Keller and Minlan Yu and Matthew Caesar and Jennifer Rexford},
+  year = 2009,
+  booktitle = {ACM CoNEXT}
+}
+
+@article{ns3, 
+     author = "{Network Simulator 3}",
+     note  = "\link{http://www.nsnam.org/}"
+}
+
+@inproceedings{rapidnet,
+    title = "Declarative Toolkit for Rapid Network Protocol Simulation and Experimentation",
+    author = {Shivkumar C. Muthukumar and Xiaozhou Li and Changbin Liu and Joseph B. Kopena and Mihai Oprea and Boon Thau Loo},
+    booktitle = "SIGCOMM (demo)",
+    year = 2009
+}
+
+@inproceedings{rapidMesh,
+    author = "Shivkumar C. Muthukumar and Xiaozhou Li and Changbin Liu and Joseph B. Kopena and Mihai Oprea and Ricardo Correa and Boon Thau Loo and Prithwish Basu",
+    title = "{RapidMesh: Declarative Toolkit for Rapid Experimentation of Wireless Mesh Network}",
+    booktitle = "WiNTECH",
+    year = 2009
+}
+
+@article{caida,
+ author = {Dimitropoulos, Xenofontas and Krioukov, Dmitri and Fomenkov, Marina and Huffaker, Bradley and Hyun, Young and claffy, kc and Riley, George},
+ title = {{AS} relationships: inference and validation},
+ journal = {ACM SIGCOMM Computer Communication Review},
+ year = {2007},
+} 
+
+@article{caidaData,
+title = {The IPv4 Routed /24 Topology Dataset},
+    note = "\url{http://www.caida.org/data/active/ipv4_routed_24_topology_dataset.xml}",
+} 
+
+
+
+@inproceedings{gaorexford-converge,
+  author    = {Rahul Sami and Michael Schapira and Aviv Zohar},
+  title     = {Searching for Stability in Interdomain Routing},
+  booktitle = {IEEE INFOCOM},
+  year      = {2009},
+}
+
+@inproceedings{stable-flexible-ibgp,
+ author = {Flavel, Ashley and Roughan, Matthew},
+ title = {Stable and flexible {iBGP}},
+ booktitle = {ACM SIGCOMM},
+ year = {2009},
+} 
+
+@inproceedings{rocketfuel,
+ author = {Spring, Neil and Mahajan, Ratul and Wetherall, David},
+ title = {Measuring {ISP} topologies with {Rocketfuel}},
+ booktitle = {ACM SIGCOMM},
+ year = {2002},
+} 
+
+@inproceedings{NS-algebra,
+ author = {Alexander Gurney and Timothy G. Griffin},
+ title = {Neighbor-specific {BGP}: An algebraic exploration},
+ booktitle = {ICNP},
+ year = {2010},
+} 
+
+@inproceedings{NS-bgp,
+ author = {Wang, Yi and Schapira, Michael and Rexford, Jennifer},
+ title = {Neighbor-specific {BGP}: More flexible routing policies while improving global stability},
+ booktitle = {ACM SIGMETRICS},
+ year = {2009},
+ } 
+
+
+@inproceedings{absorption,
+        booktitle = {ICDE},
+	Author = {{Mengmeng Liu, Nicholas Taylor, Wenchao Zhou, Zachary Ives, and Boon Thau Loo}},
+        year = "2009",
+	Title = {{Recursive Computation of Regions and Connectivity in Networks}}}
+
+@inproceedings{viewincremental,
+	Author = {Ashish Gupta and Inderpal Singh Mumick and V. S. Subrahmanian},
+	Booktitle = {SIGMOD},
+	Title = {{Maintaining Views Incrementally}},
+	Year = {1993}}
+
+@inproceedings{JaggardR05,
+  author    = {Aaron D. Jaggard and
+               Vijay Ramachandran},
+  title     = {Relating two formal models of path-vector routing},
+  booktitle = {INFOCOM},
+  year      = {2005}
+}
+
+@inproceedings{hlp,
+    author = {Lakshminarayanan Subramanian and Matthew Caesar and Cheng Tien Ee and Mark Handley and Morley Mao and Scott Shenker and Ion Stoica},
+    title = "{HLP}: A Next-generation Interdomain Routing Protocol",
+    booktitle = "SIGCOMM",
+    year = {2005}
+}
+
+@ARTICLE{meseguer-92unified-tcs,
+AUTHOR = {J. Meseguer},
+TITLE = {{Conditional Rewriting Logic as a Unified Model of
+Concurrency}},
+JOURNAL = {Theoretical Computer Science},
+VOLUME = 96,
+NUMBER = 1,
+PAGES = {73-155},
+YEAR = {1992}
+}
+
+@book{clavel-etal-07maudebook,
+author = {Clavel, Manuel and Dur\'{a}n, Francisco and Eker, Steven and Lincoln, Patrick and Mart\'{\i}-Oliet, Narciso and Meseguer, Jos\'{e} and Talcott, Carolyn},
+title = {All About Maude: A High-Performance Logical Framework},
+publisher = {Springer},
+year = {2007},
+}
+
+@article{Maude-site,
+  author ="{Maude}",
+  note = "{\link{http://maude.cs.uiuc.edu/}}"
+}
+
+@article{RFC3345,
+ author = {McPherson, D. and Gill, V. and Walton, D. and Retana, A.},
+ title = {{B}order {G}ateway {P}rotocol ({BGP}) Persistent Route Oscillation Condition},
+ year = {RFC 3345, 2002},
+ publisher = {RFC Editor},
+} 
+
+@article{RFC4271,
+ author = {Y. Rekhter. and T. Li. and S. Hares.},
+ title = {A {B}order {G}ateway {P}rotocol 4 ({BGP}-4)},
+ year = {RFC 4271, 2006},
+ publisher = {RFC Editor},
+} 
+
+
+@article{RFC4456,
+ author = {T. Bates and E. Chen and R. Chandra},
+ title = {{BGP} Route Reflection: An Alternative to Full Mesh Internal {BGP} ({IBGP})},
+ year = {RFC 4456, 2006},
+ publisher = {RFC Editor},
+} 
+
+@article{RFC5065,
+ author = {P. Traina and  D. McPherson and J. Scudder},
+ title = {Autonomous System Confederations for {BGP}},
+ year = {RFC 5065, 2007},
+ publisher = {RFC Editor},
+} 
+
+@article{persistent-route-oscillation-solution,
+author = {D. Walton and D. Cook and A. Retana and J. Scudder},
+title = {BGP persistent route oscillation solution},
+year = {Internet-Draft, March 14, 2011},
+}
+
+@article{diverse-BGP-paths,
+author = {R. Raszuk and R. Fernando and K. Patel and D. McPherson and
+                  K. Kumaki},
+title = {Distribution of diverse BGP paths },
+year = {Internet-Draft, January 4, 2011},
+}
+
+
+@article{add-paths,
+author = {J. Uttaro and V. Van den Schrieck and P. Francois and
+                  R. Fragassi and A. Simpson and P. Mohapatra},
+title = {Add paths guidelines},
+year = {Internet-Draft, May 25, 2011},
+}
+
+@inproceedings{MED-Tim-ICNP2002,
+ author = {Griffin, Timothy and Wilfong, Gordon T.},
+ title = {Analysis of the {MED} Oscillation Problem in {BGP}},
+ booktitle = {ICNP'02},
+ year = {2002},
+} 
+
+@MISC{pvs-site,
+  title = "{PVS Specification and Verification System}",
+ note  = "{http://pvs.csl.sri.com/}"  
+}
+
+
+@inproceedings{griffin-path-history,
+   Author = { Timothy G. Griffin and Gordon Wilfong },
+   Title = { A Safe Path Vector Protocol },
+   Pages = { 490-499 },
+   Year = { 2000 },
+   Booktitle = { IEEE INFOCOM },
+}
+
+@article{instability,
+     author = {Craig Labovitz and G.Robert Malan and Farnam Jahanian},
+     title = "{Internet Routing Instability}",
+     journal = {TON},
+     year = 1998
+}
+
+@inproceedings{waldo,
+    author  = "Ashley Flavel and Matthew Roughan and Nigel Bean and Aman Shaikh",
+    title   = "{Where's Waldo? Practical Searches for Stability in iBGP}",
+    booktitle = "Proc. International Conference on Network Protocols (ICNP)",
+    month   = "October",
+    year    = 2008
+}
+
+@inproceedings{vutukuru2006how,
+   author =       "Mythili Vutukuru and Paul Valiant and Swastik Kopparty and Hari Balakrishnan",
+   title =        "{How to Construct a Correct and Scalable iBGP Configuration}",
+   booktitle =    {IEEE INFOCOM},
+   year =         {2006},
+   month =        {April},
+   address =      {Barcelona, Spain}
+}
+
+@MISC{CoqProofAssistant,
+  title = {The Coq Proof Assistant},
+  key = {Coq},
+url = {http://coq.inria.fr}
+}
+
+
+@article{tacas12TR,         
+ author = {Anduo Wang and Carolyn Talcott and Alexander J. T. Gurney and Boon Thau Loo and Andre Scedrov},
+title = {Reduction-based Formal Analysis of {BGP} Instances},        
+note = {University of Pennsylvania Department of Computer and Information Science Technical Report, 2012. \\ \link{http://netdb.cis.upenn.edu/papers/tacas12-TR.pdf}},
+}
+
+@article{tt,         
+ author = {Anduo Wang and Carolyn Talcott and Alexander J. T. Gurney and Boon Thau Loo and Andre Scedrov},
+title = {Reduction-based Formal Analysis of BGP Instances},        
+note = {University of Pennsylvania, Technical Report.\, \link{http://netdb.cis.upenn.edu/papers/bgpMaudeTR.pdf}},
+}
+
+
+@article{comparison-of-BGP-scaling,
+ author = {Dube, Rohit},
+ title = {A comparison of scaling techniques for {BGP}},
+ journal = {SIGCOMM Comput. Commun. Rev.},
+ volume = {29},
+ issue = {3},
+ month = {July},
+ year = {1999},
+ issn = {0146-4833},
+ pages = {44--46},
+ numpages = {3},
+ url = {http://doi.acm.org/10.1145/505724.505729},
+ doi = {http://doi.acm.org/10.1145/505724.505729},
+ acmid = {505729},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@inproceedings{route-oscillation-ibgp,
+ author = {Basu, Anindya and Ong, Chih-Hao Luke and Rasala, April and Shepherd, F. Bruce and Wilfong, Gordon},
+ title = {Route oscillations in {I-BGP} with route reflection},
+ booktitle = {Proceedings of the 2002 conference on Applications, technologies, architectures, and protocols for computer communications},
+ series = {SIGCOMM '02},
+ year = {2002},
+ isbn = {1-58113-570-X},
+ location = {Pittsburgh, Pennsylvania, USA},
+ pages = {235--247},
+ numpages = {13},
+ url = {http://doi.acm.org/10.1145/633025.633048},
+ doi = {http://doi.acm.org/10.1145/633025.633048},
+ acmid = {633048},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+}
+
+@inproceedings{pspp:wripe11,
+  author = {Gurney, Alexander J. T. and Jia, Limin and Wang, Anduo and Loo, Boon Thau},
+  title = {Partial specification of routing configurations},
+  booktitle = {Workshop on Rigorous Protocol Engineering (WRiPE)},
+  year = 2011  
+}
+
+@phdthesis{gurney09,
+  author = {Gurney, Alexander J. T.},
+  title = {Construction and verification of routing algebras},
+  institution = {University of Cambridge},
+  year = 2009
+}
+
+
+@book{cisco,
+ author = {Zhang, Randy and Bartell, Micah},
+ title = {BGP Design and Implementation},
+ year = {2003},
+ isbn = {1587051095},
+ publisher = {Cisco Press},
+} 
+
+@article{fm12TR,         
+ author = {Anduo Wang and Alexander J. T. Gurney and Carolyn Talcott and Boon Thau Loo and Andre Scedrov},
+title = {A Calculus of Policy-Based Routing Systems},        
+note = {\link{http://netdb.cis.upenn.edu/papers/conext12TR.pdf}},
+}
+
+@article{GT-ITM,
+  author = "{Modeling Topology of Large Internetworks}",
+   note = "{\link{http://www.cc.gatech.edu/projects/gtitm/}}"
+}
+
+@article{IOP,
+ author = {Mason, Ian A. and Talcott, Carolyn L.},
+ title = {IOP: The InterOperability Platform \& IMaude: An Interactive Extension of Maude},
+ journal = {Electron. Notes Theor. Comput. Sci.},
+ issue_date = {January, 2005},
+ volume = {117},
+ month = jan,
+ year = {2005},
+ issn = {1571-0661},
+ pages = {315--333},
+ numpages = {19},
+ url = {http://dx.doi.org/10.1016/j.entcs.2004.06.016},
+ doi = {10.1016/j.entcs.2004.06.016},
+ acmid = {1706000},
+ publisher = {Elsevier Science Publishers B. V.},
+ address = {Amsterdam, The Netherlands, The Netherlands},
+ keywords = {Rewriting logic, interoperability, visualization},
+} 
+
+@inproceedings{scope-iBGP-anomaly,
+  author = {Bornhauser, Uli and Martini, Peter and Horneffer, Martin},
+  title = {The Scope of the IBGP Routing Anomaly Problem.},
+  url = {http://dblp.uni-trier.de/db/conf/kivs/kivs2011.html#BornhauserMH11},
+  year = 2011
+}
+
+@inproceedings{root-iBGP-anomaly,
+  author      = {Uli Bornhauser and Peter Martini and Martin Horneffer},
+  title       = {{Root Causes for iBGP Routing Anomalies}},
+  booktitle   = {Proceedings of the 35th IEEE Conference on Local Computer Networks (LCN 2010)},
+  month       = {October},
+  year        = 2010,
+  publisher   = {IEEE Computer Society},
+}
+
+% Comment anduo's publications
+
+@article{fsrton, 
+     author = {Anduo Wang and Limin Jia and Wenchao Zhou and Yiqing Ren and Boon Thau Loo and Jennifer Rexford and Vivek Nigam and Andre Scedrov and Carolyn Talcott},
+     title = "{{FSR}: Formal Analysis and Implementation Toolkit for Safe Inter-domain Routing}",
+     Journal = "IEEE/ACM Transactions on Networking",
+     year =2012
+}
+
+@article{tacas12,         
+ author = {Anduo Wang and Carolyn Talcott and Alexander J. T. Gurney and Boon Thau Loo and Andre Scedrov},
+title = {{Reduction-based Formal Analysis of {BGP} Instances}},        
+note = {TACAS 2012}},
+}
+
+@inproceedings{fmoods,
+    author = {Anduo Wang and Carolyn Talcott and Limin Jia and Boon Thau Loo and Andre Scedrov},
+    title = "{ Analyzing {BGP} Instances in {M}aude}",
+    booktitle = "FMOODS-FORTE",
+    year = 2011
+}
+
+@inproceedings{sigcomm12-demo-reduction,
+ author = {Wang, Anduo and Gurney, Alexander J.T. and Han, Xianglong and Cao, Jinyan and Talcot, Carolyn and Loo, Boon Thau and Scedrov, Andre},
+ title = {{Reduction-based analysis of BGP systems with BGPVerif}},
+ series = {SIGCOMM '12 demonstration},
+} 
+
+
+@inproceedings{podc12brief,         
+ author = {Anduo Wang and Alexander J. T. Gurney and Carolyn Talcott and Boon Thau Loo and Andre Scedrov},
+title = {{A Calculus of Policy-Based Routing Systems}},        
+booktitle = "PODC",
+note = "Brief announcement",
+year = 2012
+}
+
+@inproceedings{Loo:2012:PADL,
+ author = {Loo, Boon Thau and Gill, Harjot and Liu, Changbin and Mao, Yun and Marczak, William R. and Sherr, Micah and Wang, Anduo and Zhou, Wenchao},
+ title = {{Recent Advances in Declarative Networking}},
+ series = {PADL'12},
+ year = {2012}
+} 
+
+@inproceedings{wripe11,
+ author = {Gurney, Alexander J. T. and Jia, Limin and Wang, Anduo and
+                  Loo, Boon Thau},
+ title = {{Partial Specifications of Routing Configurations}},
+ series = {1st International Workshop on Rigorous Protocol
+  Engineering (WRiPE)},
+ year = {2011}
+} 
+
+
+@MISC{Wang_fsr:formal,
+    author = {Anduo Wang and Limin Jia and Wenchao Zhou and Yiqing Ren and Boon Thau and Loo Jennifer Rexford and Vivek Nigam and Andre Scedrov and Carolyn Talcott and Anduo Wang and Limin Jia and Wenchao Zhou and Yiqing Ren and Boon Thau Loo and Jennifer Rexford and Vivek Nigam and Andre Scedrov and Carolyn Talcott},
+    title = {{FSR: Formal Analysis and Implementation Toolkit for Safe Inter-domain Routing}},
+ series = {{SIGCOMM '11 demonstration},}
+}
+
+@inproceedings{vivek-LAM10,
+  author    = {Vivek Nigam and Limin Jia and Anduo Wang and Boon Thau Loo and Andre Scedrov},
+  title     = {{An Operational Semantics for Network Datalog}},
+  booktitle = {LAM'10},
+}
+
+@MISC{Wang_formallyverifiable,
+    author = {Anduo Wang and Limin Jia and Changbin Liu and Boon Thau Loo and Oleg Sokolsky and Prithwish Basu},
+    title = {{Formally Verifiable Networking}},
+ series = {HotNET'09}}
+}
+
+@article{afm09,
+author = {Anduo Wang and Boon Thau Loo},
+title = {{Formalizing Metarouting in PVS}},
+ booktitle = {AFM'09},
+}
+
+
+@inproceedings{dnv, 
+   title = {{Declarative Network Verification}},
+   author = {Anduo Wang and Prithwish Basu and Boon Thau Loo and Oleg Sokolsky},
+   booktitle = "PADL",
+   year = 2009
+}
+
+@inproceedings{Wang:2009a,
+	Author = {Anduo Wang and Boon Thau Loo and Changbin Liu and Oleg Sokolsky and Prithwish Basu},
+	Booktitle = {{22nd International Conference on Theorem Proving in Higher Order Logics (TPHOLs) emerging trends proceedings}},
+	Title = {{A Theorem Proving Approach Towards Declarative Networking}},
+	Year = 2009}
+
+@MISC{presidio,
+  title = {{Project Presidio}},
+note = "\url{http://www.projectpresidio.com/}",
+}
+
+@MISC{excape,
+  title = {{ExCAPE}},
+note = "\url{https://excape.cis.upenn.edu/}",
+}
+
+
+@article{fvr-site,
+  title = {{FVR (Formally Verifiable Routing)}},
+note = "\url{http://netdb.cis.upenn.edu/fvr/}",
+}
+
+
+@article{Feamster:howtolease,
+ author = {Feamster, Nick and Gao, Lixin and Rexford, Jennifer},
+ title = {How to lease the internet in your spare time},
+ journal = {SIGCOMM Comput. Commun. Rev.},
+ issue_date = {January 2007},
+ volume = {37},
+ number = {1},
+ month = jan,
+ year = {2007},
+ issn = {0146-4833},
+ pages = {61--64},
+ numpages = {4},
+ url = {http://doi.acm.org/10.1145/1198255.1198265},
+ doi = {10.1145/1198255.1198265},
+ acmid = {1198265},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@inproceedings{openflow-based-virtual-migration,
+  title = {OpenFlow and Xen-Based Virtual Network Migration},
+  author = {Pedro S. Pisa and Natalia Castro Fernandes and Hugo E. T. Carvalho and Marcelo D. D. Moreira and Miguel Elias M. Campista and Lu铆s Henrique Maciel Kosmalski Costa and Otto Carlos Muniz Bandeira Duarte},
+  year = {2010},
+  editor = {Ana Pont and Guy Pujolle and S. V. Raghavan},
+  series = {IFIP International Federation for Information Processing},
+}
+
+@article{carving-research-slices-openflow,
+ author = {Sherwood, Rob and Chan, Michael and Covington, Adam and Gibb, Glen and Flajslik, Mario and Handigol, Nikhil and Huang, Te-Yuan and Kazemian, Peyman and Kobayashi, Masayoshi and Naous, Jad and Seetharaman, Srinivasan and Underhill, David and Yabe, Tatsuya and Yap, Kok-Kiong and Yiakoumis, Yiannis and Zeng, Hongyi and Appenzeller, Guido and Johari, Ramesh and McKeown, Nick and Parulkar, Guru},
+ title = {Carving research slices out of your production networks with OpenFlow},
+ journal = {SIGCOMM Comput. Commun. Rev.},
+ issue_date = {January 2010},
+ volume = 40,
+ number = 1,
+ month = jan,
+ year = 2010,
+ issn = {0146-4833},
+ pages = {129--130},
+ numpages = 2,
+} 
+
+% network management
+
+@article{autopilot,
+  added-at = {2010-04-06T16:35:05.000+0200},
+  address = {New York, NY, USA},
+  author = {Isard, Michael},
+  biburl = {http://www.bibsonomy.org/bibtex/2a772b4fc2d06b175c7e34d18078a6542/chesteve},
+  doi = {http://doi.acm.org/10.1145/1243418.1243426},
+  interhash = {26805e424ce9f17d5683945aa6fb49ba},
+  intrahash = {a772b4fc2d06b175c7e34d18078a6542},
+  issn = {0163-5980},
+  journal = {SIGOPS Oper. Syst. Rev.},
+  keywords = {imported},
+  number = 2,
+  pages = {60--67},
+  publisher = {ACM},
+  timestamp = {2010-04-06T16:35:05.000+0200},
+  title = {{Autopilot: Automatic Data Center Management}},
+  volume = 41,
+  year = 2007
+}
+
+
+@article{new-frontiers,
+ author = {Al-Shaer, Ehab and Greenberg, Albert and Kalmanek, Charles and Maltz, David A. and Ng, T. S. Eugene and Xie, Geoffrey G.},
+ title = {New frontiers in internet network management},
+ journal = {SIGCOMM Comput. Commun. Rev.},
+ issue_date = {October 2009},
+ volume = {39},
+ number = {5},
+ month = oct,
+ year = {2009},
+ issn = {0146-4833},
+ pages = {37--39},
+ numpages = {3},
+ url = {http://doi.acm.org/10.1145/1629607.1629615},
+ doi = {10.1145/1629607.1629615},
+ acmid = {1629615},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {internet network management, internet network management workshop, research questions},
+} 
+
+@inproceedings{FIND-2009,
+author = {Cerf, Vint and Davie, Bruce and Greenberg, Albert and
+                  Landau, Susan and Sincoskie, David}, 
+title = {{FIND Observer Panel Report}},
+series = {April 2009},
+month = {April},
+year = {2009},
+}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% Formal Methods: Reactive Synthesis
+
+@inproceedings{tulip-tool,
+author={Tichakorn Wongpiromsarn and Ufuk Topcu and Necmiye Ozay and Huan Xu and Richard M. Murray},
+booktitle={Proceedings of the 14th international conference on Hybrid systems: computation and control},
+acmid={1967747},
+isbn={978-1-4503-0629-4},
+series={HSCC '11},
+address={New York, NY, USA},
+numpages={2},
+year={2011},
+publisher={ACM},
+doi={http://doi.acm.org/10.1145/1967701.1967747},
+location={Chicago, IL, USA},
+pages={313--314},
+url={http://doi.acm.org/10.1145/1967701.1967747},
+title={TuLiP: a software toolbox for receding horizon temporal logic planning},
+}
+
+@inproceedings{power-allocation,
+  author = {Ozay, N. and Topcu, U. and Murray, R.M.},
+  title = {Distributed power allocation for vehicle management systems},
+  booktitle = {Decision and Control and European Control Conference (CDC-ECC), 2011 50th IEEE Conference on},
+  year = {2011},
+  pages = {4841 -4848},
+  url = {http://www.seas.upenn.edu/~utopcu/pubs/OTM-cdc11.pdf},
+  doi = {http://dx.doi.org/10.1109/CDC.2011.6161470}
+}
+
+@article{vehicle2vehicle,
+  author    = {Clemens Wiltsche and
+               Ufuk Topcu and
+               Richard M. Murray},
+  title     = {Synthesis of Reactive Protocols for Vehicle-to-Vehicle Communication},
+  journal   = {CoRR},
+  volume    = {abs/1210.2035},
+  year      = {2012},
+  ee        = {http://arxiv.org/abs/1210.2035},
+  bibsource = {DBLP, http://dblp.uni-trier.de}
+}
+
+@book{spin,
+ author = {Holzmann, Gerard},
+ title = {Spin model checker, the: primer and reference manual},
+ year = 2003,
+ isbn = {0-321-22862-6},
+ edition = {First},
+ publisher = {Addison-Wesley Professional},
+} 
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% SDN
+
+@inproceedings{ethane-sigcomm07,
+ author = {Casado, Martin and Freedman, Michael J. and Pettit, Justin and Luo, Jianying and McKeown, Nick and Shenker, Scott},
+ title = {Ethane: taking control of the enterprise},
+ booktitle = {Proceedings of the 2007 conference on Applications, technologies, architectures, and protocols for computer communications},
+ series = {SIGCOMM '07},
+ year = {2007},
+ isbn = {978-1-59593-713-1},
+ location = {Kyoto, Japan},
+ pages = {1--12},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/1282380.1282382},
+ doi = {10.1145/1282380.1282382},
+ acmid = {1282382},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {architecture, management, network, security},
+} 
+
+
+@article{rethinking-enterprise,
+ author = {Casado, Mart\'{\i}n and Freedman, Michael J. and Pettit, Justin and Luo, Jianying and Gude, Natasha and McKeown, Nick and Shenker, Scott},
+ title = {Rethinking Enterprise Network Control},
+ journal = {IEEE/ACM Trans. Netw.},
+ issue_date = {August 2009},
+ volume = {17},
+ number = {4},
+ month = aug,
+ year = {2009},
+ issn = {1063-6692},
+ pages = {1270--1283},
+ numpages = {14},
+ url = {http://dx.doi.org/10.1109/TNET.2009.2026415},
+ doi = {10.1109/TNET.2009.2026415},
+ acmid = {1618582},
+ publisher = {IEEE Press},
+ address = {Piscataway, NJ, USA},
+ keywords = {architecture, management, network, security},
+} 
+
+
+
+@inproceedings{composing,
+author = {Monsanto, Christopher and Reich, Joshua and Foster, Nate and
+                  Rexford, Jennifer and Walker, David },
+title = {{Composing Software-Defined Networks}},
+series = {Proc. Networked Systems Design and Implementation, April
+                  2013},
+}
+
+@article{sdn-lang-frenetic,
+  added-at = {2013-02-18T00:00:00.000+0100},
+  author = {Foster, Nate and Guha, Arjun and Reitblatt, Mark and Story, Alec and Freedman, Michael J. and Katta, Naga Praveen and Monsanto, Christopher and Reich, Joshua and Rexford, Jennifer and Schlesinger, Cole and Walker, David and Harrison, Rob},
+  biburl = {http://www.bibsonomy.org/bibtex/2d9e8384529ce3fc6b27db39bed0cbe98/dblp},
+  ee = {http://dx.doi.org/10.1109/MCOM.2013.6461197},
+  interhash = {41eb297fce5d1c9c7ca4bba7da93573d},
+  intrahash = {d9e8384529ce3fc6b27db39bed0cbe98},
+  journal = {IEEE Communications Magazine},
+  keywords = {dblp},
+  number = 2,
+  pages = {128-134},
+  timestamp = {2013-02-18T00:00:00.000+0100},
+  title = {Languages for software-defined networks.},
+  url = {http://dblp.uni-trier.de/db/journals/cm/cm51.html#FosterGRSFKMRRSWH13},
+  volume = 51,
+  year = 2013
+}
+
+@inproceedings{onix,
+ author = {Koponen, Teemu and Casado, Martin and Gude, Natasha and Stribling, Jeremy and Poutievski, Leon and Zhu, Min and Ramanathan, Rajiv and Iwata, Yuichiro and Inoue, Hiroaki and Hama, Takayuki and Shenker, Scott},
+ title = {Onix: a distributed control platform for large-scale production networks},
+ booktitle = {Proceedings of the 9th USENIX conference on Operating systems design and implementation},
+ series = {OSDI'10},
+ year = {2010},
+ location = {Vancouver, BC, Canada},
+ pages = {1--6},
+ numpages = {6},
+ url = {http://dl.acm.org/citation.cfm?id=1924943.1924968},
+ acmid = {1924968},
+ publisher = {USENIX Association},
+ address = {Berkeley, CA, USA},
+} 
+
+@article{nox,
+ author = {Gude, Natasha and Koponen, Teemu and Pettit, Justin and Pfaff, Ben and Casado, Mart\'{\i}n and McKeown, Nick and Shenker, Scott},
+ title = {NOX: Towards an Operating System for Networks},
+ journal = {SIGCOMM Comput. Commun. Rev.},
+ issue_date = {July 2008},
+ volume = {38},
+ number = {3},
+ month = jul,
+ year = {2008},
+ issn = {0146-4833},
+ pages = {105--110},
+ numpages = {6},
+ url = {http://doi.acm.org/10.1145/1384609.1384625},
+ doi = {10.1145/1384609.1384625},
+ acmid = {1384625},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {architecture, management, network, security},
+} 
+
+
+
+@inproceedings{Implement-One-big-switch,
+author = {Kang, Nanxi and Liu, Zhenming and Rexford, Jennifer and
+                  Walker, David },
+title = {{An Efficient Distributed Implementation of One Big Switch}},
+ series = {Open Networking Summit (ONS), Research Track, 2013},
+}
+
+@inproceedings{platform-service-model,
+ author = {Keller, Eric and Rexford, Jennifer},
+ title = {{The "Platform as a service" model for networking}},
+ booktitle = {Proceedings of the 2010 internet network management conference on Research on enterprise networking},
+ series = {INM/WREN'10},
+ year = {2010},
+ location = {San Jose, CA},
+ pages = {4--4},
+ numpages = {1},
+ url = {http://dl.acm.org/citation.cfm?id=1863133.1863137},
+ acmid = {1863137},
+ publisher = {USENIX Association},
+ address = {Berkeley, CA, USA},
+} 
+
+@inproceedings{abstraction-updates,
+ author = {Reitblatt, Mark and Foster, Nate and Rexford, Jennifer and Schlesinger, Cole and Walker, David},
+ title = {Abstractions for network update},
+ booktitle = {Proceedings of SIGCOMM},
+ year = 2012,
+ address = {New York, NY, USA},
+ keywords = {consistency, frenetic, network programming languages, openflow, planned change, software-defined networking},
+} 
+
+@inproceedings{walk-the-line,
+ author = {Ghorbani, Soudeh and Caesar, Matthew},
+ title = {Walk the line: consistent network updates with bandwidth guarantees},
+ booktitle = {Proceedings of the first workshop on Hot topics in software defined networks},
+ series = {HotSDN '12},
+ year = {2012},
+ isbn = {978-1-4503-1477-0},
+ location = {Helsinki, Finland},
+ pages = {67--72},
+ numpages = {6},
+ url = {http://doi.acm.org/10.1145/2342441.2342455},
+ doi = {10.1145/2342441.2342455},
+ acmid = {2342455},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {consistency, migration, network updates, software defined networking},
+} 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Synthesis
+
+@INPROCEEDINGS{Asarin95symboliccontroller,
+    author = {Eugene Asarin and Oded Maler and Amir Pnueli},
+    title = {Symbolic Controller Synthesis for Discrete and Timed Systems},
+    booktitle = {Hybrid Systems II, LNCS 999},
+    year = {1995},
+    pages = {1--20},
+    publisher = {Springer}
+}
+
+@INPROCEEDINGS{mumucdc,
+author={Huan Xu and Topcu, U. and Murray, R.M.},
+booktitle={Decision and Control (CDC), 2012 IEEE 51st Annual Conference on},
+title={A case study on reactive protocols for aircraft electric power
+distribution},
+year={2012},
+pages={1124-1129}, }
+
+@article{rosner1991modular,
+  title={Modular synthesis of reactive systems},
+  author={R. Rosner},
+  journal={Ann Arbor},
+  year={1991},
+}
+
+@inproceedings{pitermangr1,
+  title={Synthesis of reactive (1) designs},
+  author={N. Piterman and A. Pnueli and Y. Sa'ar},
+  booktitle={Verification, Model Checking, and Abstract Interpretation},
+  pages={364--380},
+  year={2006},
+  organization={Springer},
+}
+
+@book{paulo-control,
+author = {Paulo Tabuada},
+title = {Verification and Control of Hybrid Systems: A Symbolic Approach},
+publisher = {Springer},
+year = {2009},
+}
+
+@inproceedings{Pnueli:LTL,
+ author = {Pnueli, Amir},
+ title = {The temporal logic of programs},
+ booktitle = {Proceedings of the 18th Annual Symposium on Foundations of Computer Science},
+ year = {1977},
+ pages = {46--57},
+ numpages = {12},
+ url = {http://dl.acm.org/citation.cfm?id=1398506.1382534},
+ doi = {10.1109/SFCS.1977.32},
+ acmid = {1382534},
+ publisher = {IEEE Computer Society},
+ address = {Washington, DC, USA},
+} 
+
+@inproceedings{NetLord,
+ author = {Mudigonda, Jayaram and Yalagandula, Praveen and Mogul, Jeff and Stiekes, Bryan and Pouffary, Yanick},
+ title = {NetLord: a scalable multi-tenant network architecture for virtualized datacenters},
+ booktitle = {Proceedings of the ACM SIGCOMM 2011 conference},
+ series = {SIGCOMM '11},
+ year = {2011},
+ isbn = {978-1-4503-0797-0},
+ location = {Toronto, Ontario, Canada},
+ pages = {62--73},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/2018436.2018444},
+ doi = {10.1145/2018436.2018444},
+ acmid = {2018444},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {datacenter network, multi-pathing, multi-tenant, network virtualization, scalable ethernet},
+} 
+
+@article{scalable-sdn-virtual,
+author = {Dmitry Drutskoy and Eric Keller and Jennifer Rexford},
+title = {Scalable Network Virtualization in Software-Defined Networks},
+journal ={IEEE Internet Computing},
+volume = {17},
+number = {2},
+issn = {1089-7801},
+year = {2013},
+pages = {20-27},
+doi = {http://doi.ieeecomputersociety.org/10.1109/MIC.2012.144},
+publisher = {IEEE Computer Society},
+address = {Los Alamitos, CA, USA},
+}
+
+
+@InProceedings{Mahajan2013On,
+	 author =	{Ratul Mahajan and Roger Wattenhofer},
+	 title =	{{On Consistent Updates in Software Defined Networks}},
+	 booktitle =	{{12th ACM Workshop on Hot Topics in Networks (HotNets), College Park, Maryland, USA}},
+	 month =	{November},
+	 year =		{2013}
+}    
+
+
+@article{Clean-Slate-4D,
+ author = {Greenberg, Albert and Hjalmtysson, Gisli and Maltz, David A. and Myers, Andy and Rexford, Jennifer and Xie, Geoffrey and Yan, Hong and Zhan, Jibin and Zhang, Hui},
+ title = {A Clean Slate 4D Approach to Network Control and Management},
+ journal = {SIGCOMM Comput. Commun. Rev.},
+ issue_date = {October 2005},
+ volume = {35},
+ number = {5},
+ month = oct,
+ year = {2005},
+ issn = {0146-4833},
+ pages = {41--54},
+ numpages = {14},
+ url = {http://doi.acm.org/10.1145/1096536.1096541},
+ doi = {10.1145/1096536.1096541},
+ acmid = {1096541},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {control, network management, robustness},
+} 
+
+@article{Eswaran:1976:consistency-notion,
+ author = {Eswaran, K. P. and Gray, J. N. and Lorie, R. A. and Traiger, I. L.},
+ title = {The Notions of Consistency and Predicate Locks in a Database System},
+ journal = {Commun. ACM},
+ issue_date = {Nov. 1976},
+ volume = {19},
+ number = {11},
+ month = nov,
+ year = {1976},
+ issn = {0001-0782},
+ pages = {624--633},
+ numpages = {10},
+ url = {http://doi.acm.org/10.1145/360363.360369},
+ doi = {10.1145/360363.360369},
+ acmid = {360369},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {concurrancy, consistency, database, lock, transaction},
+} 
+
+
+@inproceedings{hotsdn-transactional-networking,
+ author = {Canini, Marco and Kuznetsov, Petr and Levin, Dan and Schmid, Stefan},
+ title = {Software Transactional Networking: Concurrent and Consistent Policy Composition},
+ booktitle = {Proceedings of HotSDN},
+ year = {2013},
+ address = {New York, NY, USA},
+ keywords = {control plane, network policy, software defined network},
+} 
+
+@article{mohan-1992-aries,
+ author = {Mohan, C. and Haderle, Don and Lindsay, Bruce and Pirahesh, Hamid and Schwarz, Peter},
+ title = {ARIES: A Transaction Recovery Method Supporting Fine-granularity Locking and Partial Rollbacks Using Write-ahead Logging},
+ journal = {ACM Trans. Database Syst.},
+ issue_date = {March 1992},
+ volume = {17},
+ number = {1},
+ month = mar,
+ year = {1992},
+ issn = {0362-5915},
+ pages = {94--162},
+ numpages = {69},
+ url = {http://doi.acm.org/10.1145/128765.128770},
+ doi = {10.1145/128765.128770},
+ acmid = {128770},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {buffer management, latching, locking, space management, write-ahead logging},
+} 
+
+@article{herlihy-1990-linearizability,
+ author = {Herlihy, Maurice P. and Wing, Jeannette M.},
+ title = {Linearizability: A Correctness Condition for Concurrent Objects},
+ journal = {ACM Trans. Program. Lang. Syst.},
+ issue_date = {July 1990},
+ volume = {12},
+ number = {3},
+ month = jul,
+ year = {1990},
+ issn = {0164-0925},
+ pages = {463--492},
+ numpages = {30},
+ url = {http://doi.acm.org/10.1145/78969.78972},
+ doi = {10.1145/78969.78972},
+ acmid = {78972},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@article{Clean-Slate-4D,
+ author = {Greenberg, Albert and Hjalmtysson, Gisli and Maltz, David A. and Myers, Andy and Rexford, Jennifer and Xie, Geoffrey and Yan, Hong and Zhan, Jibin and Zhang, Hui},
+ title = {A Clean Slate 4D Approach to Network Control and Management},
+ journal = {SIGCOMM Comput. Commun. Rev.},
+ issue_date = {October 2005},
+ volume = {35},
+ number = {5},
+ month = oct,
+ year = {2005},
+ issn = {0146-4833},
+ pages = {41--54},
+ numpages = {14},
+ url = {http://doi.acm.org/10.1145/1096536.1096541},
+ doi = {10.1145/1096536.1096541},
+ acmid = {1096541},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {control, network management, robustness},
+} 
+
+@article{Eswaran:1976:consistency-notion,
+ author = {Eswaran, K. P. and Gray, J. N. and Lorie, R. A. and Traiger, I. L.},
+ title = {The Notions of Consistency and Predicate Locks in a Database System},
+ journal = {Commun. ACM},
+ issue_date = {Nov. 1976},
+ volume = {19},
+ number = {11},
+ month = nov,
+ year = {1976},
+ issn = {0001-0782},
+ pages = {624--633},
+ numpages = {10},
+ url = {http://doi.acm.org/10.1145/360363.360369},
+ doi = {10.1145/360363.360369},
+ acmid = {360369},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {concurrancy, consistency, database, lock, transaction},
+} 
+
+
+@InProceedings{Mahajan2013On,
+	 author =	{Ratul Mahajan and Roger Wattenhofer},
+	 title =	{{On Consistent Updates in Software Defined Networks}},
+	 booktitle =	{{12th ACM Workshop on Hot Topics in Networks (HotNets), College Park, Maryland, USA}},
+	 month =	{November},
+	 year =		{2013}
+}    
+
+@article{shenker-tue,
+    author = "{{The Future of Networking, and the Past of Protocols}}",
+    note = "\link{http://www.opennetsummit.org/archives/apr12/site/talks/shenker-tue.pdf}",
+}
+
+
+
+
+@Comment relational model and views
+
+@inproceedings{Views-Authorization-and-Locking,
+ author = {Chamberlin, D. D. and Gray, J. N. and Traiger, I. L.},
+ title = {{Views, Authorization, and Locking in a Relational Data Base System}},
+ booktitle = {Proceedings of the May 19-22, 1975, National Computer Conference and Exposition},
+ series = {AFIPS '75},
+ year = {1975},
+ location = {Anaheim, California},
+ pages = {425--430},
+ numpages = {6},
+ url = {http://doi.acm.org/10.1145/1499949.1500032},
+ doi = {10.1145/1499949.1500032},
+ acmid = {1500032},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@article{Programmable-virtual-network,
+    author = "{{Programmable virtual network}}",
+    note = "\link{http://nvirters.org/wp-content/uploads/2013/05/Virt-July-2013-Meetup.pdf}",
+}
+
+@inproceedings{Leveraging-SDN-Layering-Troubleshoot-Networks,
+ author = {Heller, Brandon and Scott, Colin and McKeown, Nick and Shenker, Scott and Wundsam, Andreas and Zeng, Hongyi and Whitlock, Sam and Jeyakumar, Vimalkumar and Handigol, Nikhil and McCauley, James and Zarifis, Kyriakos and Kazemian, Peyman},
+ title = {Leveraging SDN Layering to Systematically Troubleshoot Networks},
+ booktitle = {Proceedings of the Second ACM SIGCOMM Workshop on Hot Topics in Software Defined Networking},
+ series = {HotSDN '13},
+ year = {2013},
+ isbn = {978-1-4503-2178-5},
+ location = {Hong Kong, China},
+ pages = {37--42},
+ numpages = {6},
+ url = {http://doi.acm.org/10.1145/2491185.2491197},
+ doi = {10.1145/2491185.2491197},
+ acmid = {2491197},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {network architecture, openflow, sdn, software-defined networks, troubleshooting},
+} 
+
+
+@phdthesis{ak-view-udpate-thesis,
+  author = {Arthur Michael Keller},
+  title = {Updating Relational Databases Through Views},
+  institution = {Stanford University},
+  year = 1995
+}
+
+@book{Bernstein:concurrency-recovery,
+ author = {Bernstein, Philip A and Hadzilacos, Vassos and Goodman, Nathan},
+ title = {Concurrency Control and Recovery in Database Systems},
+ year = {1986},
+ isbn = {0-201-10715-5},
+ publisher = {Addison-Wesley Longman Publishing Co., Inc.},
+ address = {Boston, MA, USA},
+} 
+
+@article{network-data-independence,
+ author = {Hellerstein, Joseph M.},
+ title = {Toward Network Data Independence},
+ journal = {SIGMOD Rec.},
+ issue_date = {September 2003},
+ volume = {32},
+ number = {3},
+ month = sep,
+ year = {2003},
+ issn = {0163-5808},
+ pages = {34--40},
+ numpages = {7},
+ url = {http://doi.acm.org/10.1145/945721.945730},
+ doi = {10.1145/945721.945730},
+ acmid = {945730},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@inproceedings{Date:1971:file-and-data-independence,
+ author = {Date, C. J. and Hopewell, P.},
+ title = {File Definition and Logical Data Independence},
+ booktitle = {Proceedings of the 1971 ACM SIGFIDET (Now SIGMOD) Workshop on Data Description, Access and Control},
+ series = {SIGFIDET '71},
+ year = {1971},
+ location = {San Diego, California},
+ pages = {117--138},
+ numpages = {22},
+ url = {http://doi.acm.org/10.1145/1734714.1734724},
+ doi = {10.1145/1734714.1734724},
+ acmid = {1734724},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@article{Cardelli:1985:PL-data-abstraction,
+ author = {Cardelli, Luca and Wegner, Peter},
+ title = {On Understanding Types, Data Abstraction, and Polymorphism},
+ journal = {ACM Comput. Surv.},
+ issue_date = {Dec. 1985},
+ volume = {17},
+ number = {4},
+ month = dec,
+ year = {1985},
+ issn = {0360-0300},
+ pages = {471--523},
+ numpages = {53},
+ url = {http://doi.acm.org/10.1145/6041.6042},
+ doi = {10.1145/6041.6042},
+ acmid = {6042},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@book{Abiteboul:1995:alice,
+ editor = {Abiteboul, Serge and Hull, Richard and Vianu, Victor},
+ title = {Foundations of Databases: The Logical Level},
+ year = {1995},
+ isbn = {0201537710},
+ edition = {1st},
+ publisher = {Addison-Wesley Longman Publishing Co., Inc.},
+ address = {Boston, MA, USA},
+} 
+
+@book{db-concept,
+ author = {Silberschatz, Abraham and Korth, Henry and Sudarshan, S.},
+ title = {Database Systems Concepts},
+ year = {2006},
+ isbn = {0072958863, 9780072958867},
+ edition = {5},
+ publisher = {McGraw-Hill, Inc.},
+ address = {New York, NY, USA},
+} 
+
+@article{db-meta,
+ author = {Papadimitriou, Christos H.},
+ title = {Database Metatheory: Asking the Big Queries},
+ journal = {SIGACT News},
+ issue_date = {Sept. 1995},
+ volume = {26},
+ number = {3},
+ month = sep,
+ year = {1995},
+ issn = {0163-5700},
+ pages = {13--30},
+ numpages = {18},
+ url = {http://doi.acm.org/10.1145/211542.211547},
+ doi = {10.1145/211542.211547},
+ acmid = {211547},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@article{Sheth:1990:federated-DB,
+ author = {Sheth, Amit P. and Larson, James A.},
+ title = {Federated Database Systems for Managing Distributed, Heterogeneous, and Autonomous Databases},
+ journal = {ACM Comput. Surv.},
+ issue_date = {Sept. 1990},
+ volume = {22},
+ number = {3},
+ month = sep,
+ year = {1990},
+ issn = {0360-0300},
+ pages = {183--236},
+ numpages = {54},
+ url = {http://doi.acm.org/10.1145/96602.96604},
+ doi = {10.1145/96602.96604},
+ acmid = {96604},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@article{McHugh:1997:Lore-DB,
+ author = {McHugh, Jason and Abiteboul, Serge and Goldman, Roy and Quass, Dallas and Widom, Jennifer},
+ title = {Lore: A Database Management System for Semistructured Data},
+ journal = {SIGMOD Rec.},
+ issue_date = {Sept. 1997},
+ volume = {26},
+ number = {3},
+ month = sep,
+ year = {1997},
+ issn = {0163-5808},
+ pages = {54--66},
+ numpages = {13},
+ url = {http://doi.acm.org/10.1145/262762.262770},
+ doi = {10.1145/262762.262770},
+ acmid = {262770},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@INPROCEEDINGS{Abiteboul97queryingsemi-structured,
+    author = {Serge Abiteboul},
+    title = {Querying Semi-Structured Data},
+    booktitle = {},
+    year = {1997},
+    pages = {1--18}
+}
+
+@inproceedings{Buneman:semi-structured,
+ author = {Buneman, Peter},
+ title = {Semistructured Data},
+ booktitle = {Proceedings of the Sixteenth ACM SIGACT-SIGMOD-SIGART Symposium on Principles of Database Systems},
+ series = {PODS '97},
+ year = {1997},
+ isbn = {0-89791-910-6},
+ location = {Tucson, Arizona, USA},
+ pages = {117--121},
+ numpages = {5},
+ url = {http://doi.acm.org/10.1145/263661.263675},
+ doi = {10.1145/263661.263675},
+ acmid = {263675},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@article{Bancilhon:view-update-semantics,
+ author = {Bancilhon, F. and Spyratos, N.},
+ title = {Update Semantics of Relational Views},
+ journal = {ACM Trans. Database Syst.},
+ issue_date = {Dec. 1981},
+ volume = {6},
+ number = {4},
+ month = dec,
+ year = {1981},
+ issn = {0362-5915},
+ pages = {557--575},
+ numpages = {19},
+ url = {http://doi.acm.org/10.1145/319628.319634},
+ doi = {10.1145/319628.319634},
+ acmid = {319634},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {conceptual model, data model, data semantics, database view, relation, relational model database, update translation, view updating},
+} 
+
+@inproceedings{relational-lenses,
+ author = {Bohannon, Aaron and Pierce, Benjamin C. and Vaughan, Jeffrey A.},
+ title = {Relational Lenses: A Language for Updatable Views},
+ booktitle = {Proceedings of the Twenty-fifth ACM SIGMOD-SIGACT-SIGART Symposium on Principles of Database Systems},
+ series = {PODS '06},
+ year = {2006},
+ isbn = {1-59593-318-2},
+ location = {Chicago, IL, USA},
+ pages = {338--347},
+ numpages = {10},
+ url = {http://doi.acm.org/10.1145/1142351.1142399},
+ doi = {10.1145/1142351.1142399},
+ acmid = {1142399},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {lenses, view update},
+} 
+
+
+@article{aws-ec2,
+  author ="{Amazon Elastic Compute Cloud (Amazon EC2)}",
+  note = "{\link{http://aws.amazon.com/ec2/}}"
+}
+
+@inproceedings{virtual-forwarding-plane,
+ author = {Casado, Mart\'{\i}n and Koponen, Teemu and Ramanathan, Rajiv and Shenker, Scott},
+ title = {Virtualizing the Network Forwarding Plane},
+ booktitle = {Proceedings of the Workshop on Programmable Routers for Extensible Services of Tomorrow},
+ series = {PRESTO '10},
+ year = {2010},
+ isbn = {978-1-4503-0467-2},
+ location = {Philadelphia, Pennsylvania},
+ pages = {8:1--8:6},
+ articleno = {8},
+ numpages = {6},
+ url = {http://doi.acm.org/10.1145/1921151.1921162},
+ doi = {10.1145/1921151.1921162},
+ acmid = {1921162},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@inproceedings{impl-distributed-firewall,
+ author = {Ioannidis, Sotiris and Keromytis, Angelos D. and Bellovin, Steve M. and Smith, Jonathan M.},
+ title = {Implementing a Distributed Firewall},
+ booktitle = {Proceedings of the 7th ACM Conference on Computer and Communications Security},
+ series = {CCS '00},
+ year = {2000},
+ isbn = {1-58113-203-4},
+ location = {Athens, Greece},
+ pages = {190--199},
+ numpages = {10},
+ url = {http://doi.acm.org/10.1145/352600.353052},
+ doi = {10.1145/352600.353052},
+ acmid = {353052},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {IKE, IP, IPsec, KeyNote, OpenBSD, access control, credentials, distributed, firewalls, network security, trust management},
+} 
+
+@inproceedings{distributed-firewall,
+ author = {Steven M. Bellovin.},
+ title = {Distributed Firewalls},
+ booktitle = {November 1999 issue of; login},
+}
+
+@article{p2,
+    author = "{Declarative Networking}",
+    note = "\link{http://p2.berkeley.intel-research.net/}",
+}
+
+@inproceedings{declarative-networking,
+ author = {Loo, Boon Thau and Condie, Tyson and Garofalakis, Minos and Gay, David E. and Hellerstein, Joseph M. and Maniatis, Petros and Ramakrishnan, Raghu and Roscoe, Timothy and Stoica, Ion},
+ title = {Declarative Networking: Language, Execution and Optimization},
+ booktitle = {Proceedings of the 2006 ACM SIGMOD International Conference on Management of Data},
+ series = {SIGMOD '06},
+ year = {2006},
+ isbn = {1-59593-434-0},
+ location = {Chicago, IL, USA},
+ pages = {97--108},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/1142473.1142485},
+ doi = {10.1145/1142473.1142485},
+ acmid = {1142485},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {declarative networks, recursive queries},
+} 
+
+@article{data-independence-network,
+ author = {Hellerstein, Joseph M.},
+ title = {Toward Network Data Independence},
+ journal = {SIGMOD Rec.},
+ issue_date = {September 2003},
+ volume = {32},
+ number = {3},
+ month = sep,
+ year = {2003},
+ issn = {0163-5808},
+ pages = {34--40},
+ numpages = {7},
+ url = {http://doi.acm.org/10.1145/945721.945730},
+ doi = {10.1145/945721.945730},
+ acmid = {945730},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+} 
+
+@inproceedings{practical-dn,
+ author = {Hinrichs, Timothy L. and Gude, Natasha S. and Casado, Martin and Mitchell, John C. and Shenker, Scott},
+ title = {Practical Declarative Network Management},
+ booktitle = {Proceedings of the 1st ACM Workshop on Research on Enterprise Networking},
+ series = {WREN '09},
+ year = {2009},
+ isbn = {978-1-60558-443-0},
+ location = {Barcelona, Spain},
+ pages = {1--10},
+ numpages = {10},
+ url = {http://doi.acm.org/10.1145/1592681.1592683},
+ doi = {10.1145/1592681.1592683},
+ acmid = {1592683},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {network, performance, policy, security},
+} 
+
+
+@inproceedings{veriflow,
+ author = {Khurshid, Ahmed and Zou, Xuan and Zhou, Wenxuan and Caesar, Matthew and Godfrey, P. Brighten},
+ title = {VeriFlow: Verifying Network-wide Invariants in Real Time},
+ booktitle = {Proceedings of the 10th USENIX Conference on Networked Systems Design and Implementation},
+ series = {nsdi'13},
+ year = {2013},
+ location = {Lombard, IL},
+ pages = {15--28},
+ numpages = {14},
+ url = {http://dl.acm.org/citation.cfm?id=2482626.2482630},
+ acmid = {2482630},
+ publisher = {USENIX Association},
+ address = {Berkeley, CA, USA},
+} 
+
+@inproceedings{NetPlumber,
+ author = {Kazemian, Peyman and Chang, Michael and Zeng, Hongyi and Varghese, George and McKeown, Nick and Whyte, Scott},
+ title = {Real Time Network Policy Checking Using Header Space Analysis},
+ booktitle = {Proceedings of the 10th USENIX Conference on Networked Systems Design and Implementation},
+ series = {nsdi'13},
+ year = {2013},
+ location = {Lombard, IL},
+ pages = {99--112},
+ numpages = {14},
+ url = {http://dl.acm.org/citation.cfm?id=2482626.2482638},
+ acmid = {2482638},
+ publisher = {USENIX Association},
+ address = {Berkeley, CA, USA},
+} 
+
+@inproceedings{sdx,
+ author = {Nick Feamster, Jennifer Rexford, Scott Shenker, Dave
+                  Levin,Russ Clark,Josh Bailey},
+ title = {SDX: A Software Deﬁned Internet Exchange},
+ series = {ONS'13},
+} 
+
+
+@inproceedings{b4,
+ author = {Jain, Sushant and Kumar, Alok and Mandal, Subhasree and Ong, Joon and Poutievski, Leon and Singh, Arjun and Venkata, Subbaiah and Wanderer, Jim and Zhou, Junlan and Zhu, Min and Zolla, Jon and H\"{o}lzle, Urs and Stuart, Stephen and Vahdat, Amin},
+ title = {B4: Experience with a Globally-deployed Software Defined Wan},
+ booktitle = {Proceedings of the ACM SIGCOMM 2013 Conference on SIGCOMM},
+ series = {SIGCOMM '13},
+ year = {2013},
+ isbn = {978-1-4503-2056-6},
+ location = {Hong Kong, China},
+ pages = {3--14},
+ numpages = {12},
+ url = {http://doi.acm.org/10.1145/2486001.2486019},
+ doi = {10.1145/2486001.2486019},
+ acmid = {2486019},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {centralized traffic engineering, openflow, routing, software- defined networking, wide-area networks},
+} 
+
+@Proceedings {ffc,
+author       = {Hongqiang Harry Liu and Srikanth Kandula and Ratul Mahajan and Ming Zhang and
+                David Gelernter},
+booktitle    = {SIGCOMM 2014},
+month        = {August},
+publisher    = {ACM – Association for Computing Machinery},
+title        = {Traffic Engineering with Forward Fault Correction},
+}
+
+
+@article{network-verification-in-light-of-pv,
+author       = {Nuno Lopes and Nikolaj Bjorner and Patrice Godefroid and George Varghese},
+month        = {September},
+title        = {Network Verification in the Light of Program Verification},
+year         = {2013},
+}
+
+
+@article{frenetic-update,
+  author    = {Andrew Noyes and
+               Todd Warszawski and
+               Pavol Cern{\'y} and
+               Nate Foster},
+  title     = {Toward Synthesis of Network Updates},
+  booktitle = {SYNT},
+  year      = {2014},
+   
+}
+
+@article{reactive-synthesis-sdn,
+  author    = {Anduo Wang and
+               Salar Moarref and
+               Boon Thau Loo and
+               Ufuk Topcu and
+               Andre Scedrov},
+  title     = {Automated synthesis of reactive controllers for software-defined
+               networks},
+  booktitle = {WRiPE'13},
+}
+
+@article{middlebox-outsourcing,
+ author = {Sherry, Justine and Hasan, Shaddi and Scott, Colin and Krishnamurthy, Arvind and Ratnasamy, Sylvia and Sekar, Vyas},
+ title = {Making Middleboxes Someone else's Problem: Network Processing As a Cloud Service},
+ series = {SIGCOMM '12},
+} 
+
+@article{vm-sla,
+  author = {Bobroff, Norman and Kochut, Andrzej and Beaty, Kirk},
+  booktitle = {Integrated Network Management},
+  publisher = {IEEE},
+  title = {Dynamic Placement of Virtual Machines for Managing SLA Violations.},
+}
+
+
+@article{PortLand,
+ author = {Niranjan Mysore, Radhika and Pamboris, Andreas and Farrington, Nathan and Huang, Nelson and Miri, Pardis and Radhakrishnan, Sivasankar and Subramanya, Vikram and Vahdat, Amin},
+ title = {PortLand: A Scalable Fault-tolerant Layer 2 Data Center Network Fabric},
+ series = {SIGCOMM '09},
+ year = {2009},
+ keywords = {data center network fabric, layer 2 routing in data centers},
+} 
+
+
+@article{optimize-obs,
+ author = {Kang, Nanxi and Liu, Zhenming and Rexford, Jennifer and Walker, David},
+ title = {Optimizing the "One Big Switch" Abstraction in Software-defined Networks},
+ booktitle = {Proceedings of the Ninth ACM Conference on Emerging Networking Experiments and Technologies},
+ series = {CoNEXT '13},
+ year = {2013},
+} 
+
+
+@article{nv-survey,
+ author = {Chowdhury, N. M. Mosharaf Kabir and Boutaba, Raouf},
+ title = {Network Virtualization: State of the Art and Research Challenges},
+ journal = {Comm. Mag.},
+} 
+
+
+@article{scalable-nv-sdn,
+  author = {Drutskoy, Dmitry and Keller, Eric and Rexford, Jennifer},
+  journal = {IEEE Internet Computing, 2013},
+  title = {Scalable Network Virtualization in Software-Defined Networks.},
+}
+
+@article{consistency-lock,
+ author = {Eswaran, K. P. and Gray, J. N. and Lorie, R. A. and Traiger, I. L.},
+ title = {The Notions of Consistency and Predicate Locks in a Database System},
+ journal = {Commun. ACM},
+ issue_date = {Nov. 1976},
+ year = {1976},
+} 
+
+@article{concurrency-recovery-alg,
+ author = {Bernstein, Philip A. and Goodman, Nathan},
+ title = {An Algorithm for Concurrency Control and Recovery in Replicated Distributed Databases},
+ journal = {ACM Trans. Database Syst.},
+ issue_date = {Dec. 1984},
+} 
+
+@article{principles-tp,
+ author = {Haerder, Theo and Reuter, Andreas},
+ title = {Principles of Transaction-oriented Database Recovery},
+ journal = {ACM Comput. Surv.},
+ year = {1983},
+} 
+
+@article{concurrency-ddb,
+ author = {Bernstein, Philip A. and Goodman, Nathan},
+ title = {Concurrency Control in Distributed Database Systems},
+ journal = {ACM Comput. Surv.},
+ issue_date = {June 1981},
+} 
+
+
+@article{Tc-ddb,
+ author = {Traiger, Irving L. and Gray, Jim and Galtieri, Cesare A. and Lindsay, Bruce G.},
+ title = {Transactions and Consistency in Distributed Database Systems},
+ journal = {ACM Trans. Database Syst.},
+ issue_date = {Sept. 1982},
+} 
+
+@book{crdb,
+ author = {Bernstein, Philip A and Hadzilacos, Vassos and Goodman, Nathan},
+ title = {Concurrency Control and Recovery in Database Systems},
+ year = {1986},
+ isbn = {0-201-10715-5},
+ publisher = {Addison-Wesley Longman Publishing Co., Inc.},
+ address = {Boston, MA, USA},
+} 
+
+@ARTICLE{lore,
+    author = {Jason McHugh and Serge Abiteboul and Roy Goldman and Dallan Quass and Jennifer Widom},
+    title = {Lore: A database management system for semistructured data},
+    journal = {SIGMOD Record},
+    year = {1997},
+    volume = {26},
+    pages = {54--66}
+}
+
+
+@ARTICLE{semistructured,
+    author = {Peter Buneman},
+    title = {Semistructured Data},
+    journal = {PODS},
+    year = {1997},
+}
+
+@article{postgres,
+    author = "{PostgreSQL}",
+    note = "\link{http://www.postgresql.org}",
+}
+
+@inproceedings{hull_relative_1984,
+title = {Relative information capacity of simple relational database schemata},
+booktitle = {Proceedings of the 3rd {ACM} {SIGACT-SIGMOD} symposium on Principles of database systems},
+author = {Hull, R.},
+year = {1984},
+pages = {97–109},
+file = {Hull - 1984 - Relative information capacity of simple relational.pdf:/Users/mangesh/Documents/zotero/storage/ZE987TPZ/Hull - 1984 - Relative information capacity of simple relational.pdf:application/pdf}
+}
+
+@inproceedings{dnv,
+ author = {Wang, Anduo and Basu, Prithwish and Loo, Boon Thau and Sokolsky, Oleg},
+ title = {Declarative Network Verification},
+ booktitle = {Proceedings of the 11th International Symposium on Practical Aspects of Declarative Languages},
+ series = {PADL '09},
+ year = {2009},
+ isbn = {978-3-540-92994-9},
+ location = {Savannah, GA},
+ pages = {61--75},
+ numpages = {15},
+ url = {http://dx.doi.org/10.1007/978-3-540-92995-6_5},
+ doi = {10.1007/978-3-540-92995-6_5},
+ acmid = {1506060},
+ publisher = {Springer-Verlag},
+ address = {Berlin, Heidelberg},
+ keywords = {Declarative networking, domain-specific languages, network protocol verification, theorem proving},
+} 
+
+@TechReport {On-Consistent-Updates,
+author       = {Ratul Mahajan and Roger Wattenhofer},
+month        = {November},
+number       = {MSR-TR-2013-99},
+title        = {On Consistent Updates in Software Defined Networks (Extended Version)},
+url          = {http://research.microsoft.com/apps/pubs/default.aspx?id=202191},
+year         = {2013},
+}
+
+@inproceedings {sdnasdb,
+author = {Anduo Wang and Wenchao Zhou and Brighten Godfrey and Matthew Caesar},
+title = {Software-Defined Networks as Databases},
+booktitle = {Presented as part of the Open Networking Summit 2014 (ONS 2014)},
+year = {2014},
+address = {Santa Clara, CA},
+url = {https://www.usenix.org/conference/ons2014/technical-sessions/presentation/wang},
+publisher = {USENIX},
+}
+
+@inproceedings{of-cpp,
+ author = {Pere\v{s}\'{\i}ni, Peter and Kuzniar, Maciej and Vasi\'{c}, Nedeljko and Canini, Marco and Kosti\={u}, Dejan},
+ title = {OF.CPP: Consistent Packet Processing for Openflow},
+ booktitle = {Proceedings of the Second ACM SIGCOMM Workshop on Hot Topics in Software Defined Networking},
+ series = {HotSDN '13},
+ year = {2013},
+ isbn = {978-1-4503-2178-5},
+ location = {Hong Kong, China},
+ pages = {97--102},
+ numpages = {6},
+ url = {http://doi.acm.org/10.1145/2491185.2491205},
+ doi = {10.1145/2491185.2491205},
+ acmid = {2491205},
+ publisher = {ACM},
+ address = {New York, NY, USA},
+ keywords = {acid, consistency, multi-commit transactions, software-defined networking},
+} 

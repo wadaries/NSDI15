@@ -1,0 +1,3 @@
+Protocol|Time|Type|PeerIP|PeerAS|Prefix|<update dependant>
+ (for BGP announcements)
+ASPATH|Origin|NextHop|LocPref|MED|Community|AtomicAGG|Aggregator

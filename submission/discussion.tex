@@ -1,0 +1,88 @@
+\vspace{-.5em}
+\Section{Discussion and Future Work}
+\label{sec:discussion}
+
+\subsection{Network updates and synthesis}
+
+\Paragraph{Forwarding plane updates via query optimization}
+
+\Paragraph{Network synthesis via database provenance}
+
+\subsection{Distributed forwarding plane}
+
+Transactional networking offers an efficient execution abstraction of
+user programs in a shared distributed network, freeing the user from
+the challenging concurrency and recovery control
+problem~\cite{consistency-lock,concurrency-recovery-alg,principles-tp,concurrency-ddb,Tc-ddb,crdb}.
+
+\Paragraph{Transaction preserves ACID properties.} In \Sys, a
+transaction is a logical unit of operations that are atomically and
+isolated from one another, preserving network consistency and
+preventing failure from polluting effects of already committed
+transaction. The operations in a transaction are partially-ordered,
+defined in the user program. An operation is either a read or write: a
+write maps to network (re)configuration in the form of an insert or
+delete\footnote{An update is a deletion followed by an insertion} of
+records in a base table or view; a read, on the other hand, maps to
+packet processing, since packet processing is the effect of ``read''
+policy data. An example transaction is the collection of flow events
+interleaved with network re-configurations issued by a user
+program. By DB concurrency and recovery control, \Sys executes
+transactions concurrency while retaining the ACID semantics.
+
+\Paragraph{Transactions on views.}  
+Like users interact with \Sys via views, they also conceive
+transactions on views. Specifically, we write $(T,v, \overline{op})$
+for a transaction $T$ with operation set $\overline{op}=op_1,\cdots
+op_n$ on a view $v$.  Users tell \Sys of $T$ by wrapping his program
+like the following:
+\begin{sql}
+Start; program (op1;...opn;) Commit;
+\end{sql}
+The key to efficient transaction processing for parallel programs is a
+scheduler that coordinates data access of operations while preserving
+ACID. It has been shown that the scheduling problem decompose to two
+sub-problems: resolving conflicting read-write operations, and that
+for write-write operations~\cite{Bernstein:concurrency-recovery}.
+Read-write conflict occurs between a configuration update (write) and
+processing of in-fly traffic (read) that will be affected by the
+update; write-write conflict occurs when the updated data items
+overlap. A standard scheduler that prevents both conflicts is
+two-phase locking~\cite{Bernstein:concurrency-recovery} where a
+transaction $(T,v,\overline{op})$ becomes $(T,v, (lock(v),
+\overline{op}, unlock(v)))$, that is:
+\begin{sql}
+Start; lock(v); program (op1;...opn;) unlock(v); Commit;
+\end{sql}
+
+\Paragraph{Transactions on base tables at switches.} Transactions on
+views are inefficient: a view is by nature application-specific,
+typically network-wide, involving multiple distributed nodes (\eg that
+forms a path).  Transactions over views require synchronization among
+the participant nodes, making \nd{lock(v)} and \nd{unlock(v)} complex
+tasks that lack performance.  Hence rather than adding concurrency and
+recovery enforcement to views, \Sys implemented them at base tables,
+where the locks can be performed locally at individual node.  To
+enable this, \Sys translates a transaction $(T,v_{routing},
+(lock(v_{routing}),op,unlock(v_{routing})))$ on a path defined by a
+routing policy view $v_{routing}$ to a set of base table transactions
+$(T,b_i, (lock_{b_i}, op_{b_i}, unlock_{b_i})) $ where $b_i$, the base
+table derived from the view
+($v_{routing}$). 
+Operations on $b_i$ proceed independent of each other. When multiple
+$T_i$ is executed, two-phase locking over views is achieved by
+switch-level locking that enforce a consensus of partial ordering
+among conflicting operations.
+
+% \Paragraph{Relational vs. non-relational database} ...  Map-reduce
+% ...  Networking services, unlike the ad-hoc lightweight ... However,
+% relational database is a general purpose tool not designed for
+% highly-connected data. That is, despite decades of relational
+% database query optimization and indexing research, which brought its
+% commerical success, those non-relational, graph database for
+% example, outperforms relational database on query involving graph
+% operations.
+
+
+% \Paragraph{Non-relational database} ... semi-structured, graph
+% database, ... 

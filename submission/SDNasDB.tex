@@ -1,0 +1,142 @@
+\documentclass[conference]{sig-alternate-10pt}
+\usepackage{palatino} 
+\usepackage{fancyhdr}   
+\usepackage{color}
+\usepackage{graphicx}
+\usepackage{epsfig}
+\usepackage[normalem]{ulem}
+\usepackage{epsf}
+% \usepackage{subfigure}
+\usepackage{latexsym}
+\usepackage{url}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{times}
+\usepackage{alltt}
+\usepackage{xspace}
+\usepackage{listings}
+\usepackage{amsfonts}
+\usepackage{mathtools}
+\usepackage{fancyref}
+\pagestyle{plain}
+\usepackage{multicol}
+\usepackage{wrapfig}
+\usepackage{tabularx}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{hyphenat}
+
+\widowpenalty=0
+\clubpenalty=0
+
+\pdfpagewidth=8.5 true in
+\pdfpageheight=11 true in
+
+\setlength{\tabcolsep}{3pt}
+
+\newcommand{\todo}{\textbf{\textcolor{red}{more here ... }}}
+
+\newcommand{\rephrase}{\vspace{+1.5mm} \noindent
+  \textbf{\large{\textcolor{red}{re-phrase, re-organize the following.}}}}
+
+\newcommand{\shrinkhdr}{\vspace{-1mm}}  
+\newcommand{\shrinkhdrafter}{\vspace{-1mm}} 
+
+\newenvironment{compactList}{\begin{list}{$\bullet$}{\leftmargin=0.5em}
+    {   \setlength{\itemsep}{0mm}
+        \setlength{\topsep}{0mm}
+        \setlength{\partopsep}{0mm}}
+    }
+{\end{list}}
+
+\newcounter{foo}
+\newenvironment{myenumerate}{\begin{list}{\arabic{foo}.}{ 
+        \usecounter{foo}
+        \setlength{\topsep}{0mm}
+        \setlength{\itemsep}{0mm}
+}}{ \end{list}
+}
+
+\newcommand{\Paragraph}[1]{\vspace{+1.5mm} \noindent \textbf{#1}}
+\newcommand{\subparagraph}[1]{\vspace{+1mm} \noindent \textit{#1}}
+
+% \newcommand{\Quote2}[1]{
+%   \vspace{+1mm} \begin{changemargin}{0.5cm}{0.5cm}\textit{#1}\end{changemargin}
+%   \vspace{+1mm} }
+\newcommand{\alert}[1]{\textbf{\textcolor{red}{#1}}}
+
+\newcommand{\Quote}[1]{\vspace{+1mm} \textit{#1} \vspace{+1mm}}  
+\newcommand{\Subsubsection}[1]{\shrinkhdr\shrinkhdr\subsubsection{#1}\shrinkhdrafter}
+\newcommand{\SubsubsectionS}[1]{\shrinkhdr\subsubsection*{#1}\shrinkhdrafter}
+\newcommand{\Subsection}[1]{\shrinkhdr\subsection{#1}\shrinkhdrafter}
+\newcommand{\Section}[1]{\shrinkhdr\section{#1}\shrinkhdrafter} 
+\newcommand{\SectionS}[1]{\shrinkhdr\shrinkhdr\section*{#1}\shrinkhdrafter}
+
+\newtheorem{thm}{Theorem}
+\newtheorem{cor}[thm]{Corollary}
+
+% \newenvironment{proof}{\noindent{\bf Proof (Sketch):}\hspace*{0.5em}}% {\hspace*{\fill}\qed} 
+
+\newcommand{\Succ}[1]{\ensuremath{\mathrm{\Gamma}^{\mathord{+}}(#1)}}
+\newcommand{\Pred}[1]{\ensuremath{\mathrm{\Gamma}^{\mathord{-}}(#1)}}
+
+\newcommand{\prewrite}[3]{\ensuremath{{#1}[{#2}\mapsto{#3}]}}
+
+\input{defs2}
+\lstset{numbers=left, numberstyle=\tiny, stepnumber=1, numbersep=5pt}
+ 
+\def\TI{{\em data\hyp{}independent networking}\xspace}
+\def\TR{{\em transactional networking}\xspace}
+\def\TTR{{\em Transactional networking}\xspace}
+
+\begin{document}
+\sloppy
+
+\twocolumn[
+\centerline{\huge{\bf{Software-Defined Networks as Databases}}}
+\vspace{.2in}
+% \centerline{\huge{\bf{Relational Lens:}}}
+% \centerline{\huge{\bf{Data Abstraction and Data Independence in Networking}}}
+% \begin{center}
+%   \large{
+%     Anduo Wang$^\ast$  \quad Brighten Godfrey$^\ast$ \quad Matthew Caesar$^\ast$} \quad Wenchao Zhou$^\ddagger$ \\
+%   \large{\fontsize{10}{10}\selectfont\itshape $^\ast$University of Illinois at Urbana-Champaign \quad $^{\ddagger}$Georgetown
+%     University}  \\ 
+% \end{center} 
+\bigskip 
+]
+
+\begin{abstract}
+\input{abstract}
+\end{abstract}
+
+\input{intro}
+
+\input{examples}
+
+\input{design}
+
+% \input{details}
+
+\input{views}
+
+\input{verification}
+ 
+% \input{synthesis}
+
+\input{eval}
+
+\input{discussion}
+
+\input{limitation}
+
+\input{related}
+
+\input{conclusion}
+
+\footnotesize{
+\bibliographystyle{acm}
+\bibliography{sdn}
+}
+
+\end{document}

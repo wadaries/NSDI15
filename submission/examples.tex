@@ -1,0 +1,167 @@
+\Section{Examples}
+
+\noindent{}This section discusses \Sys features by examples. 
+
+% including customizability, realtime verification and synthesis
+% support, transaction processing, and federated cooperation.
+
+\Paragraph{Enterprise outsourcing:} Enterprise network today demands
+new functionalities beyond the traditional end to end connectivity
+such as security and privacy.
+% , requiring expertise beyond the enterprise's scope.
+Enterprises are also moving their networks to cloud, leasing virtual
+networks from (multiple) remote datacenters rather than hosing a local
+infrastructure, which further complicate the issue. In response,
+enterprise outsourcing is emerging, which separates who own the
+network and who manage it by outsourcing the management task to a
+third party
+expert~\cite{middlebox-outsourcing,platform-service-model}. Existing
+proposals, \eg
+one-big-switch~\cite{platform-service-model,optimize-obs} and network
+virtualization, expose enterprise network through unified primitive
+APIs. % There also exist tools that map external
+% solutions back to enterprise network.
+A network abstraction with easy, flexible, and full control is still
+missing. Can the enterprise expose only network aggregates, \eg
+average bandwidth, or even just a range, without revealing the
+sensitive details?  Can the enterprise adopt application-specific
+abstractions, and change abstractions as business goes?
+
+To this end, \Sys abstractions is \textit{\textbf{customizable}},
+easily created and destroyed by the user: \Sys abstraction does not
+enforce commitment to pre-defined freezing abstraction, granting users
+full control over what and how an outside party sees his network. By
+using SQL as abstraction definition and manipulation language,
+\Sys also requires lesser computer specialty, lowering the bar for
+adoption.
+
+% The view and view update mechanism of SDN database smoothly fit both
+% roles. Specially, by keeping the network as a database, rather than
+% exposing every detail of the network, the owner could create a view,
+% \eg a one-big-switch view that hides internal sensitive information,
+% and exposes the view instated, upon which a solution is composed by
+% the external expert. SDN database then uses view update mechanism to
+% compile the expert solution into the actual operations on the
+% owner's network.
+
+\Paragraph{Datacenter provisioning:} In a datacenter that provides
+elastic cloud computing service~\cite{aws-ec2,vm-sla,Portland}, leases
+virtual network that is either pre-configured or customizable, the
+administrator is facing two problems: network provisioning, \eg
+improving utilization by migrating VMs while respecting resource
+limits and customer SLAs; and service implementation, \eg compiling
+customer's logical network configuration into the actual datacenter
+infrastructure.  Virtualization
+techniques~\cite{nv-survey,scalable-nv-sdn,virtual-forwarding-plane}
+automate many primitive operations that ease datacenter
+tasks. However, existing primitives are too primitive to achieve
+automatic online datacenter management. Can the administrator inspect
+the network state, checking high-level network-wide properties? Can
+the operator implement a customer's ``non-standard'' request without
+composing a complete program out of primitive wrapping APIs?
+
+% \Sys can automate the above tasks by user-defined data abstraction,
+% capturing the customer's logical network and network-wide properties
+% being provisioned in a unified way.
+
+To this end, \Sys performs \textit{\textbf{realtime network
+    verification and synthesis}} directly on user-defined
+abstractions. By the bi-directional data synchronizer between
+abstraction and the data-plane, administrator analyzes network state
+(\eg check SLA conformance) by issuing a query over \Sys abstraction,
+as simple as a SQL select statement. Conversely, arbitrary customer
+operations on logical network is automatically populated into to the
+datacenter without the administrator's
+supervision. % Preliminary evaluation results (\S~\ref{sec:eval})
+% show that the typical DB-induced latency per switch rule update on a
+% VL2 network of up to 10'000 switches is at the scale of 1-10 ms.
+
+% or external state-exploration tools that is usually sensitive to
+% network seize \TI automates these tasks as follows: load the
+% datacenter network configuration (flow tables, topology \etc) into
+% base tables; develop various provisioning/service \textit{views}
+% that exposes resource utilization and SLAs status (violation) -- the
+% views are either selected by administrator from a pre-defined pool,
+% or introduced on the spot as a SQL query; and finally develop
+% \textit{triggers} that implements our generic view update algorithm.
+% Once the SDN database is set up, view maintenance allows the
+% datacenter administrators to verify SLA conformance and resource
+% limit enforcement in realtime; whereas view update adjusts the
+% datacenter configurations according to changes to SLA or customers'
+% requirements expressed over views.
+
+\Paragraph{Distributed firewalls:} Firewall offers a direct
+abstraction for specifying and enforcing network policy beyond
+standard routing. However, conventional firewall functionality relies
+on topology constraints, \eg assuming that devices on the protected
+side are trusted.  The placement of the firewall also introduces a
+choke-point to network performance such as throughput.  Distributed
+firewalls is
+proposed~\cite{impl-distributed-firewall,distributed-firewall} to
+mitigate these shortcomings, implemented by a high-level language that
+specifies centralized firewall policy, and a mechanism that
+distributes the policy into end nodes.  Such implementations, no
+matter how carefully designed to assure functional correctness, leaves
+behind concurrency and recovery control. While one may leverage
+existing consistent network update solutions for concurrency control,
+which, nevertheless, incurs overhead on network device or is too slow
+for online use.  Recovery control that correctly roll back the network
+in case of failure is also missing.
+
+To free users from the challenging concurrency and recovery control,
+\Sys supports \textit{\textbf{transaction processing}}, where a
+centralized firewall operation is processed as a single logic
+transaction that is distributed over the network, by adapting
+transaction processing from distributed DB research, such as two-phase
+locking to achieve ACID semantics.
+% A novel aspect is that, to active reasonable system performance,
+% rather than adding control and recovery control to the abstract
+% entity over which policy is specified, \Sys uses the SQL query that
+% generates the abstraction to translate the transaction into
+% ``concrete ones'' processed at the individual end nodes, where
+% transaction processing is achieved autonomously. Hence, \Sys assumes
+% and advocates that network devices, such as switches, shall be built
+% with basic transaction mechanism (\eg locking).
+
+
+% \Sys uses DB techniques to achieve transaction processing of the
+% right tool, view abstraction allows user define requirement on
+% arbitrary high-level entities, and view update compiles view
+% policies into the constituting network devices. Finally, \TR
+% enforces that the distributed policies are correctly applied to
+% packets.
+% transactional processing
+
+\Paragraph{Integrable networking:}
+\label{ssec:integration-integration}
+Previously we demonstrate \Sys features that separate high-level
+centralized user operation and low-level distributed implementation in
+a unified manner in a vertical
+architecture.% , as well as cater for specific needs such as
+% customizability, realtime support, and concurrency / recovery, in a
+% vertical network architecture
+This example shows that \Sys also enables network integration
+horizontally.  Consider merging two existing enterprise sites when two
+company department merges, or a network of independently administrated
+networks in the case of SDX (Software-defined Internet
+Exchange)~\cite{sdx}, or the inter-operation of multiple controllers
+in a SDN-powered virtualized networks. To achieve a consistent
+inter-site network behavior, resolve potential conflicts, while
+minimizing the modification imposed at, maximizing the autonomy
+demanded by individual participant, what is the desirable
+``collaboration interface''? 
+
+These problems are challenging but not new, seen by DB community in
+1990s when data integration research emerged to connect autonomous
+DBSes. We believe that, by lending itself to the rich
+\textbf{\textit{data integration}} research such as federated
+DB~\cite{Sheth:1990:federated-DB}, semi-structured
+DB~\cite{lore,semistructured}, \Sys brings hope to a natural
+solution. Intuitively, the inter-site/controller network is managed
+through a super-abstraction, constructed from the per-site
+abstractions, in a way no different from the per-site ones. The
+super-abstractions form a public interface, where the per-site
+abstractions are for private management, hiding participant's internal
+data and isolating each another. Features of customizability,
+real-time support, and transaction processing also extend to the
+super-abstraction.

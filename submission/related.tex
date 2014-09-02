@@ -1,0 +1,71 @@
+\vspace{-.5em}
+\Section{Related work}
+\label{sec:related}
+
+\Paragraph{Network verification and synthesis}, despite recent
+efforts~\cite{veriflow,NetPlumber,network-verification-in-light-of-pv,dnv},
+have not matured into a wanted industry of standard reusable tools
+with a general-purpose interface.  General-purpose verification tools,
+despite powerful tools like SMT solvers, are not directly applicable
+to network size; Domain-specific heuristics are fast but require extra
+effort and are not reusable.  Formal synthesis is even harder and
+slower: existing tools does not scale
+well~\cite{reactive-synthesis-sdn}. By utilizing DB's general query
+engine that has been optimized for two decades as the main reasoning
+engine, \Sys brings new hope to a networking verifier that strikes a
+balance between general-purpose support and realtime performance.  We
+would throughly study the power and limits of \Sys's support for
+realtime verification and synthesis.
+
+\Paragraph{Views, authorization, and locking} are three inherently
+connected concepts in database~\cite{Views-Authorization-and-Locking}:
+views expose data, authorization prescribes access to data, and
+locking implements authorization. Thus, the view-centric \Sys lends
+itself to a rich body of locking based authorization mechanism that is
+particularly straightforward and flexible: one may associate lock with
+different operations \eg write or/and read, and data of different
+granularity \eg entire table, one record, one column, or arbitrary
+region defined by a condition.  As such, we envision that \Sys may
+hold the solution to the increasingly complicated network security and
+privacy requirement (\eg isolation) where users could conveniently
+project the network data into views, with authorization granted via
+locks.
+
+\Paragraph{Network OS and SDN programming APIs} 
+introduce a global network abstraction of the distributed forwarding
+plane along with programming APIs that offers reusable
+primitives~\cite{onix,nox,composing,sdn-lang-frenetic}. Similar to
+pre-database era, where online commercial data management used file
+system and general-purpose programming language, we view OS/PL powered
+SDN as a preliminary stage of
+\Sys~\cite{Date:1971:file-and-data-independence,Cardelli:1985:PL-data-abstraction},
+which is restrictive and requires considerable expertise.  \Sys seeks
+a more flexible and accessible user interface that is customizable and
+managed through simple databases operators that are processed as
+transactions.
+
+\Paragraph{Declarative networking}~\cite{declarative-networking,p2}
+draws on the natural connection of recursive Datalog (declarative
+deductive database language) and network properties such as
+reachability, presents a Datalog based platform for specifying
+distributed networking services. Later work on declarative network
+management~\cite{practical-dn} extends Datalog to policy management for
+enterprise networks. Compared to these efforts, \Sys applies DB
+techniques in a broader sense, covering the two main DB pillars: data
+independence and transaction processing. On the other hand,
+declarative networking sheds light on many issues \Sys is facing,
+ranging from the details in connecting DB to a real
+network~\cite{practical-dn,declarative-networking}, to the
+data-independence principle discussed
+in~\cite{data-independence-network}\footnote{\cite{data-independence-network}
+  deals solely with physical data-independence, whereas logical
+  data-independence also plays a key role in \Sys}.
+
+% \Paragraph{Network virtualization} were among the most noticeable
+% efforts towards a more manageable network with rich and new
+% functionalities before the SDN era. VLAN, VPN, overlay networks,
+% infrastructure as a service (IaaS) ... for legacy networks. In
+% particular, \textit{recursive virtualization} ... higher layer
+% abstraction independent of forwarding plane (lower-layer) changes.
+% ...  MPLS, active networks ... enables modification of lower-layer
+% that reflects high-level network abstraction updates ...

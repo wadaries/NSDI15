@@ -1,0 +1,41 @@
+\section{Abstraction space in networking}
+\label{app:space}
+
+\begin{table*}[h]% [ht]
+  \centering
+  \begin{tabular}{p{1.2cm} | p{2cm} |p{6cm} | p{6cm}}
+    \multicolumn{2}{p{3.2cm}|}{networking techniques} & human convenience / example & system performance / example \\
+    \hline
+    \hline
+    \multirow{2}{*}{SDN} & controller & high /  centralized controller programming  & low / manual handling data redudency, isolation, consistency, recovery \\
+    \cline{2-4}
+    & openflow API & medium / & medium / \\
+    \hline
+    \multirow{2}{*}{VN} & virtualized network & low / managing virtualized network is like that for physical network & high / \\
+    \cline{2-4}
+    & one-big switch & high /  & low / \\
+    \hline
+    \multicolumn{2}{p{3.2cm}|}{layer 2 forwarding} & high / configuration free & low / does not scale up \\
+    \hline
+    \multicolumn{2}{p{3.2cm}|}{layer 3 forwarding} & low / manual configuration & high / universal end-to-end connectivity\\
+    \multicolumn{4}{c}{...}
+  \end{tabular}
+  \caption{Tradeoff in networking abstraction: human convenience (extracting simplicity) vs. system performance (scaling functionality)}
+  \label{tab:tradeoff}
+\end{table*}
+
+\begin{table*}[h]
+  \centering
+  \begin{tabular}{p{3.2cm} |p{6cm} | p{6cm}}
+    SDN database & human convenience & system performance \\
+    \hline
+    \TI & high, user-defined views separate a program from the network it processes % views expose and restructure user data
+    & high, abstraction synchronizer reconciles
+    disconnected updates to user-defined views \\
+    \hline
+    \TR & high, transaction isolates user program execution from each other  & high, locking/logging resolves operation conflicts \\
+    % \multicolumn{3}{c}{...}
+  \end{tabular}
+  \caption{Abstraction in SDN databases: extracting simplicity for human convenience without sacrificing system performance}
+  \label{tab:SDN-as-DB}
+\end{table*}

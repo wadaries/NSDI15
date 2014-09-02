@@ -1,0 +1,195 @@
+\section{Design of SDN Database}
+
+\begin{figure*}[ht!]
+        \centering
+        \begin{subfigure}[t]{.6\linewidth}\centering
+          \includegraphics[width=1\textwidth]{fig-SDNandDB-cropped.pdf}
+          % \setlength{\abovecaptionskip}{0cm}
+          % \vspace{-2.8em}
+          \caption{\textit{\textbf{SDN architecture (left)}},
+            \textit{\textbf{database architecture
+                (right)}}. \textit{\textbf{SDN networks}} offers a
+            centralized logical view of the network infrastructure:
+            app/users see the same complex network states, controller
+            carefully handles name/device binding;
+            \textit{\textbf{database}} bridges user and data by two
+            separate data abstractions: logical base tables hide
+            physical heterogeneity, external views interface end
+            users, \textbf{view maintenance and update} synchronize
+            the two.}
+          \label{fig:SDNandDB}
+        \end{subfigure}
+        \hfill
+        \begin{subfigure}[t]{.39\linewidth}\centering
+          \includegraphics[width=1\textwidth]{fig-SDNasDB-cropped.pdf}
+          % \vspace{-1.5em}
+          \caption{\textit{\textbf{SDN database}} mediates between the
+            users and network infrastructure: \textbf{\textit{logical
+                level}} hides device specifics;
+            \textit{\textbf{application views}} permit user
+            perspective; \textit{\textbf{view maintenance}} keeps user
+            logic consistent with network state; \textit{\textbf{view
+                update}} compiles user logic into devise\hyp{}wise
+            implementation.}
+          % \vspace{-1em}
+          \label{fig:SDNasDB}
+        \end{subfigure}
+        \caption{\textbf{Topological\hyp{}independent networking}
+          extends data-independence principle into
+          networking}\label{fig:overview}
+\end{figure*}
+
+The following outlined the key features, opportunities and challenges
+of SDN database design: topological\hyp{}independent networking that
+simplifies SDN programming via data\hyp{}independence, transactional
+networking that frees programmer from concurrency and recovery control
+via transaction processing, and finally inter\hyp{}operational
+networking that show\hyp{}cases networking innovations that connects
+SDN networks via more advanced and recent database techniques.
+
+\Paragraph{Topological\hyp{}independent networking}
+
+The first requirement of very large system management is the ability
+of decoupling what a user need from how it is implemented. This is
+particularly true in networking: the network configurations and
+programs are implemented and enforced device-wise, whereas a network
+programmer conceives policy and logic better at a higher level.
+% usually topology-wise that constitutes a path (paths).
+
+The coupling of and tension between how networks are organized and
+what a human mind perfects result in a formidable programming task,
+the complexity of which largely stems from the heterogeneous
+infrastructure with a specific topology, rather than from the control
+logic itself. From a programmer's perspective, to achieve any
+high-level service, he faces a dilemma of either utilizing
+topological-independent primitives in a restricted setting, or
+achieving a universal solution with extra effort. For example, L2 is
+widely adopted for its simplicity regardless of topological specifics,
+such as device heterogeneity, topological placement; On the contrary,
+IP-routing, which does provide a topological-independent end-to-end
+connection, is restricted to L3 and above, requiring manual
+configuration.
+
+To this end, SDN databases adopts databases notion of
+\textbf{data-independence}, which we call
+\emph{topological-independent networking}
+(Figure~\ref{fig:SDNasDB}). Topological\hyp{}independence exposes an
+abstract view of user's data tailored to the user's decision making
+need, provides two functionalities: hiding irrelevant information, and
+more importantly, restructuring the exposed data to simplify user
+logic, as formulated in the following conjecture:
+
+\Quote{SDN database programs operate on high-level
+  application-specific data items, unaware of topological specifics,
+  such as individual device heterogeneity and device placement.}
+
+To achieve this, topological\hyp{} provides two separate levels of
+data abstractions (Figure~\ref{fig:SDNandDB} (right)) and the tools
+that synchronize the two. Logical representation of the heterogeneous
+data sources are stored in base tables, whereas user\hyp{}defined
+views that permits different application perspectives are derived
+tables from the bases on demand.  To synchronize them, view
+maintenance mechanism keeps the user\hyp{}defined views consistent
+with base tables changes, whereas view update mechanism populates
+modification to user views back into the bases
+(Figure~\ref{fig:SDNasDB}).  The \textit{separation} of the logical
+base tables and the programmable views is key to
+topological\hyp{}dependency: while the logical base is still close
+enough to the physical device, thus providing reasonable performance;
+the programmable views interface the user for human convenience,
+drastically simplifying user logic.
+
+% More details are outlined in Section~\ref{sec:details}.
+
+% Representation form the external interface. SDN database
+% automatically synchronizes operations on the high-level names and
+% changes to the actual devices.  The base table logical
+% representation and physical storage details of data, whereas view
+% abstraction separates the data abstraction over of which programs
+% are developed. ...  ... onto per-device flow-tables are base
+% database tables; and the per-path policies are virtual tables (\ie
+% database views) derived from the base tables by running queries.
+% While the following sections outlines
+
+\Paragraph{Transactional networking}
+
+The second requirement of very large system management is the ability
+of permitting concurrent operations in a shared unreliable
+environment. 
+
+Transactional networking hides the network reality of a concurrent and
+un-reliable execution environment by adapting database transaction
+processing into SDN setting.
+
+\Quote{In SDN database, network programs ..., unaware of interleaving
+  with .}
+
+While topological\hyp{}independent networking is achieved by mapping
+DB data itmes into networking entities, transactional networking is
+about porting into SDN the\textit{Read/Write} operations and the
+theory of resolving conflicts among them.
+
+
+\todo
+
+% To achieve reasonable performance, database offers transaction
+% processing in a spectrum ranging from expensive strong consistency to
+% lightweight eventual consistency.
+
+% \rephrase
+
+Transaction semantics~\cite{Bernstein:concurrency-recovery}: ACID
+
+\noindent\textit{Naive solution} \textit{transaction and views} operation over virtual
+views?\\
+
+\noindent\textit{Challenges} Reading operation, traffic
+
+
+
+\Paragraph{Integrable/inter\hyp{}operational networking}
+\label{ssec:integration-integration}
+
+Having shown the two pillars of SDN networking in one single
+administration domain, namely topological\hyp{}independence and
+transaction processing. This section outlines how to inter-connect
+networks with more advanced and recent DB techniques.
+
+\todo
+
+Example problems: Software defined Internet exchange, integrate
+networks of heterogeneous sources into a single consistent one
+
+Naive solutions: (1) federated DB~\cite{Sheth:1990:federated-DB}, (2)
+View integration and (3) Semi\hyp{}structured data
+query~\cite{McHugh:1997:Lore-DB,Abiteboul97queryingsemi-structured,Buneman:semi-structured}
+
+
+
+% \noindent\textit{Challenges}
+
+% \begin{figure*}[htp]
+% \centering
+% \begin{minipage}[t]{.62\linewidth}
+%   \includegraphics[width=\textwidth]{fig-SDNandDB.pdf}
+% \caption{Caption}\label{label-a}
+% \end{minipage}\hfill
+% \begin{minipage}[t]{.37\textwidth}
+%   \includegraphics[width=\textwidth]{fig-SDNasDB.pdf}
+% \caption{Caption}\label{label-b}
+% \end{minipage}
+% \end{figure*}
+
+
+% \begin{figure*}[ht]
+%   \centering
+% \includegraphics[width=.95\textwidth]{overview.pdf}
+% \label{fig:overview}
+% \caption{; \textit{SDN databases (right)} simplifies the
+%   interaction of app/user and network infrastructure: \textit{views}
+%   are programmable and created for specific user/app as desired to
+%   expose only the relevant network state in a proper abstract form,
+%   \textit{view maintenance} notifies app/user network state chagne in
+%   realtime, \textit{view update} compiles app/user program into
+%   devise-level configurations}
+% \end{figure*}

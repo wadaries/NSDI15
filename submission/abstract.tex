@@ -1,0 +1,153 @@
+Software-Defined Networking seeks to make networks more flexible, with
+designs centering around programmability utilizing operating system
+(OS) and programming language (PL) abstractions.  Although these SDNs
+have decoupled network programming from the physical infrastructure,
+they are still too low-level and inflexible from the perspective of
+network designers interested in application- and policy-level goals.
+We believe one of the key long-term challenges for SDN research is to
+develop abstractions that effectively navigate the tradeoff space of
+human convenience managing distributed data, and performance in a shared
+infrastructure.
+
+We attack this abstraction challenge by championing a shift from OS/PL
+to database (DB)-oriented techniques. Our ``Database-Based
+Networking'' (\Sys) approach utilizes the DB principle of \emph{data
+independence} to allow dynamic creation, modification, and use of
+high-level (e.g. policy-level) abstractions or ``views'' of the
+distributed network on-demand, and exploits \emph{transaction
+processing} to efficiently schedule user programs in a shared
+environment while preserving ACID. While this is an ambitious
+long-term goal, a prototype of several core features demonstrates
+promising performance, showing \Sys-induced per-rule update latency
+of 14ms, for the most expensive DB operation on a datacenter
+network of 10k nodes (4.3k links). We also discuss the opportunities
+and challenges of \Sys.
+
+
+%To simplify and renovate networking, many recent efforts decouple logical abstractions from physical infrastructure via operating system (OS) and programming language (PL) means. Network operations and innovations, however, remain manual and difficult, due to the grand challenge of nailing down the right \textit{abstraction} while striking a balance between \textit{human convenience} and \textit{(feature-rich) system performance}. To bring about the needed abstraction capable of reconciling what a human mind perfects and how today's network performs, we champion a shift from OS/PL to database system (DB) technique, propose Software-defined network (SDN) database, featureing a two-level network abstraction design. The programmable user-level abstraction exposes a high-level human interface that simplifies user logic, together with a language that creates the abstraction on demand, and a mechanism that pushes abstract operation back into the network device. Whereas the separate transaction abstraction, on the other hand, is responsible for efficient execution of user programs while preserving an isolated sequential semantics by concurrency control implemented at switch-level. Early stage implementation evaluates the design. We also discuss the opportunities, challenges, limits of SDN database, as well as its connection to related OS/PL efforts.
+
+ % like it has taken place for online commercial data management in
+% 1980s, managed by {\it DB data independence\/} and {\it
+% transactional processing\/} principles Specifically,
+
+% that isolates user program executions To support user logic and
+% decision making, Data-independence simplifies user logic and program
+% maintenance by hiding data storage and logical representation, SDN
+% database provides a user-facing abstraction that is programmable for
+% simplifying control logic.
+
+%  over a device-facing abstraction that
+% optimizes for performance on heterogeneous devices.
+% , offering language and mechanism that maintains the two.  splits
+% network abstractions into two, offering a programmable user-facing
+% abstraction, a pre-loaded device facing one, the language for
+% creation, modification, and the mechanism that verifies.
+% architecture that combines human convenience and system performance;
+% whereas
+% ; the \TR component offers an isolated sequential abstraction over
+% concurrent executions in a partitioned, shared, and unreliable
+% network. 
+
+
+% To simplify and renovate networking, Despite the tremendous
+% operation system (OS) and programming language (PL) based efforts in
+% decoupling logical functionality from physical infrastructure,
+% network operation and innovation remain manual, tedious, and
+% error-prone. This is due to an inherent dilemma between two
+% conflicting goals: \textit{extracting simplicity for human
+% convenience}, and \textit{achieving reasonable performance over a
+% distributed, shared infrastructure of heterogeneous devices}.  Like
+% the shift from OS/PL to database system (DB) has taken place in
+% 1980s' commercial data management, we argue for the same in
+% reconciling what a human mind perfects and how today's network
+% performs.
+
+% In software-defined network (SDN), the data- and control-plane
+% separation offers two key abstractions: the data-plane as a global
+% network view and the control management as functions applied to the
+% view. Though these abstractions significantly simplify network control
+% with unprecedented flexibility, their implementation with operating
+% system and programming language techniques is not satisfying. Current
+% practice requires the controller programmer to deal with a network
+% view that lags behind the actual data-plane, and a spectrum of
+% concurrent events (\eg execution of controller programs, in-flight
+% packets) with primitive APIs (\eg openflow). We argue that this is
+% because a comprehensive treatment of the distributed data-plane is
+% still lacking.
+
+% This paper proposes a database approach towards a network view
+% abstraction that matches the data-plane state with clean semantics,
+% that offers a native configuration language that hides low-level
+% details. We first present a natural database model of the data-plane
+% where per-switch flow-tables are base database tables, and the
+% per-path policies are virtual tables (\ie database views) derived from
+% the base tables by running queries. Next we describe the front-end of
+% the SDN database -- the various query languages (\eg SQL or datalog
+% programs) that enable natural expression of control applications,
+% which is compiled into read/write operations on the base tables.
+% Finally, we discuss the back-end of the database model that bridges
+% the network view and the data-plane, by porting the well-known ACID
+% semantics and the enabling mechanisms (scheduling and locking for
+% concurrency control).
+
+
+
+% To accommodate the rapid growth and increasing complexity of modern
+% computer networks, a spectrum of new approaches arise in the past
+% decade, including active networks, routing control platforms, 4D, and
+% software-defined networks (SDN).  In these proposals, a common
+% successful principle is to decompose concerns of different abstraction
+% level. For example, SDN separates the high-level control decision from
+% the low-level data-plane that performs actual traffic forwarding, and
+% has since simplified network management to a unprecedented record.
+% This paper attempts to push the concern separation/decomposition
+% principle to its full potential, motivated by the following unattended
+% issues: In modern networks, there is lack of data abstraction
+% mechanism for the control plane that is open to \ie programmable by
+% end users. For example, the SDN networks relies on pre-defined set of
+% programming APIs over high-level names that bind to low-level
+% data-plane entities.  The users cannot introduce new data abstraction
+% as needed. The name-entity binding also requires tremdous system
+% maintenance effort: indeed the consistency between the two planes is a
+% difficult and active research problem.  In addition to data
+% abstraction, data independence is also missing, that is, higher layer
+% application programs are not immune to changes in lower layers. For
+% example, despite the intended separation in today's SDN, changes in
+% the data-plane (\eg packet header) requires modification to the
+% configuration and control programs in the higher control plane.
+
+% % For example, In IXP and RCP (for BGP routing systems), a
+% % user-defined
+
+% This paper proposes relational lens, a simple yet powerful database
+% solution to all the above problems. Specifically, relational lens
+% introduces a data model where the data-plane (per-switch flow-tables)
+% are relational database base tables, and the high level
+% (e.g. per-path) policies are virtual tables or relational lens (\ie
+% database views) derived from the base tables by running queries.  The
+% ability to define and manipulate relational lens allows network
+% administrator to construct the network view for an end user (\eg
+% tenants), or expose network information to a peering network with
+% intended constraints by just writing a query program. Once the query
+% programs are given, our system automatically synchronize the
+% relational lens by classical database view maintenance and view update
+% mechanism. View maintenance propagates network changes in the base
+% tables (\ie data-plane) to all higher layer lens, hence refreshes
+% lower network state for the all the control programs. Aside from
+% control program, an interesting usage of view maintenance is real-time
+% verification by writing query programs that inquire network
+% properties. Conversely, view update populates changes in higher layer
+% lens back to the base tables. An interesting usage of view update is
+% real-time policy synthesis, where the high level policy is defined by
+% a relational lens, and our system automatically figure out the
+% data-plane changes (base tables) needed to reflect the policy change.
+% Existing view update algorithm is too restricted for networking
+% setting that heavily utilize recursive lens, we develop a heuristic
+% that transforms recursive lens to updatable view.
+
+% % Finally, we discuss the back-end of the database model that bridges
+% % the network view and the data-plane, by porting the well-known ACID
+% % semantics and the enabling mechanisms (scheduling and locking for
+% % concurrency control).
+
+% % the control and data-plane facility still operates on

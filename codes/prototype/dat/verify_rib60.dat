@@ -1,0 +1,140 @@
+"Round 0"                      "Time (ms)"
+"extract forwarding graph"       1.719
+"check disjoint edge"            1.888
+"check loop"                     1.106
+"check blackhole"                0.732
+
+
+"Round 1"                      "Time (ms)"
+"extract forwarding graph"       0.764
+"check disjoint edge"            1.289
+"check loop"                     1.092
+"check blackhole"                0.422
+
+
+"Round 2"                      "Time (ms)"
+"extract forwarding graph"       0.591
+"check disjoint edge"            1.274
+"check loop"                     1.248
+"check blackhole"                0.394
+
+
+"Round 3"                      "Time (ms)"
+"extract forwarding graph"       0.696
+"check disjoint edge"            1.701
+"check loop"                     1.357
+"check blackhole"                0.688
+
+
+"Round 4"                      "Time (ms)"
+"extract forwarding graph"       0.635
+"check disjoint edge"            1.377
+"check loop"                     1.109
+"check blackhole"                0.309
+
+
+"Round 5"                      "Time (ms)"
+"extract forwarding graph"       0.587
+"check disjoint edge"            1.315
+"check loop"                     1.08
+"check blackhole"                0.297
+
+
+"Round 6"                      "Time (ms)"
+"extract forwarding graph"       0.585
+"check disjoint edge"            1.263
+"check loop"                     2.034
+"check blackhole"                0.755
+
+
+"Round 7"                      "Time (ms)"
+"extract forwarding graph"       5.054
+"check disjoint edge"            2.154
+"check loop"                     1.106
+"check blackhole"                0.355
+
+
+"Round 8"                      "Time (ms)"
+"extract forwarding graph"       0.59
+"check disjoint edge"            1.305
+"check loop"                     1.092
+"check blackhole"                0.3
+
+
+"Round 9"                      "Time (ms)"
+"extract forwarding graph"       0.59
+"check disjoint edge"            1.219
+"check loop"                     1.522
+"check blackhole"                0.483
+
+
+"Round 10"                      "Time (ms)"
+"extract forwarding graph"       0.815
+"check disjoint edge"            1.883
+"check loop"                     1.301
+"check blackhole"                0.358
+
+
+"Round 11"                      "Time (ms)"
+"extract forwarding graph"       0.631
+"check disjoint edge"            1.4
+"check loop"                     1.129
+"check blackhole"                0.303
+
+
+"Round 12"                      "Time (ms)"
+"extract forwarding graph"       0.584
+"check disjoint edge"            1.264
+"check loop"                     1.078
+"check blackhole"                0.293
+
+
+"Round 13"                      "Time (ms)"
+"extract forwarding graph"       0.59
+"check disjoint edge"            1.26
+"check loop"                     1.079
+"check blackhole"                0.313
+
+
+"Round 14"                      "Time (ms)"
+"extract forwarding graph"       0.586
+"check disjoint edge"            1.282
+"check loop"                     1.073
+"check blackhole"                0.286
+
+
+"Round 15"                      "Time (ms)"
+"extract forwarding graph"       0.587
+"check disjoint edge"            1.243
+"check loop"                     1.441
+"check blackhole"                0.554
+
+
+"Round 16"                      "Time (ms)"
+"extract forwarding graph"       1.058
+"check disjoint edge"            1.739
+"check loop"                     1.192
+"check blackhole"                0.338
+
+
+"Round 17"                      "Time (ms)"
+"extract forwarding graph"       0.592
+"check disjoint edge"            1.264
+"check loop"                     1.208
+"check blackhole"                0.476
+
+
+"Round 18"                      "Time (ms)"
+"extract forwarding graph"       0.806
+"check disjoint edge"            1.556
+"check loop"                     1.254
+"check blackhole"                0.401
+
+
+"Round 19"                      "Time (ms)"
+"extract forwarding graph"       0.606
+"check disjoint edge"            1.286
+"check loop"                     1.096
+"check blackhole"                0.3
+
+

@@ -1,0 +1,15 @@
+libRouteviewReplay.py:19 INFO:    ------------------------------------------------------------
+libRouteviewReplay.py:20 INFO:    Successfully set log file
+
+libRouteviewReplay.py:22 INFO:    ISP instance: (rocketfuel) AS 1221
+libRouteviewReplay.py:23 INFO:    RIB instance: (routeview) rib20011204
+libRouteviewReplay.py:26 INFO:    ------------------------------------------------------------
+libRouteviewReplay.py:27 INFO:    Successfully create database in postgres
+
+libRouteviewReplay.py:128 INFO:    Create schema Time: 63.074 ms
+libRouteviewReplay.py:168 INFO:    Initialize topology Time: 1137.468 ms
+libRouteviewReplay.py:253 INFO:    Load configuration Time: 137.399 ms (0.002 min)
+libRouteviewReplay.py:254 INFO:    Load configuration (573 rows) average Time: 0.24 ms
+libRouteviewReplay.py:32 INFO:    ------------------------------------------------------------
+libRouteviewReplay.py:33 INFO:    Successfully initialize database with RIB
+

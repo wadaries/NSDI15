@@ -1,0 +1,16 @@
+libRouteviewReplay.py:9 INFO:    ------------------------------------------------------------
+libRouteviewReplay.py:10 INFO:    Successfully set log file
+
+libRouteviewReplay.py:12 INFO:    ISP instance (rocketfuel):  AS /Users/anduo/Documents/Relational-Networking/NSDI15/codes/prototype/ISP
+libRouteviewReplay.py:13 INFO:    RIB instance (routeview): /Users/anduo/Documents/Relational-Networking/NSDI15/codes/prototype/rib
+libRouteviewReplay.py:14 INFO:    RIB instance size (number of routeview feeds): edges
+libRouteviewReplay.py:17 INFO:    ------------------------------------------------------------
+libRouteviewReplay.py:18 INFO:    Successfully create database in postgres
+
+libRouteviewReplay.py:100 INFO:    Create schema Time: 51.654 ms
+libRouteviewReplay.py:140 INFO:    Initialize topology Time: 2792.513 ms
+libRouteviewReplay.py:213 INFO:    Load configuration Time: 41.751 ms (0.001 min)
+libRouteviewReplay.py:214 INFO:    Load configuration (183 rows) average Time: 0.228 ms
+libRouteviewReplay.py:23 INFO:    ------------------------------------------------------------
+libRouteviewReplay.py:24 INFO:    Successfully initialize database with RIB
+

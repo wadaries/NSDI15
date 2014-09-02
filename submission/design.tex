@@ -1,0 +1,75 @@
+\Section{System Architecture}
+\label{sec:design}
+
+\Sys's design is view-centric, application-specific data (\eg policy)
+is nothing but a piece of selected and restructured view, managed
+through DB operations.  This section outlines the two enabling
+components: \TI that interfaces users with customer abstractions and
+\TR that processes operations.
+
+\Subsection{Data\hyp{}independent networking}
+
+\TI offers a two-level data abstraction, internal base tables for
+network FIBs, and separate external views for simplifying user
+operation.  \TI is centered around the external views, which offers
+application-specific network-wide data-structures that are
+customizability, virtual, and updatable.
+
+\Paragraph{Views are customizable.} While base (stored) tables are
+unified distributed over the network to achieve reasonable
+performance, as we will discuss more in \TR. Views are the external
+interface exposed to users, who can dynamically create and change
+views by SQL queries that select relevant information from base
+tables. Views also restructure the selected data to to simplify
+operations.  
+A particularly useful class of views are policy views: the view schema
+structures the ``network-wide data'', specifying attributes of the
+derived data item. \Eg the schema of \texttt{end\_to\_end policy} view
+(Details in Table \ref{tb:endpoint}) is \nd{\{flow, ingress,
+  egress\}}, structuring the view into three attributes. A view record
+represents a policy instance, \eg \nd{(1,1,4)} directs that flow
+\nd{1} entering the network by \nd{1} is to exit the network via
+\nd{4}. Unlike the network-view in network-OS or programming APIs, in
+\Sys, users have complete control over views, can create or destroy
+views as needed, to simplify different applications at their will.
+
+\Paragraph{Views are virtual.}  Views are derived from the base
+tables, where the ``derivation relation'' is the SQL query that
+generates the view. \Eg a specific routing decision in the
+\nd{end\_to\_end policy} view is derived from the forwarding rules
+stored in the base tables by a recursive query that computes
+end-to-end reachability. Since the output of a SQL query is a table by
+itself, views are used as the base tables, though only the view
+definition is stored.  From performance perspective, a view consumes
+zero resource until it is referred \ie queried by other programs. When
+a view is queried, the stored SQL query is simply re-computed. This
+treatment also keeps the view contents fresh, always reflecting the
+latest network configuration. This process is called view
+maintenance. Decades of DB query optimization have made view
+maintenance very fast, enabling real-time network verification by
+simply querying the views.
+
+\Paragraph{Views are updatable} to enable network management directly
+through views. For example, an administrator re-selecting a path for
+all flows entering node \nd{1} to exit via \nd{3}
+(Figure~\ref{fig:eg-one-big-switch}), only need to ``update'' the
+\nd{end\_to\_end policy view} (\S~\ref{sec:details}) records, like the
+following:
+\begin{sql}
+UPDATE e2e_policy SET egress = 3 WHERE ingress = 1;
+\end{sql}
+\Sys view update facility populates this update into the per\_switch \nd{configuration} base table, like the following:
+\begin{sql}
+UPDATE configuration SET next = 2 WHERE switch = 1;
+UPDATE configuration SET next = 3 WHERE switch = 2;
+\end{sql}
+In general, view update which populates arbitrary modification to
+views into to the base is a harder one: since views are derived from
+the base, and in principle contains only partial information of the
+base, a unique base table update that implements the view update does
+not always exist. As a result, commercial DBS only supports updates
+for a limited class of views when an unambiguous one-one mapping
+between base and view exists.  In \Sys, however, we implement view
+update for a larger family of views (\eg reachability) via triggers
+(DBS's equivalent for call-back functions). We will revisit view
+update in \S~\ref{sec:details}.
