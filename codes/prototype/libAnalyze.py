@@ -32,7 +32,7 @@ def get_topo (cursor):
     except:
         print "Unable to get topology table"
 
-    topology = [(c['switch_id'], c['next_id']) for c in cs]
+    topology = [(c['switch_id'], c['next_id'], c['subnet_id']) for c in cs]
     return topology
 
 def get_isp_peerip (cursor):
@@ -205,41 +205,69 @@ def check_blackhole (cursor, flow_id):
 #         print "Analyze flow_id:" + str(flow_id[0])
 #         flow_e2e (flow_id[0], borders)
 
-
-def preprocess (dict_cur, updates):
+def preprocess_feeds (dict_cur, updates):
     try:
         dict_cur.execute ("""
-        DROP TABLE IF EXISTS isp_peerip CASCADE;
+        CREATE UNLOGGED TABLE subnet (
+        subnet_id      integer,
+        type	       text,	
+        PRIMARY KEY (subnet_id)
+        );
+        """)
+    except psycopg2.DatabaseError, e:
+        print "Unable to create subnet table"
+        print 'Error %s' % e
+
+    try:
+        dict_cur.execute ("""
         CREATE UNLOGGED TABLE isp_peerip (
         switch_id      integer,
         peerip	      text,	
         PRIMARY KEY (switch_id)
         );
         """)
-
-        topo = get_topo (dict_cur)
-        # print type (topo[8])
-        tmp = set([t[0] for t in topo] + [t[1] for t in topo])
-        isp_nodes = list(tmp)
-        borders = get_borders (dict_cur)
-        nodes = [n for n in isp_nodes if n not in borders.keys ()]
-
-        # print len (nodes)
-        # print len (isp_nodes)
-        # print len (borders)
-
-        peerips = list(set([u.split ()[0] for u in updates]))
-
-        for peerip in peerips:
-            if peerip not in borders.values ():
-                pick_n = random.choice (nodes)
-                nodes.remove (pick_n) 
-                dict_cur.execute ("""
-                INSERT INTO isp_peerip VALUES (%s, %s)
-                """, (int(pick_n), str (peerip)))
-
     except psycopg2.DatabaseError, e:
         print "Unable to create isp_peerip table"
+        print 'Error %s' % e
+
+    topo = get_topo (dict_cur)
+    tmp = set([t[0] for t in topo] + [t[1] for t in topo])
+    isp_nodes = list(tmp)
+    borders = get_borders (dict_cur)
+    nodes = [n for n in isp_nodes if n not in borders.keys ()]
+
+    peerips = list(set([u.split ()[0] for u in updates]))
+
+    for peerip in peerips:
+        if peerip not in borders.values ():
+            pick_n = random.choice (nodes)
+            nodes.remove (pick_n) 
+            dict_cur.execute ("""
+            INSERT INTO isp_peerip VALUES (%s, %s)
+            """, (int(pick_n), str (peerip)))
+
+    try:
+        dict_cur.execute ("""
+        ALTER TABLE flow_constraints ADD COLUMN subnet_id integer ;
+        """)
+    except psycopg2.DatabaseError, e:
+        print "Unable to add subnet_id column to flow_constraints table"
+        print 'Error %s' % e
+
+    try:
+        dict_cur.execute ("""
+        ALTER TABLE switches ADD COLUMN subnet_id integer ;
+        """)
+    except psycopg2.DatabaseError, e:
+        print "Unable to add subnet_id column to switches table"
+        print 'Error %s' % e
+
+    try:
+        dict_cur.execute ("""
+        ALTER TABLE topology ADD COLUMN subnet_id integer ;
+        """)
+    except psycopg2.DatabaseError, e:
+        print "Unable to add subnet_id column to topology table"
         print 'Error %s' % e
 
 def e2e_add (dict_cur, flow_id, src, dst):
@@ -320,9 +348,47 @@ def e2e_del_dst (dict_cur, flow_id, dst):
 def vn_add (dict_cur):
     pass
     
-def obs_init (dict_cur, feeds):
-    pass
+def obs_init (dict_cur, size):
 
+    topology = get_topo (dict_cur)    
+    topo = [(c[0], c[1]) for c in topology if c[2] == None]
+    if len (topo) > size:
+        obs_top = random.sample (topo, size)
+        print obs_top
+
+        dict_cur.execute ("""
+        SELECT max(subnet_id) from subnet ;
+        """)
+        c = dict_cur.fetchall ()
+        if c[0][0] == None:
+            subnet_id = 1
+        else:
+            subnet_id = c[0][0] + 1
+
+        dict_cur.execute ("""
+        INSERT INTO subnet VALUES (%s, %s) ;  
+        """, (subnet_id, "obs"))
+
+        for edge in obs_top :
+            dict_cur.execute ("""
+            UPDATE topology SET subnet_id = %s WHERE switch_id = %s AND next_id = %s
+            """, (subnet_id, edge[0], edge[1]))
+
+        where_sql = "(switch_id = " + str(obs_top[0][0]) + " AND next_id = " + str (obs_top[0][1]) + ")"
+        for edge in obs_top[1:]:
+            where_sql = where_sql + " OR (switch_id = " + str(edge[0]) + " AND next_id = " + str (edge[1]) + ")"
+
+        try:
+            dict_cur.execute ("""
+            CREATE OR REPLACE VIEW obs_""" + str (subnet_id) + """_config AS (
+            SELECT *
+            FROM configuration
+            WHERE """ + where_sql + ");")
+
+        except psycopg2.DatabaseError, e:
+            print "Unable to create obs view" 
+            print 'Error %s' % e
+    
 def obs_del (dict_cur, updates):
     pass
 
@@ -337,7 +403,7 @@ def synthesize (username, dbname,
         uf = open (update_edges, "r").readlines ()
         updates = uf[1:20]
 
-        preprocess (dict_cur, updates)
+        # preprocess_feeds (dict_cur, updates)
 
         borders = get_borders (dict_cur)
         topology = get_topo (dict_cur)
@@ -348,14 +414,13 @@ def synthesize (username, dbname,
         [n1, n2] = random.sample (nodes, 2)
         print "nodes: " + str (n1) + ", " + str (n2)
         
-        e2e_add (dict_cur, f1, n1, n2)
-        # print("done e2e_add, do e2e_del_src")
-        # wait = raw_input("PRESS ENTER TO CONTINUE.")
-        e2e_del_src (dict_cur, f1, n1)
-        # print("done e2e_del_src, do e2e_del_dst")
-        # wait = raw_input("PRESS ENTER TO CONTINUE.")
-        e2e_del_dst (dict_cur, f1, n2)
+        # e2e_add (dict_cur, f1, n1, n2)
+
+        # e2e_del_src (dict_cur, f1, n1)
+
+        # e2e_del_dst (dict_cur, f1, n2)
         
+        obs_init (dict_cur, 4)
 
         # for update in updates:
         #     peerIP = update.split ()[0]
