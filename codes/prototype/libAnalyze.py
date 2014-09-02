@@ -317,10 +317,13 @@ def e2e_del_dst (dict_cur, flow_id, dst):
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
 
-def obs_add (cursor, updates):
+def vn_add (dict_cur):
+    pass
+    
+def obs_init (dict_cur, feeds):
     pass
 
-def obs_del (cursor, updates):
+def obs_del (dict_cur, updates):
     pass
 
 def synthesize (username, dbname,
