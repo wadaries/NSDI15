@@ -390,9 +390,15 @@ def obs_init (dict_cur, size):
             print "Unable to create obs view" 
             print 'Error %s' % e
 
-def obs_add (dict_cur, obs_id, flow_id, src, dst):
-    pass
-    
+# def obs_add (dict_cur, obs_id, flow_id, src, dst):
+#     pass
+def obs_forwarding_graph (dict_cur, obs_id, flow_id):
+    dict_cur.execute ("""
+            CREATE OR REPLACE VIEW obs_""" + str (subnet_id) + """_config AS (
+            SELECT *
+            FROM configuration
+            WHERE """ + where_sql + ");")
+
 def obs_del (dict_cur, obs_id):
     try:
         dict_cur.execute ("UPDATE topology SET subnet_id = Null WHERE subnet_id = "+ str (obs_id) + ";")
