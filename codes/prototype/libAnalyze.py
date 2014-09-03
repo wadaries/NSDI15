@@ -1,5 +1,6 @@
 import libUtility
 
+# 2014/09/03 01:47:12
 # 2014/09/02 02:24:49
 # 2014/09/01 16:20:54
 # verification
@@ -410,20 +411,19 @@ def e2e_obs_check (dict_cur, obs_id, flow_id, src, dst):
     SELECT 1 as id, switch_id as source, next_id as target, 1.0::float8 as cost
     FROM obs_""" + str (obs_id) + "_fg_" + str (flow_id) + ";"
 
-    reach = None
+    reach = False
     try:
         dict_cur.execute ("SELECT id1 as switch_id FROM pgr_dijkstra ('"
                           + pgr_dijk_sql + "'," + str (src) + "," + str (dst) +
                           ", True, False" + ");")
         path = dict_cur.fetchall ()
-
         if path != []:
             reach = True
         else:
             reach = False
 
     except psycopg2.DatabaseError, e:
-        print "Cannot e2e_obs_add"
+        print "Cannot e2e_obs_check"
         print "Error %s" % e
 
     return reach
@@ -434,10 +434,33 @@ def e2e_obs_add (dict_cur, obs_id, flow_id, src, dst):
     FROM topology WHERE subnet_id = """ + str (obs_id) + ";"
 
     try:
-        dict_cur.execute ("SELECT id1 as switch_id FROM pgr_dijkstra ('"
-                          + pgr_dijk_sql + "'," + str (src) + "," + str (dst) +
-                          ", True, False" + ");")
-        path = dict_cur.fetchall ()
+        e2e_obs_create_fg (dict_cur, obs_id, flow_id)
+        fg_view_name = "obs_" + str (obs_id) + "_fg_" + str (flow_id)
+
+        reach = e2e_obs_check (dict_cur, obs_id, flow_id, src, dst)
+        if reach == False:
+            dict_cur.execute ("SELECT id1 as switch_id FROM pgr_dijkstra ('"
+                              + pgr_dijk_sql + "'," + str (src) + "," + str (dst) +
+                              ", True, False" + ");")
+            path = dict_cur.fetchall ()
+            if path != []:
+                print "find new path: " + str (path)
+                path_edges = path_to_edge (path)
+                for ed in path_edges:
+                    print ed
+                    try: 
+                        dict_cur.execute ("""
+                        INSERT INTO obs_""" + str (obs_id) + "_fg_" + str (flow_id) +
+                                          """ (flow_id, switch_id, next_id)
+                        VALUES (%s,%s,%s);""", (flow_id, ed[0][0], ed[1][0]))
+                    except: pass
+                    # psycopg2.DatabaseError, e:
+                    # print "Cannot insert into fg_view:"
+                    # print 'Error %s' % e
+            else: print "no available path in the obs topology"
+        else: print "e2e_obs_add: path already exits"
+
+        e2e_obs_drop_fg (dict_cur, obs_id, flow_id)
 
     except psycopg2.DatabaseError, e:
         print "Cannot e2e_obs_add"
@@ -485,12 +508,16 @@ def synthesize (username, dbname,
         # e2e_obs_create_fg (dict_cur, 1, f1)
 
         f1 = 36093
-        r1 = e2e_obs_check (dict_cur, 1, f1, 113, 230)
-        print "for obs 1, flow " + str (f1) + ", can go from 113 to 230: " + str (r1)
+        # r1 = e2e_obs_check (dict_cur, 1, f1, 113, 230)
+        # print "for obs 1, flow " + str (f1) + ", can go from 113 to 230: " + str (r1)
 
-        r2 = e2e_obs_check (dict_cur, 1, f1, 113, 456)
-        print "for obs 1, flow " + str (f1) + ", can go from 113 to 456: " + str (r2)
+        # r2 = e2e_obs_check (dict_cur, 1, f1, 113, 456)
+        # print "for obs 1, flow " + str (f1) + ", can go from 113 to 456: " + str (r2)
 
+        # e2e_obs_add (dict_cur, obs_id, flow_id, , )
+
+        e2e_obs_add (dict_cur, 1, f1, 108, 553)
+        e2e_obs_create_fg (dict_cur, 1, f1)
 
         # obs_del (dict_cur, 11)
         # obs_del (dict_cur, 13)
