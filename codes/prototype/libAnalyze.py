@@ -330,7 +330,7 @@ def e2e_del_src (dict_cur, flow_id, src):
     flow_id = 
     """ + str (flow_id) + " AND switch_id = " + str (src) + ";"
 
-    try: 
+    try:
         dict_cur.execute (del_sql)
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
@@ -392,33 +392,52 @@ def obs_init (dict_cur, size):
 
 def e2e_obs_create_fg (dict_cur, obs_id, flow_id):
     try:
-        # dict_cur.execute ("""
-        # CREATE OR REPLACE VIEW obs_""" + str (obs_id) + "_configview_" + str (flow_id) + """AS (
-        # SELECT * FROM obs_""" + str (obs_id) + """_config 
-        # WHERE """ + where_sql + ");")
-
         dict_cur.execute("""
-        CREATE OR REPLACE fg_""" + str (obs_id) + "_fg_" + str (flow_id) """AS (
+        CREATE OR REPLACE VIEW obs_""" + str (obs_id) + "_fg_" + str (flow_id) + """ AS (
         SELECT * FROM obs_""" + str(obs_id) + """_config
         WHERE flow_id = """ + str (flow_id) + ");")
-    except:
+    except psycopg2.DatabaseError, e:
         print "Unable to generate e2e_obs_view"
+        print 'Error %s' % e
 
 def e2e_obs_drop_fg (dict_cur, obs_id, flow_id):
     try:
         dict_cur.execute ("DROP VIEW obs_" + str (obs_id) + "_fg_" + str (flow_id) + ";")
     except: pass
 
+def e2e_obs_check (dict_cur, obs_id, flow_id, src, dst):
+    pgr_dijk_sql = """
+    SELECT 1 as id, switch_id as source, next_id as target, 1.0::float8 as cost
+    FROM obs_""" + str (obs_id) + "_fg_" + str (flow_id) + ";"
+
+    reach = None
+    try:
+        dict_cur.execute ("SELECT id1 as switch_id FROM pgr_dijkstra ('"
+                          + pgr_dijk_sql + "'," + str (src) + "," + str (dst) +
+                          ", True, False" + ");")
+        path = dict_cur.fetchall ()
+
+        if path != []:
+            reach = True
+        else:
+            reach = False
+
+    except psycopg2.DatabaseError, e:
+        print "Cannot e2e_obs_add"
+        print "Error %s" % e
+
+    return reach
+        
 def e2e_obs_add (dict_cur, obs_id, flow_id, src, dst):
     pgr_dijk_sql = """
     SELECT 1 as id, switch_id as source, next_id as target, 1.0::float8 as cost
     FROM topology WHERE subnet_id = """ + str (obs_id) + ";"
 
     try:
-                dict_cur.execute ("SELECT id1 as switch_id FROM pgr_dijkstra ('"
-                                  + pgr_dijk_sql + "'," + str (src) + "," + str (dst) +
-                                  ", True, False" + ");")
-                path = dict_cur.fetchall ()
+        dict_cur.execute ("SELECT id1 as switch_id FROM pgr_dijkstra ('"
+                          + pgr_dijk_sql + "'," + str (src) + "," + str (dst) +
+                          ", True, False" + ");")
+        path = dict_cur.fetchall ()
 
     except psycopg2.DatabaseError, e:
         print "Cannot e2e_obs_add"
@@ -427,8 +446,7 @@ def e2e_obs_add (dict_cur, obs_id, flow_id, src, dst):
 def obs_del (dict_cur, obs_id):
     try:
         dict_cur.execute ("UPDATE topology SET subnet_id = Null WHERE subnet_id = "+ str (obs_id) + ";")
-    except:
-        pass
+    except: pass
 
     try:
         dict_cur.execute ("DELETE FROM subnet WHERE subnet_id = %s;", ([obs_id]))
@@ -437,10 +455,6 @@ def obs_del (dict_cur, obs_id):
     try:
         dict_cur.execute ("DROP VIEW obs_" + str (obs_id) + "_config ;")
     except: pass
-
-    # except psycopg2.DatabaseError, e:
-    #     print "Unable to delete obs"
-    #     print "Error %s" % e
 
 def synthesize (username, dbname,
                update_edges):
@@ -467,7 +481,17 @@ def synthesize (username, dbname,
         # e2e_add (dict_cur, f1, n1, n2)
         # e2e_del_src (dict_cur, f1, n1)
         # e2e_del_dst (dict_cur, f1, n2)
-        # obs_init (dict_cur, 4)
+        # obs_init (dict_cur, 20)
+        # e2e_obs_create_fg (dict_cur, 1, f1)
+
+        f1 = 36093
+        r1 = e2e_obs_check (dict_cur, 1, f1, 113, 230)
+        print "for obs 1, flow " + str (f1) + ", can go from 113 to 230: " + str (r1)
+
+        r2 = e2e_obs_check (dict_cur, 1, f1, 113, 456)
+        print "for obs 1, flow " + str (f1) + ", can go from 113 to 456: " + str (r2)
+
+
         # obs_del (dict_cur, 11)
         # obs_del (dict_cur, 13)
         # obs_del (dict_cur, 14)
