@@ -346,8 +346,8 @@ def e2e_del_dst (dict_cur, flow_id, dst):
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
 
-def vn_add (dict_cur):
-    pass
+# def vn_add (dict_cur):
+#     pass
     
 def obs_init (dict_cur, size):
 
@@ -390,14 +390,39 @@ def obs_init (dict_cur, size):
             print "Unable to create obs view" 
             print 'Error %s' % e
 
-# def obs_add (dict_cur, obs_id, flow_id, src, dst):
-#     pass
-def obs_forwarding_graph (dict_cur, obs_id, flow_id):
-    dict_cur.execute ("""
-            CREATE OR REPLACE VIEW obs_""" + str (subnet_id) + """_config AS (
-            SELECT *
-            FROM configuration
-            WHERE """ + where_sql + ");")
+def e2e_obs_create_fg (dict_cur, obs_id, flow_id):
+    try:
+        # dict_cur.execute ("""
+        # CREATE OR REPLACE VIEW obs_""" + str (obs_id) + "_configview_" + str (flow_id) + """AS (
+        # SELECT * FROM obs_""" + str (obs_id) + """_config 
+        # WHERE """ + where_sql + ");")
+
+        dict_cur.execute("""
+        CREATE OR REPLACE fg_""" + str (obs_id) + "_fg_" + str (flow_id) """AS (
+        SELECT * FROM obs_""" + str(obs_id) + """_config
+        WHERE flow_id = """ + str (flow_id) + ");")
+    except:
+        print "Unable to generate e2e_obs_view"
+
+def e2e_obs_drop_fg (dict_cur, obs_id, flow_id):
+    try:
+        dict_cur.execute ("DROP VIEW obs_" + str (obs_id) + "_fg_" + str (flow_id) + ";")
+    except: pass
+
+def e2e_obs_add (dict_cur, obs_id, flow_id, src, dst):
+    pgr_dijk_sql = """
+    SELECT 1 as id, switch_id as source, next_id as target, 1.0::float8 as cost
+    FROM topology WHERE subnet_id = """ + str (obs_id) + ";"
+
+    try:
+                dict_cur.execute ("SELECT id1 as switch_id FROM pgr_dijkstra ('"
+                                  + pgr_dijk_sql + "'," + str (src) + "," + str (dst) +
+                                  ", True, False" + ");")
+                path = dict_cur.fetchall ()
+
+    except psycopg2.DatabaseError, e:
+        print "Cannot e2e_obs_add"
+        print "Error %s" % e
 
 def obs_del (dict_cur, obs_id):
     try:
