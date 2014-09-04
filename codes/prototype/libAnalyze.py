@@ -173,7 +173,7 @@ def check_blackhole (cursor, flow_id):
         )
         select next_id AS blackhole
         FROM fg
-        WHERE (NOT (next_id IN (SELECT * FROM borders))) AND
+        WHERE (NOT (next_id IN (SELECT switch_id FROM borders))) AND
                 (NOT (next_id IN (SELECT switch_id FROM fg)))
         ORDER BY blackhole;""")
 

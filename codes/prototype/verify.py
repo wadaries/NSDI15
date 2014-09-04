@@ -8,9 +8,8 @@ username = "anduo"
 # ISP_nodes = "1221_nodes.txt"
 # ISP_edges = "1221_edges.txt"
 
-rounds = 250
-
-global dbname
+rounds = 30
+# global dbname
 
 def analyze (username, dbname, log):
     setlogdata (log)
@@ -60,46 +59,49 @@ def analyze (username, dbname, log):
         print "Finish analyze_config"
 
 if __name__ == '__main__':
-    
-    dbname = raw_input('Input database name (format: rib[0-9]{1,7}): ')
-    gnu_log = 'verify_' + dbname + '.dat'
 
-    analyze (username, dbname, gnu_log)
+    dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
+    # dbname = dbname_list[0]
+    # raw_input('Input database name (format: rib[0-9]{1,7}): ')
 
-    gnuplot_script = './dat/verify_' + dbname + '.plt'
-    gsf = open(gnuplot_script, "w")
-    gsf.write ('# gnuplot script\n')
-    gsf.write ('reset\n')
+    for dbname in dbname_list:
+        gnu_log = 'verify_' + dbname + '.dat'
+        analyze (username, dbname, gnu_log)
+        ISP_number = dbname[2:6]
 
-    gsf.write ('''
-set terminal png
-set output './dat/verify_''' + dbname + ".png'\n")
-    gsf.write ('set title "Verification time for AS ' + str (ISP_number) + " initialized with " + dbname + '"\n')
-    gsf.write ('''
-set xrange [ -0.5 : 3.5]
-set xtics border in scale 1,0.5 nomirror rotate by -30  offset character 0, 0, 0 autojustify
-set key autotitle columnhead
-set xlabel "Verification tasks"
-set ylabel "Time (ms)"
-set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 7 ps .5   # --- blue
-set style line 2 lc rgb '#dd181f' lt 1 lw 2 pt 5 ps .5   # --- red\n''')
+        gnuplot_script = './dat/verify_' + dbname + '.plt'
+        gsf = open(gnuplot_script, "w")
+        gsf.write ('# gnuplot script\n')
+        gsf.write ('reset\n')
 
-    gsf.write ('\nplot "./dat/' + gnu_log + '" ')
-    gsf.write ('using 2:xtic(1) index 1 with linespoints notitle, \\')
-    for i in range (2, rounds-1):
-        gsf.write ("\n''		using 2 index " + str (i) + " with linespoints notitle, \\")
-    gsf.write ("\n''		using 2 index " + str (rounds-1) + " with linespoints notitle")
-    gsf.close ()
+        gsf.write ('''
+    set terminal png
+    set output './dat/verify_''' + dbname + ".png'\n")
+        gsf.write ('set title "Verification time for AS ' + str (ISP_number) + " initialized with " + dbname + '"\n')
+        gsf.write ('''
+    set xrange [ -0.5 : 3.5]
+    set xtics border in scale 1,0.5 nomirror rotate by -30  offset character 0, 0, 0 autojustify
+    set key autotitle columnhead
+    set xlabel "Verification tasks"
+    set ylabel "Time (ms)"
+    set style line 1 lc rgb '#0060ad' lt 1 lw 2 pt 7 ps .5   # --- blue
+    set style line 2 lc rgb '#dd181f' lt 1 lw 2 pt 5 ps .5   # --- red\n''')
 
-    os.system ("cd ./dat")
-    os.system ("gnuplot " + gnuplot_script)
+        gsf.write ('\nplot "./dat/' + gnu_log + '" ')
+        gsf.write ('using 2:xtic(1) index 1 with linespoints notitle, \\')
+        for i in range (2, rounds-1):
+            gsf.write ("\n''		using 2 index " + str (i) + " with linespoints notitle, \\")
+        gsf.write ("\n''		using 2 index " + str (rounds-1) + " with linespoints notitle")
+        gsf.close ()
+
+        os.system ("cd ./dat")
+        os.system ("gnuplot " + gnuplot_script)
 
 
      
 
 # plot 'immigration.dat' using 2:xtic(1) title columnheader(2), \
 # for [i=3:22] '' using i title columnheader(i)
-
     # ''		using 2 index 1 with linespoints ls 2, \\
     # ''		using 2 index 2 with linespoints ls 1, \\
     # ''		using 2 index 3 with linespoints ls 2

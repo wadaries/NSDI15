@@ -1,0 +1,23 @@
+Using rib_batch.py
+
+- "Input RIB size: d for default number (all), or the number of feeds:"
+Input either an integer or just the character 'd',
+the integer represents the number of Ribs used, e.g. you can input
+1000, meaning 1000 rib feed is used to generate flow entries. Each rib
+feed results in the install of one path, so a few flow entries along
+the path will be produced.
+Avoid 'd', that means using all feeds, over 2million of them, causing
+shortest path computations 2million times.
+
+- 'Input the x-th largest AS: '
+Here you input an integer between 0 to 10; or 'e'.
+The integers correspond to 10 ASes, sorted by their size.
+0 is the smallest AS with several hundreds nodes, 9 is the largest one
+with several 10'000 nodes.
+You can repeatedly input a set of integers, and let the script
+generate the actual DB by hitting 'e'.
+
+The DB generated is named like this:
+as***ribxxx:
+*** is the actual AS number, xxx is the number of rib feeds used (d,
+if all feeds used).

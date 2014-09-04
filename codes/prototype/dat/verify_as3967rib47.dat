@@ -1,0 +1,14 @@
+"Round 0"                      "Time (ms)"
+"forwarding graph"       11.993
+"disjoint edge"            36.63
+"loop free"                     4.015
+"blackhole"                0.329
+
+
+"Round 1"                      "Time (ms)"
+"forwarding graph"       1.269
+"disjoint edge"            184.135
+"loop free"                     5.643
+"blackhole"                0.275
+
+
