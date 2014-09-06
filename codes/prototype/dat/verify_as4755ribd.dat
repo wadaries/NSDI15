@@ -1,210 +1,1400 @@
 "Round 0"                      "Time (ms)"
-"forwarding graph"       10.23
-"disjoint edge"            3.006
-"loop free"                     0.765
-"blackhole"                0.73
+"forwarding graph"       10.035
+"disjoint edge"            3.756
+"loop free"                     0.782
+"blackhole"                0.754
 
 
 "Round 1"                      "Time (ms)"
-"forwarding graph"       0.551
-"disjoint edge"            1.271
-"loop free"                     0.696
-"blackhole"                0.272
+"forwarding graph"       0.603
+"disjoint edge"            1.298
+"loop free"                     0.704
+"blackhole"                0.287
 
 
 "Round 2"                      "Time (ms)"
-"forwarding graph"       0.543
-"disjoint edge"            1.263
-"loop free"                     0.688
-"blackhole"                0.265
+"forwarding graph"       0.602
+"disjoint edge"            1.391
+"loop free"                     0.702
+"blackhole"                0.289
 
 
 "Round 3"                      "Time (ms)"
-"forwarding graph"       1.372
-"disjoint edge"            2.19
-"loop free"                     1.103
-"blackhole"                0.545
+"forwarding graph"       0.745
+"disjoint edge"            2.287
+"loop free"                     1.157
+"blackhole"                0.317
 
 
 "Round 4"                      "Time (ms)"
-"forwarding graph"       0.933
-"disjoint edge"            1.976
-"loop free"                     0.722
-"blackhole"                0.28
+"forwarding graph"       0.552
+"disjoint edge"            1.329
+"loop free"                     0.703
+"blackhole"                0.371
 
 
 "Round 5"                      "Time (ms)"
-"forwarding graph"       0.545
-"disjoint edge"            1.254
-"loop free"                     0.684
-"blackhole"                0.265
+"forwarding graph"       0.548
+"disjoint edge"            1.275
+"loop free"                     0.701
+"blackhole"                0.267
 
 
 "Round 6"                      "Time (ms)"
-"forwarding graph"       0.604
-"disjoint edge"            1.338
-"loop free"                     0.704
-"blackhole"                0.374
+"forwarding graph"       0.542
+"disjoint edge"            1.263
+"loop free"                     0.689
+"blackhole"                0.327
 
 
 "Round 7"                      "Time (ms)"
-"forwarding graph"       0.542
-"disjoint edge"            1.269
-"loop free"                     0.685
-"blackhole"                0.264
+"forwarding graph"       0.549
+"disjoint edge"            1.355
+"loop free"                     0.73
+"blackhole"                0.377
 
 
 "Round 8"                      "Time (ms)"
-"forwarding graph"       0.541
-"disjoint edge"            1.257
-"loop free"                     0.682
-"blackhole"                0.258
+"forwarding graph"       0.692
+"disjoint edge"            1.602
+"loop free"                     0.904
+"blackhole"                0.426
 
 
 "Round 9"                      "Time (ms)"
-"forwarding graph"       0.544
-"disjoint edge"            1.326
-"loop free"                     1.039
-"blackhole"                0.485
+"forwarding graph"       0.752
+"disjoint edge"            1.373
+"loop free"                     0.693
+"blackhole"                0.293
 
 
 "Round 10"                      "Time (ms)"
-"forwarding graph"       0.644
-"disjoint edge"            1.585
-"loop free"                     0.743
-"blackhole"                0.288
+"forwarding graph"       0.552
+"disjoint edge"            1.273
+"loop free"                     0.702
+"blackhole"                0.273
 
 
 "Round 11"                      "Time (ms)"
-"forwarding graph"       0.545
-"disjoint edge"            1.247
-"loop free"                     0.677
-"blackhole"                0.34
+"forwarding graph"       0.543
+"disjoint edge"            1.399
+"loop free"                     0.724
+"blackhole"                0.274
 
 
 "Round 12"                      "Time (ms)"
-"forwarding graph"       0.543
-"disjoint edge"            1.268
-"loop free"                     0.679
-"blackhole"                0.275
+"forwarding graph"       0.548
+"disjoint edge"            1.27
+"loop free"                     0.699
+"blackhole"                0.264
 
 
 "Round 13"                      "Time (ms)"
-"forwarding graph"       0.714
-"disjoint edge"            1.47
-"loop free"                     0.839
-"blackhole"                0.334
+"forwarding graph"       0.55
+"disjoint edge"            1.259
+"loop free"                     0.69
+"blackhole"                0.258
 
 
 "Round 14"                      "Time (ms)"
-"forwarding graph"       0.607
-"disjoint edge"            2.506
-"loop free"                     1.212
-"blackhole"                0.451
+"forwarding graph"       0.552
+"disjoint edge"            1.995
+"loop free"                     1.157
+"blackhole"                0.406
 
 
 "Round 15"                      "Time (ms)"
-"forwarding graph"       1.209
-"disjoint edge"            2.221
-"loop free"                     1.073
-"blackhole"                0.361
+"forwarding graph"       0.764
+"disjoint edge"            1.293
+"loop free"                     0.708
+"blackhole"                0.302
 
 
 "Round 16"                      "Time (ms)"
-"forwarding graph"       0.595
-"disjoint edge"            1.29
-"loop free"                     0.693
-"blackhole"                0.27
+"forwarding graph"       0.549
+"disjoint edge"            1.475
+"loop free"                     0.777
+"blackhole"                0.272
 
 
 "Round 17"                      "Time (ms)"
-"forwarding graph"       0.544
-"disjoint edge"            1.264
-"loop free"                     0.69
-"blackhole"                0.281
+"forwarding graph"       0.553
+"disjoint edge"            1.388
+"loop free"                     0.955
+"blackhole"                0.446
 
 
 "Round 18"                      "Time (ms)"
-"forwarding graph"       0.593
-"disjoint edge"            2.052
-"loop free"                     1.512
-"blackhole"                0.527
+"forwarding graph"       0.654
+"disjoint edge"            1.714
+"loop free"                     0.705
+"blackhole"                0.266
 
 
 "Round 19"                      "Time (ms)"
-"forwarding graph"       0.573
-"disjoint edge"            1.278
-"loop free"                     0.706
-"blackhole"                0.277
+"forwarding graph"       0.591
+"disjoint edge"            1.774
+"loop free"                     0.772
+"blackhole"                0.304
 
 
 "Round 20"                      "Time (ms)"
+"forwarding graph"       0.583
+"disjoint edge"            1.373
+"loop free"                     0.783
+"blackhole"                0.277
+
+
+"Round 21"                      "Time (ms)"
+"forwarding graph"       0.547
+"disjoint edge"            1.28
+"loop free"                     0.771
+"blackhole"                0.877
+
+
+"Round 22"                      "Time (ms)"
+"forwarding graph"       0.778
+"disjoint edge"            1.543
+"loop free"                     0.705
+"blackhole"                0.297
+
+
+"Round 23"                      "Time (ms)"
+"forwarding graph"       0.607
+"disjoint edge"            1.33
+"loop free"                     0.71
+"blackhole"                0.276
+
+
+"Round 24"                      "Time (ms)"
 "forwarding graph"       0.544
-"disjoint edge"            1.257
+"disjoint edge"            2.034
+"loop free"                     1.279
+"blackhole"                0.521
+
+
+"Round 25"                      "Time (ms)"
+"forwarding graph"       0.963
+"disjoint edge"            2.031
+"loop free"                     1.099
+"blackhole"                0.368
+
+
+"Round 26"                      "Time (ms)"
+"forwarding graph"       0.579
+"disjoint edge"            1.268
+"loop free"                     0.697
+"blackhole"                0.274
+
+
+"Round 27"                      "Time (ms)"
+"forwarding graph"       0.549
+"disjoint edge"            1.272
+"loop free"                     0.695
+"blackhole"                0.265
+
+
+"Round 28"                      "Time (ms)"
+"forwarding graph"       0.543
+"disjoint edge"            1.285
+"loop free"                     0.969
+"blackhole"                0.296
+
+
+"Round 29"                      "Time (ms)"
+"forwarding graph"       0.556
+"disjoint edge"            1.585
+"loop free"                     0.714
+"blackhole"                0.276
+
+
+"Round 30"                      "Time (ms)"
+"forwarding graph"       0.55
+"disjoint edge"            1.615
+"loop free"                     0.941
+"blackhole"                0.644
+
+
+"Round 31"                      "Time (ms)"
+"forwarding graph"       0.666
+"disjoint edge"            1.529
+"loop free"                     0.972
+"blackhole"                0.323
+
+
+"Round 32"                      "Time (ms)"
+"forwarding graph"       0.561
+"disjoint edge"            1.276
+"loop free"                     0.699
+"blackhole"                0.264
+
+
+"Round 33"                      "Time (ms)"
+"forwarding graph"       0.545
+"disjoint edge"            1.265
+"loop free"                     0.686
+"blackhole"                0.276
+
+
+"Round 34"                      "Time (ms)"
+"forwarding graph"       0.548
+"disjoint edge"            1.371
+"loop free"                     0.703
+"blackhole"                0.27
+
+
+"Round 35"                      "Time (ms)"
+"forwarding graph"       0.548
+"disjoint edge"            1.264
+"loop free"                     0.7
+"blackhole"                0.379
+
+
+"Round 36"                      "Time (ms)"
+"forwarding graph"       1.269
+"disjoint edge"            2.171
+"loop free"                     1.098
+"blackhole"                0.39
+
+
+"Round 37"                      "Time (ms)"
+"forwarding graph"       0.934
+"disjoint edge"            1.99
+"loop free"                     0.726
+"blackhole"                0.28
+
+
+"Round 38"                      "Time (ms)"
+"forwarding graph"       0.548
+"disjoint edge"            1.491
+"loop free"                     0.704
+"blackhole"                0.276
+
+
+"Round 39"                      "Time (ms)"
+"forwarding graph"       0.565
+"disjoint edge"            1.672
+"loop free"                     0.84
+"blackhole"                0.452
+
+
+"Round 40"                      "Time (ms)"
+"forwarding graph"       0.858
+"disjoint edge"            1.564
+"loop free"                     0.706
+"blackhole"                0.296
+
+
+"Round 41"                      "Time (ms)"
+"forwarding graph"       0.555
+"disjoint edge"            1.268
+"loop free"                     0.706
+"blackhole"                0.274
+
+
+"Round 42"                      "Time (ms)"
+"forwarding graph"       0.551
+"disjoint edge"            1.291
+"loop free"                     0.719
+"blackhole"                0.278
+
+
+"Round 43"                      "Time (ms)"
+"forwarding graph"       0.549
+"disjoint edge"            1.258
+"loop free"                     0.688
+"blackhole"                0.261
+
+
+"Round 44"                      "Time (ms)"
+"forwarding graph"       0.543
+"disjoint edge"            1.255
+"loop free"                     0.691
+"blackhole"                0.259
+
+
+"Round 45"                      "Time (ms)"
+"forwarding graph"       0.547
+"disjoint edge"            1.343
+"loop free"                     0.725
+"blackhole"                0.272
+
+
+"Round 46"                      "Time (ms)"
+"forwarding graph"       0.55
+"disjoint edge"            1.27
+"loop free"                     0.697
+"blackhole"                0.265
+
+
+"Round 47"                      "Time (ms)"
+"forwarding graph"       0.551
+"disjoint edge"            1.994
+"loop free"                     1.26
+"blackhole"                0.398
+
+
+"Round 48"                      "Time (ms)"
+"forwarding graph"       0.956
+"disjoint edge"            2.053
+"loop free"                     1.113
+"blackhole"                0.356
+
+
+"Round 49"                      "Time (ms)"
+"forwarding graph"       0.608
+"disjoint edge"            1.274
+"loop free"                     0.701
+"blackhole"                0.273
+
+
+"Round 50"                      "Time (ms)"
+"forwarding graph"       0.545
+"disjoint edge"            1.264
+"loop free"                     0.706
+"blackhole"                0.305
+
+
+"Round 51"                      "Time (ms)"
+"forwarding graph"       0.549
+"disjoint edge"            1.263
+"loop free"                     0.7
+"blackhole"                0.31
+
+
+"Round 52"                      "Time (ms)"
+"forwarding graph"       0.55
+"disjoint edge"            1.476
+"loop free"                     0.694
+"blackhole"                0.265
+
+
+"Round 53"                      "Time (ms)"
+"forwarding graph"       0.543
+"disjoint edge"            1.626
+"loop free"                     0.956
+"blackhole"                0.579
+
+
+"Round 54"                      "Time (ms)"
+"forwarding graph"       0.776
+"disjoint edge"            1.611
+"loop free"                     0.746
+"blackhole"                0.311
+
+
+"Round 55"                      "Time (ms)"
+"forwarding graph"       0.563
+"disjoint edge"            1.42
+"loop free"                     0.775
+"blackhole"                0.287
+
+
+"Round 56"                      "Time (ms)"
+"forwarding graph"       0.574
+"disjoint edge"            1.345
+"loop free"                     0.702
+"blackhole"                0.267
+
+
+"Round 57"                      "Time (ms)"
+"forwarding graph"       0.547
+"disjoint edge"            1.259
+"loop free"                     0.692
+"blackhole"                0.258
+
+
+"Round 58"                      "Time (ms)"
+"forwarding graph"       0.549
+"disjoint edge"            1.265
+"loop free"                     0.688
+"blackhole"                0.257
+
+
+"Round 59"                      "Time (ms)"
+"forwarding graph"       1.303
+"disjoint edge"            2.285
+"loop free"                     1.107
+"blackhole"                0.425
+
+
+"Round 60"                      "Time (ms)"
+"forwarding graph"       0.935
+"disjoint edge"            2.104
+"loop free"                     0.75
+"blackhole"                0.282
+
+
+"Round 61"                      "Time (ms)"
+"forwarding graph"       0.55
+"disjoint edge"            1.268
+"loop free"                     0.708
+"blackhole"                0.276
+
+
+"Round 62"                      "Time (ms)"
+"forwarding graph"       0.574
+"disjoint edge"            1.458
+"loop free"                     0.86
+"blackhole"                0.458
+
+
+"Round 63"                      "Time (ms)"
+"forwarding graph"       0.745
+"disjoint edge"            1.595
+"loop free"                     0.754
+"blackhole"                0.315
+
+
+"Round 64"                      "Time (ms)"
+"forwarding graph"       0.573
+"disjoint edge"            1.267
+"loop free"                     0.699
+"blackhole"                0.276
+
+
+"Round 65"                      "Time (ms)"
+"forwarding graph"       0.562
+"disjoint edge"            1.27
+"loop free"                     0.758
+"blackhole"                0.27
+
+
+"Round 66"                      "Time (ms)"
+"forwarding graph"       0.552
+"disjoint edge"            1.261
+"loop free"                     0.69
+"blackhole"                0.261
+
+
+"Round 67"                      "Time (ms)"
+"forwarding graph"       0.549
+"disjoint edge"            1.261
+"loop free"                     0.691
+"blackhole"                0.26
+
+
+"Round 68"                      "Time (ms)"
+"forwarding graph"       0.548
+"disjoint edge"            1.262
+"loop free"                     0.689
+"blackhole"                0.259
+
+
+"Round 69"                      "Time (ms)"
+"forwarding graph"       0.542
+"disjoint edge"            1.264
+"loop free"                     0.692
+"blackhole"                0.26
+
+
+"Round 70"                      "Time (ms)"
+"forwarding graph"       0.548
+"disjoint edge"            1.312
+"loop free"                     1.236
+"blackhole"                0.619
+
+
+"Round 71"                      "Time (ms)"
+"forwarding graph"       0.681
+"disjoint edge"            1.301
+"loop free"                     1.079
+"blackhole"                0.448
+
+
+"Round 72"                      "Time (ms)"
+"forwarding graph"       0.57
+"disjoint edge"            1.286
+"loop free"                     0.706
+"blackhole"                0.274
+
+
+"Round 73"                      "Time (ms)"
+"forwarding graph"       0.544
+"disjoint edge"            1.272
+"loop free"                     0.698
+"blackhole"                0.261
+
+
+"Round 74"                      "Time (ms)"
+"forwarding graph"       0.548
+"disjoint edge"            1.264
+"loop free"                     0.692
+"blackhole"                0.26
+
+
+"Round 75"                      "Time (ms)"
+"forwarding graph"       1.484
+"disjoint edge"            2.06
+"loop free"                     0.679
+"blackhole"                0.284
+
+
+"Round 76"                      "Time (ms)"
+"forwarding graph"       0.553
+"disjoint edge"            1.193
+"loop free"                     0.828
+"blackhole"                0.35
+
+
+"Round 77"                      "Time (ms)"
+"forwarding graph"       0.612
+"disjoint edge"            1.302
+"loop free"                     0.703
+"blackhole"                0.271
+
+
+"Round 78"                      "Time (ms)"
+"forwarding graph"       0.551
+"disjoint edge"            1.264
+"loop free"                     0.695
+"blackhole"                0.265
+
+
+"Round 79"                      "Time (ms)"
+"forwarding graph"       0.547
+"disjoint edge"            1.265
+"loop free"                     0.708
+"blackhole"                0.317
+
+
+"Round 80"                      "Time (ms)"
+"forwarding graph"       0.591
+"disjoint edge"            1.357
+"loop free"                     0.706
+"blackhole"                0.272
+
+
+"Round 81"                      "Time (ms)"
+"forwarding graph"       0.957
+"disjoint edge"            2.309
+"loop free"                     1.354
+"blackhole"                0.748
+
+
+"Round 82"                      "Time (ms)"
+"forwarding graph"       1.054
+"disjoint edge"            2.271
+"loop free"                     1.134
+"blackhole"                0.409
+
+
+"Round 83"                      "Time (ms)"
+"forwarding graph"       0.632
+"disjoint edge"            1.386
+"loop free"                     0.712
+"blackhole"                0.401
+
+
+"Round 84"                      "Time (ms)"
+"forwarding graph"       0.62
+"disjoint edge"            1.345
+"loop free"                     0.732
+"blackhole"                0.312
+
+
+"Round 85"                      "Time (ms)"
+"forwarding graph"       0.668
+"disjoint edge"            1.881
+"loop free"                     1.119
+"blackhole"                0.499
+
+
+"Round 86"                      "Time (ms)"
+"forwarding graph"       0.607
+"disjoint edge"            1.35
+"loop free"                     0.734
+"blackhole"                0.287
+
+
+"Round 87"                      "Time (ms)"
+"forwarding graph"       0.585
+"disjoint edge"            1.278
+"loop free"                     0.739
+"blackhole"                0.283
+
+
+"Round 88"                      "Time (ms)"
+"forwarding graph"       0.592
+"disjoint edge"            1.3
+"loop free"                     0.691
+"blackhole"                0.265
+
+
+"Round 89"                      "Time (ms)"
+"forwarding graph"       0.554
+"disjoint edge"            1.911
+"loop free"                     0.743
+"blackhole"                0.298
+
+
+"Round 90"                      "Time (ms)"
+"forwarding graph"       0.55
+"disjoint edge"            1.271
+"loop free"                     0.698
+"blackhole"                0.259
+
+
+"Round 91"                      "Time (ms)"
+"forwarding graph"       0.552
+"disjoint edge"            1.286
+"loop free"                     0.695
+"blackhole"                0.259
+
+
+"Round 92"                      "Time (ms)"
+"forwarding graph"       0.548
+"disjoint edge"            1.293
+"loop free"                     1.504
+"blackhole"                0.534
+
+
+"Round 93"                      "Time (ms)"
+"forwarding graph"       0.911
+"disjoint edge"            2.036
+"loop free"                     1.087
+"blackhole"                0.371
+
+
+"Round 94"                      "Time (ms)"
+"forwarding graph"       0.926
+"disjoint edge"            1.299
+"loop free"                     0.703
+"blackhole"                0.27
+
+
+"Round 95"                      "Time (ms)"
+"forwarding graph"       0.549
+"disjoint edge"            1.345
+"loop free"                     0.704
+"blackhole"                0.275
+
+
+"Round 96"                      "Time (ms)"
+"forwarding graph"       0.544
+"disjoint edge"            1.264
+"loop free"                     0.702
+"blackhole"                0.268
+
+
+"Round 97"                      "Time (ms)"
+"forwarding graph"       0.55
+"disjoint edge"            1.581
+"loop free"                     0.692
+"blackhole"                0.27
+
+
+"Round 98"                      "Time (ms)"
+"forwarding graph"       0.544
+"disjoint edge"            1.291
+"loop free"                     0.913
+"blackhole"                0.488
+
+
+"Round 99"                      "Time (ms)"
+"forwarding graph"       0.625
+"disjoint edge"            1.746
+"loop free"                     0.849
+"blackhole"                0.29
+
+
+"Round 100"                      "Time (ms)"
+"forwarding graph"       0.575
+"disjoint edge"            1.363
+"loop free"                     0.687
+"blackhole"                0.259
+
+
+"Round 101"                      "Time (ms)"
+"forwarding graph"       0.545
+"disjoint edge"            1.266
+"loop free"                     0.709
+"blackhole"                0.267
+
+
+"Round 102"                      "Time (ms)"
+"forwarding graph"       0.547
+"disjoint edge"            1.263
+"loop free"                     0.689
+"blackhole"                0.257
+
+
+"Round 103"                      "Time (ms)"
+"forwarding graph"       0.542
+"disjoint edge"            1.253
+"loop free"                     0.646
+"blackhole"                0.278
+
+
+"Round 104"                      "Time (ms)"
+"forwarding graph"       0.569
+"disjoint edge"            1.306
+"loop free"                     0.941
+"blackhole"                0.31
+
+
+"Round 105"                      "Time (ms)"
+"forwarding graph"       0.585
+"disjoint edge"            1.232
+"loop free"                     0.661
+"blackhole"                0.264
+
+
+"Round 106"                      "Time (ms)"
+"forwarding graph"       0.551
+"disjoint edge"            1.425
+"loop free"                     0.707
+"blackhole"                0.279
+
+
+"Round 107"                      "Time (ms)"
+"forwarding graph"       0.576
+"disjoint edge"            1.281
+"loop free"                     0.705
+"blackhole"                0.274
+
+
+"Round 108"                      "Time (ms)"
+"forwarding graph"       0.549
+"disjoint edge"            1.282
+"loop free"                     0.976
+"blackhole"                0.593
+
+
+"Round 109"                      "Time (ms)"
+"forwarding graph"       0.88
+"disjoint edge"            1.632
+"loop free"                     0.856
+"blackhole"                0.327
+
+
+"Round 110"                      "Time (ms)"
+"forwarding graph"       0.564
+"disjoint edge"            1.287
+"loop free"                     0.702
+"blackhole"                0.276
+
+
+"Round 111"                      "Time (ms)"
+"forwarding graph"       0.554
+"disjoint edge"            1.294
+"loop free"                     0.716
+"blackhole"                0.271
+
+
+"Round 112"                      "Time (ms)"
+"forwarding graph"       0.594
+"disjoint edge"            1.341
+"loop free"                     0.695
+"blackhole"                0.267
+
+
+"Round 113"                      "Time (ms)"
+"forwarding graph"       0.544
+"disjoint edge"            1.333
+"loop free"                     0.693
+"blackhole"                0.263
+
+
+"Round 114"                      "Time (ms)"
+"forwarding graph"       0.544
+"disjoint edge"            1.261
+"loop free"                     0.685
+"blackhole"                0.258
+
+
+"Round 115"                      "Time (ms)"
+"forwarding graph"       0.549
+"disjoint edge"            1.256
+"loop free"                     0.688
+"blackhole"                0.257
+
+
+"Round 116"                      "Time (ms)"
+"forwarding graph"       0.551
+"disjoint edge"            1.955
+"loop free"                     1.26
+"blackhole"                0.392
+
+
+"Round 117"                      "Time (ms)"
+"forwarding graph"       0.944
+"disjoint edge"            2.418
+"loop free"                     1.088
+"blackhole"                0.397
+
+
+"Round 118"                      "Time (ms)"
+"forwarding graph"       0.749
+"disjoint edge"            1.278
+"loop free"                     0.698
+"blackhole"                0.274
+
+
+"Round 119"                      "Time (ms)"
+"forwarding graph"       0.551
+"disjoint edge"            1.27
+"loop free"                     0.7
+"blackhole"                0.269
+
+
+"Round 120"                      "Time (ms)"
+"forwarding graph"       0.549
+"disjoint edge"            1.279
+"loop free"                     0.72
+"blackhole"                0.262
+
+
+"Round 121"                      "Time (ms)"
+"forwarding graph"       0.568
+"disjoint edge"            1.35
+"loop free"                     0.71
+"blackhole"                0.346
+
+
+"Round 122"                      "Time (ms)"
+"forwarding graph"       0.551
+"disjoint edge"            1.392
+"loop free"                     0.798
+"blackhole"                0.469
+
+
+"Round 123"                      "Time (ms)"
+"forwarding graph"       0.648
+"disjoint edge"            2.328
+"loop free"                     0.757
+"blackhole"                0.295
+
+
+"Round 124"                      "Time (ms)"
+"forwarding graph"       0.557
+"disjoint edge"            1.278
+"loop free"                     0.7
+"blackhole"                0.271
+
+
+"Round 125"                      "Time (ms)"
+"forwarding graph"       0.545
+"disjoint edge"            1.317
+"loop free"                     0.705
+"blackhole"                0.267
+
+
+"Round 126"                      "Time (ms)"
+"forwarding graph"       0.545
+"disjoint edge"            1.261
+"loop free"                     0.69
+"blackhole"                0.257
+
+
+"Round 127"                      "Time (ms)"
+"forwarding graph"       0.544
+"disjoint edge"            1.26
+"loop free"                     0.689
+"blackhole"                0.259
+
+
+"Round 128"                      "Time (ms)"
+"forwarding graph"       1.33
+"disjoint edge"            2.178
+"loop free"                     1.122
+"blackhole"                0.399
+
+
+"Round 129"                      "Time (ms)"
+"forwarding graph"       0.933
+"disjoint edge"            2.089
+"loop free"                     0.99
+"blackhole"                0.32
+
+
+"Round 130"                      "Time (ms)"
+"forwarding graph"       0.55
+"disjoint edge"            1.27
+"loop free"                     0.702
+"blackhole"                0.298
+
+
+"Round 131"                      "Time (ms)"
+"forwarding graph"       0.603
+"disjoint edge"            1.531
+"loop free"                     0.833
+"blackhole"                0.554
+
+
+"Round 132"                      "Time (ms)"
+"forwarding graph"       0.731
+"disjoint edge"            1.366
+"loop free"                     0.675
+"blackhole"                0.331
+
+
+"Round 133"                      "Time (ms)"
+"forwarding graph"       0.598
+"disjoint edge"            1.315
+"loop free"                     0.757
+"blackhole"                0.295
+
+
+"Round 134"                      "Time (ms)"
+"forwarding graph"       0.571
+"disjoint edge"            1.27
+"loop free"                     0.654
+"blackhole"                0.287
+
+
+"Round 135"                      "Time (ms)"
+"forwarding graph"       0.583
+"disjoint edge"            1.319
+"loop free"                     0.699
+"blackhole"                0.269
+
+
+"Round 136"                      "Time (ms)"
+"forwarding graph"       0.55
+"disjoint edge"            1.267
+"loop free"                     0.698
+"blackhole"                0.266
+
+
+"Round 137"                      "Time (ms)"
+"forwarding graph"       0.549
+"disjoint edge"            1.265
+"loop free"                     0.688
+"blackhole"                0.259
+
+
+"Round 138"                      "Time (ms)"
+"forwarding graph"       0.547
+"disjoint edge"            1.26
+"loop free"                     0.692
+"blackhole"                0.259
+
+
+"Round 139"                      "Time (ms)"
+"forwarding graph"       0.569
+"disjoint edge"            1.3
+"loop free"                     0.695
+"blackhole"                0.373
+
+
+"Round 140"                      "Time (ms)"
+"forwarding graph"       1.33
+"disjoint edge"            2.246
+"loop free"                     1.139
+"blackhole"                0.4
+
+
+"Round 141"                      "Time (ms)"
+"forwarding graph"       0.916
+"disjoint edge"            1.72
+"loop free"                     0.727
+"blackhole"                0.279
+
+
+"Round 142"                      "Time (ms)"
+"forwarding graph"       0.593
+"disjoint edge"            1.27
+"loop free"                     0.699
+"blackhole"                0.267
+
+
+"Round 143"                      "Time (ms)"
+"forwarding graph"       0.546
+"disjoint edge"            1.276
+"loop free"                     0.697
+"blackhole"                0.258
+
+
+"Round 144"                      "Time (ms)"
+"forwarding graph"       0.789
+"disjoint edge"            1.269
+"loop free"                     0.688
+"blackhole"                0.261
+
+
+"Round 145"                      "Time (ms)"
+"forwarding graph"       0.556
+"disjoint edge"            1.393
+"loop free"                     1.071
+"blackhole"                0.574
+
+
+"Round 146"                      "Time (ms)"
+"forwarding graph"       0.96
+"disjoint edge"            1.477
+"loop free"                     0.683
+"blackhole"                0.335
+
+
+"Round 147"                      "Time (ms)"
+"forwarding graph"       0.564
+"disjoint edge"            1.28
+"loop free"                     0.717
+"blackhole"                0.273
+
+
+"Round 148"                      "Time (ms)"
+"forwarding graph"       0.548
+"disjoint edge"            1.276
+"loop free"                     0.703
+"blackhole"                0.267
+
+
+"Round 149"                      "Time (ms)"
+"forwarding graph"       0.55
+"disjoint edge"            1.269
+"loop free"                     0.967
+"blackhole"                0.28
+
+
+"Round 150"                      "Time (ms)"
+"forwarding graph"       0.55
+"disjoint edge"            1.267
+"loop free"                     0.696
+"blackhole"                0.267
+
+
+"Round 151"                      "Time (ms)"
+"forwarding graph"       0.548
+"disjoint edge"            2.68
+"loop free"                     1.157
+"blackhole"                0.447
+
+
+"Round 152"                      "Time (ms)"
+"forwarding graph"       0.944
+"disjoint edge"            2.269
+"loop free"                     0.741
+"blackhole"                0.303
+
+
+"Round 153"                      "Time (ms)"
+"forwarding graph"       0.555
+"disjoint edge"            1.289
+"loop free"                     0.719
+"blackhole"                0.385
+
+
+"Round 154"                      "Time (ms)"
+"forwarding graph"       0.723
+"disjoint edge"            1.719
+"loop free"                     1.461
+"blackhole"                0.404
+
+
+"Round 155"                      "Time (ms)"
+"forwarding graph"       0.592
+"disjoint edge"            1.353
+"loop free"                     0.987
+"blackhole"                0.332
+
+
+"Round 156"                      "Time (ms)"
+"forwarding graph"       0.597
+"disjoint edge"            1.313
+"loop free"                     0.72
+"blackhole"                0.278
+
+
+"Round 157"                      "Time (ms)"
+"forwarding graph"       0.546
+"disjoint edge"            1.28
+"loop free"                     0.699
+"blackhole"                0.268
+
+
+"Round 158"                      "Time (ms)"
+"forwarding graph"       0.778
+"disjoint edge"            1.487
+"loop free"                     0.934
+"blackhole"                0.339
+
+
+"Round 159"                      "Time (ms)"
+"forwarding graph"       0.575
+"disjoint edge"            1.331
+"loop free"                     0.715
+"blackhole"                0.266
+
+
+"Round 160"                      "Time (ms)"
+"forwarding graph"       0.548
+"disjoint edge"            1.256
+"loop free"                     0.692
+"blackhole"                0.258
+
+
+"Round 161"                      "Time (ms)"
+"forwarding graph"       0.547
+"disjoint edge"            1.269
+"loop free"                     0.754
+"blackhole"                0.267
+
+
+"Round 162"                      "Time (ms)"
+"forwarding graph"       1.333
+"disjoint edge"            2.098
+"loop free"                     1.094
+"blackhole"                0.39
+
+
+"Round 163"                      "Time (ms)"
+"forwarding graph"       0.949
+"disjoint edge"            1.787
+"loop free"                     0.713
+"blackhole"                0.283
+
+
+"Round 164"                      "Time (ms)"
+"forwarding graph"       0.552
+"disjoint edge"            1.269
 "loop free"                     0.7
 "blackhole"                0.265
 
 
-"Round 21"                      "Time (ms)"
-"forwarding graph"       0.544
-"disjoint edge"            1.248
-"loop free"                     0.684
-"blackhole"                0.268
-
-
-"Round 22"                      "Time (ms)"
-"forwarding graph"       0.644
-"disjoint edge"            1.314
-"loop free"                     0.696
-"blackhole"                0.277
-
-
-"Round 23"                      "Time (ms)"
-"forwarding graph"       0.538
-"disjoint edge"            1.248
-"loop free"                     0.681
-"blackhole"                0.262
-
-
-"Round 24"                      "Time (ms)"
-"forwarding graph"       0.541
-"disjoint edge"            1.246
-"loop free"                     0.68
+"Round 165"                      "Time (ms)"
+"forwarding graph"       0.542
+"disjoint edge"            1.315
+"loop free"                     0.686
 "blackhole"                0.257
 
 
-"Round 25"                      "Time (ms)"
-"forwarding graph"       0.541
-"disjoint edge"            1.447
-"loop free"                     1.526
-"blackhole"                0.522
+"Round 166"                      "Time (ms)"
+"forwarding graph"       0.83
+"disjoint edge"            1.372
+"loop free"                     0.704
+"blackhole"                0.276
 
 
-"Round 26"                      "Time (ms)"
-"forwarding graph"       0.906
-"disjoint edge"            2.014
-"loop free"                     1.08
-"blackhole"                0.375
+"Round 167"                      "Time (ms)"
+"forwarding graph"       0.544
+"disjoint edge"            1.424
+"loop free"                     1.079
+"blackhole"                0.49
 
 
-"Round 27"                      "Time (ms)"
-"forwarding graph"       1.006
-"disjoint edge"            1.286
+"Round 168"                      "Time (ms)"
+"forwarding graph"       0.662
+"disjoint edge"            1.917
+"loop free"                     0.745
+"blackhole"                0.296
+
+
+"Round 169"                      "Time (ms)"
+"forwarding graph"       0.547
+"disjoint edge"            1.269
+"loop free"                     0.684
+"blackhole"                0.259
+
+
+"Round 170"                      "Time (ms)"
+"forwarding graph"       0.551
+"disjoint edge"            1.264
+"loop free"                     0.723
+"blackhole"                0.3
+
+
+"Round 171"                      "Time (ms)"
+"forwarding graph"       0.582
+"disjoint edge"            1.3
 "loop free"                     0.691
+"blackhole"                0.261
+
+
+"Round 172"                      "Time (ms)"
+"forwarding graph"       0.543
+"disjoint edge"            1.257
+"loop free"                     0.687
+"blackhole"                0.267
+
+
+"Round 173"                      "Time (ms)"
+"forwarding graph"       0.549
+"disjoint edge"            3.002
+"loop free"                     1.098
+"blackhole"                0.411
+
+
+"Round 174"                      "Time (ms)"
+"forwarding graph"       0.918
+"disjoint edge"            2.047
+"loop free"                     0.853
+"blackhole"                0.382
+
+
+"Round 175"                      "Time (ms)"
+"forwarding graph"       0.561
+"disjoint edge"            1.368
+"loop free"                     0.733
+"blackhole"                0.325
+
+
+"Round 176"                      "Time (ms)"
+"forwarding graph"       0.75
+"disjoint edge"            1.676
+"loop free"                     0.942
+"blackhole"                0.471
+
+
+"Round 177"                      "Time (ms)"
+"forwarding graph"       0.682
+"disjoint edge"            1.321
+"loop free"                     0.713
+"blackhole"                0.284
+
+
+"Round 178"                      "Time (ms)"
+"forwarding graph"       0.549
+"disjoint edge"            1.269
+"loop free"                     0.714
+"blackhole"                0.273
+
+
+"Round 179"                      "Time (ms)"
+"forwarding graph"       0.586
+"disjoint edge"            1.276
+"loop free"                     0.693
+"blackhole"                0.266
+
+
+"Round 180"                      "Time (ms)"
+"forwarding graph"       0.549
+"disjoint edge"            2.002
+"loop free"                     0.755
+"blackhole"                0.296
+
+
+"Round 181"                      "Time (ms)"
+"forwarding graph"       0.55
+"disjoint edge"            1.269
+"loop free"                     0.7
+"blackhole"                0.266
+
+
+"Round 182"                      "Time (ms)"
+"forwarding graph"       0.553
+"disjoint edge"            1.269
+"loop free"                     0.704
+"blackhole"                0.26
+
+
+"Round 183"                      "Time (ms)"
+"forwarding graph"       0.541
+"disjoint edge"            1.297
+"loop free"                     0.708
+"blackhole"                0.272
+
+
+"Round 184"                      "Time (ms)"
+"forwarding graph"       0.549
+"disjoint edge"            1.301
+"loop free"                     0.681
+"blackhole"                0.329
+
+
+"Round 185"                      "Time (ms)"
+"forwarding graph"       0.746
+"disjoint edge"            1.257
+"loop free"                     0.675
+"blackhole"                0.284
+
+
+"Round 186"                      "Time (ms)"
+"forwarding graph"       0.554
+"disjoint edge"            1.199
+"loop free"                     0.656
+"blackhole"                0.362
+
+
+"Round 187"                      "Time (ms)"
+"forwarding graph"       0.557
+"disjoint edge"            1.372
+"loop free"                     0.705
 "blackhole"                0.274
 
 
-"Round 28"                      "Time (ms)"
-"forwarding graph"       0.542
-"disjoint edge"            1.251
-"loop free"                     0.688
-"blackhole"                0.264
+"Round 188"                      "Time (ms)"
+"forwarding graph"       0.59
+"disjoint edge"            1.274
+"loop free"                     0.697
+"blackhole"                0.268
 
 
-"Round 29"                      "Time (ms)"
-"forwarding graph"       0.543
-"disjoint edge"            1.249
-"loop free"                     0.681
-"blackhole"                0.263
+"Round 189"                      "Time (ms)"
+"forwarding graph"       0.579
+"disjoint edge"            1.265
+"loop free"                     0.707
+"blackhole"                0.294
+
+
+"Round 190"                      "Time (ms)"
+"forwarding graph"       0.559
+"disjoint edge"            2.115
+"loop free"                     1.493
+"blackhole"                0.551
+
+
+"Round 191"                      "Time (ms)"
+"forwarding graph"       1.743
+"disjoint edge"            1.467
+"loop free"                     1.233
+"blackhole"                0.325
+
+
+"Round 192"                      "Time (ms)"
+"forwarding graph"       0.572
+"disjoint edge"            1.336
+"loop free"                     0.734
+"blackhole"                0.377
+
+
+"Round 193"                      "Time (ms)"
+"forwarding graph"       0.569
+"disjoint edge"            1.315
+"loop free"                     0.715
+"blackhole"                0.268
+
+
+"Round 194"                      "Time (ms)"
+"forwarding graph"       0.559
+"disjoint edge"            1.403
+"loop free"                     1.094
+"blackhole"                0.451
+
+
+"Round 195"                      "Time (ms)"
+"forwarding graph"       1.004
+"disjoint edge"            2.057
+"loop free"                     1.33
+"blackhole"                0.48
+
+
+"Round 196"                      "Time (ms)"
+"forwarding graph"       1.26
+"disjoint edge"            2.485
+"loop free"                     1.422
+"blackhole"                0.533
+
+
+"Round 197"                      "Time (ms)"
+"forwarding graph"       0.8
+"disjoint edge"            1.779
+"loop free"                     1.083
+"blackhole"                0.784
+
+
+"Round 198"                      "Time (ms)"
+"forwarding graph"       0.959
+"disjoint edge"            2.585
+"loop free"                     0.775
+"blackhole"                0.474
+
+
+"Round 199"                      "Time (ms)"
+"forwarding graph"       0.755
+"disjoint edge"            1.329
+"loop free"                     0.723
+"blackhole"                0.295
 
 

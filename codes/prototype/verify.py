@@ -1,15 +1,59 @@
 import libAnalyze
 
-username = "anduo"
-
 # rib_prefixes = "rib20011204_prefixes.txt"
 # rib_peerIPs = "rib20011204_nodes.txt"
 # ISP_number = 1221
 # ISP_nodes = "1221_nodes.txt"
 # ISP_edges = "1221_edges.txt"
-
-rounds = 30
 # global dbname
+
+def plot_all_init (username, dbname_list):
+    
+        dat_file = './dat/init.dat'
+        dat = open(dat_file, "w")
+
+        for d in dbname_list:
+            plot_init (username, d, dat)
+
+
+
+
+
+
+def plot_init (username, dbname, dat):
+    try:
+        conn = psycopg2.connect(database= dbname, user= username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        print "plot_init: Connect to database " + dbname + ", as user " + username
+
+        dat.write ('"number"\t "AS ' + dbname[2:6] + '"\n')
+
+        dict_cur.execute ("SELECT count (*) FROM topology ;")
+        edge_size = dict_cur.fetchall () [0][0]
+        dat.write ('"links"     \t' + str (edge_size) + '\n')
+
+        dict_cur.execute ("SELECT count (*) FROM switches ;")
+        node_size = dict_cur.fetchall () [0][0]
+        dat.write ('"nodes"     \t' + str (node_size) + '\n')
+
+
+        dict_cur.execute ("SELECT count (*) FROM configuration ;")
+        conf_num = dict_cur.fetchall ()[0][0]
+        dat.write ('"configurations" \t' + str (conf_num) + '\n')
+
+        dict_cur.execute ("SELECT count (*) FROM flow_constraints ;")
+        flow_num = dict_cur.fetchall ()[0][0]
+        dat.write ('"flows"     \t' + str (flow_num) + '\n\n')
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to connect to database " + dbname + ", as user " + username
+        print 'Error %s' % e
+    finally:
+        if conn:
+            conn.close()
+        print "plot_init: finish"
+
 
 def analyze (username, dbname, log):
     setlogdata (log)
@@ -58,11 +102,7 @@ def analyze (username, dbname, log):
             conn.close()
         print "Finish analyze_config"
 
-if __name__ == '__main__':
-
-    dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
-    # dbname = dbname_list[0]
-    # raw_input('Input database name (format: rib[0-9]{1,7}): ')
+def plot_verification (dbname_list):
 
     for dbname in dbname_list:
         gnu_log = 'verify_' + dbname + '.dat'
@@ -97,12 +137,13 @@ if __name__ == '__main__':
         os.system ("cd ./dat")
         os.system ("gnuplot " + gnuplot_script)
 
+if __name__ == '__main__':
 
-     
+    username = "anduo"
+    rounds = 200
 
-# plot 'immigration.dat' using 2:xtic(1) title columnheader(2), \
-# for [i=3:22] '' using i title columnheader(i)
-    # ''		using 2 index 1 with linespoints ls 2, \\
-    # ''		using 2 index 2 with linespoints ls 1, \\
-    # ''		using 2 index 3 with linespoints ls 2
-    # '''
+    dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
+
+    # plot_verification (dbname_list)
+
+    plot_all_init (username, dbname_list)

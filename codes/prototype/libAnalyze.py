@@ -1,9 +1,5 @@
 import libUtility
 
-# 2014/09/03 01:47:12
-# 2014/09/02 02:24:49
-# 2014/09/01 16:20:54
-# verification
 def get_borders (cursor):
     try:
         cursor.execute("SELECT * FROM borders;")

@@ -44,3 +44,29 @@ INSERT INTO configuration (flow_id, switch_id, next_id) VALUES (1,1,2), (1,2,3),
 INSERT INTO configuration (flow_id, switch_id, next_id) VALUES (1,6,7), (1,7,8) ;
 INSERT INTO configuration (flow_id, switch_id, next_id) VALUES (1,1,6), (1,6,9) ;
 INSERT INTO configuration (flow_id, switch_id, next_id) VALUES (1,8,9), (1,9,6) ;
+
+CREATE OR REPLACE VIEW obs_1_topo AS (
+      SELECT switch_id, next_id
+      FROM  topology
+      WHERE subnet_id = 1
+);
+
+DROP TABLE IF EXISTS obs_1_topo_t CASCADE;
+CREATE UNLOGGED TABLE obs_1_topo_t (
+       switch_id      integer,
+       next_id	      integer,	
+       PRIMARY KEY (switch_id)	
+      -- FOREIGN KEY (switch_id, next_id) REFERENCES obs_1_topo_t (switch_id, next_id)
+);
+
+-- CREATE OR REPLACE VIEW obs_configuration_test AS (
+--       SELECT flow_id, switch_id, next_id
+--       FROM  obs_1_config
+--       WHERE -- FOREIGN KEY (switch_id, next_id) REFERENCES obs_1_topo_t (switch_id, next_id)
+-- );
+
+CREATE OR REPLACE view obs_1_reach AS (
+       SELECT switch_id, next_id, 
+       FROM obs_1_config
+       WHERE next_id IN (select next_id FROM obs_1_topo)
+);
