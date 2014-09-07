@@ -5,7 +5,7 @@ reset
     set output './dat/verify_as4755ribd.png'
 set title "Verification time for AS 4755 initialized with as4755ribd"
 
-    set xrange [ -0.5 : 3.5]
+    # set xrange [ -0.5 : 3.5]
     set xtics border in scale 1,0.5 nomirror rotate by -30  offset character 0, 0, 0 autojustify
     set key autotitle columnhead
     set xlabel "Verification tasks"

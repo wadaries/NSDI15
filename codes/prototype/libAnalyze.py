@@ -52,7 +52,7 @@ def pick_flow (cursor, num):
 
     tmp = random.sample (flow_id_list, num)
     random_flow_id = [t[0] for t in tmp]
-    print "pick_flow: " + str (random_flow_id)
+    # print "pick_flow: " + str (random_flow_id)
     
     return random_flow_id
 
@@ -61,11 +61,12 @@ def get_forwarding_graph (cursor, flow_id):
         cursor.execute ("SELECT * FROM configuration WHERE flow_id = " + str (flow_id) + ";")
         fg = cursor.fetchall ()
 
-    except:
+    except psycopg2.DatabaseError, e:
         print "Unable to extract forwarding graph for " + str (flow_id)
+        print 'Error %s' % e
 
     forwarding_graph = [(f['switch_id'], f['next_id']) for f in fg]
-    print "get_forwarding_graph: for flow " + str (flow_id) # + " : " + str (forwarding_graph)
+    # print "get_forwarding_graph: for flow " + str (flow_id) # + " : " + str (forwarding_graph)
 
     return forwarding_graph
 
@@ -153,7 +154,7 @@ def check_disjoint_edge (cursor, flow_id1, flow_id2):
     fg2 = get_forwarding_graph (cursor, flow_id2)
 
     edges = [e for e in fg1 if e in fg2]
-    print "check_disjoint_edge: flows " + str (flow_id1) + " and " + str (flow_id2) + " overlap by " + str (edges)
+    # print "check_disjoint_edge: flows " + str (flow_id1) + " and " + str (flow_id2) + " overlap by " + str (edges)
 
     return edges
 
@@ -540,14 +541,14 @@ def synthesize (username, dbname,
         if conn:
             conn.close()
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    username = "anduo"
-    dbname = "as4755rib50"
-    update_all = os.getcwd () + "/update_feeds/updates.20140701.0000.hr.extracted.updates"
+#     username = "anduo"
+#     dbname = "as4755rib50"
+#     update_all = os.getcwd () + "/update_feeds/updates.20140701.0000.hr.extracted.updates"
 
-    size = 100
-    updates = update_all + str (size) + ".txt"
-    os.system ("head -n " + str(size) + " " + update_all + " > " + updates)
+#     size = 100
+#     updates = update_all + str (size) + ".txt"
+#     os.system ("head -n " + str(size) + " " + update_all + " > " + updates)
 
-    synthesize (username, dbname, updates)
+#     synthesize (username, dbname, updates)
