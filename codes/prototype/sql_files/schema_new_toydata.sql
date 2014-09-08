@@ -70,3 +70,74 @@ CREATE OR REPLACE view obs_1_reach AS (
        FROM obs_1_config
        WHERE next_id IN (select next_id FROM obs_1_topo)
 );
+
+
+CREATE OR REPLACE view fg_72433 AS (
+       select 1 as id,
+       	      switch_id as source,
+	      next_id as target,
+	      1.0::float8 as cost
+       FROM configuration
+       WHERE flow_id = 72433
+);
+
+CREATE OR REPLACE view ingress_egress_72433 AS (
+       SELECT DISTINCT f1.source, f2.target
+       FROM fg_72433 f1, fg_72433 f2
+       WHERE f1.source != f2.target AND
+       	     f1.source NOT IN (SELECT DISTINCT target FROM fg_72433) AND
+	     f2.target NOT IN (SELECT DISTINCT source FROM fg_72433)
+       ORDER by f1.source, f2.target
+);
+
+CREATE OR REPLACE view reachability_72433 AS (
+       WITH pair_hop AS (
+              SELECT source, target,
+       	      	     (SELECT count(*) FROM pgr_dijkstra('SELECT * FROM fg_72433',
+	       			     source, target, 
+ 	       			    TRUE, FALSE)) as hops
+              FROM ingress_egress_72433)
+	      WHERE hops != 0
+       SELECT * FROM pair_hop
+);
+
+SELECT count(*) FROM pgr_dijkstra('SELECT * FROM fg_72433',
+	       			     98, 471, 
+ 	       			    TRUE, FALSE);
+
+SELECT * FROM pgr_dijkstra('SELECT * FROM fg_72433',
+	       			     71, 91, 
+ 	       			    TRUE, FALSE);
+
+SELECT * FROM pgr_dijkstra('SELECT * FROM fg_72433',
+	       			     71, 301, 
+ 	       			    TRUE, FALSE);
+
+ 
+CREATE OR REPLACE view e2e_reach_perflow AS (
+       SELECT source, target
+);
+-- CREATE OR REPLACE view e2e_reach_perflow AS (
+--        WITH fg AS (
+--        	    select switch_id, next_id
+-- 	    from configuration
+-- 	    where flow_id = 72433
+--        ), topo_sql AS (
+--        	    select 1 as id,
+-- 	    	   switch_id as source,
+-- 	    	   next_id as target,
+-- 		   1.0::float8 as cost
+--             FROM fg
+--        ), fg_pairs AS (
+--        	  select fg1.switch_id, fg2.next_id
+-- 	  from fg fg1, fg fg2
+--        )
+--        select switch_id as src,
+--        	      next_id as dest
+--        from fg_pairs,
+--        	    (select seq, id1 as node from 
+-- 	       pgr_dijkstra('SELECT * FROM topo_sql',
+-- 	       			    switch_id, next_id, 
+-- 	       			    TRUE, FALSE)) AS e2e_reach
+--        where 0 in (select seq FROM e2e_reach)
+-- );

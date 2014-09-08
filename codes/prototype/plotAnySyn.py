@@ -3,7 +3,7 @@
 # import random
 # import os
 # import glob
-import libAnalyze
+import libAnalyzeSynthesize
 import Gnuplot
 import Gnuplot.funcutils
 # import subprocess
