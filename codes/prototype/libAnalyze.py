@@ -139,7 +139,7 @@ def check_dag (cursor, flow_id):
     # print fgr
 
     is_dag = fgr.is_dag ()
-    print "check_dag: flow " + str (flow_id) + " is DAG? " + str (is_dag)
+    # print "check_dag: flow " + str (flow_id) + " is DAG? " + str (is_dag)
     
     return is_dag
 
@@ -176,8 +176,7 @@ def check_blackhole (cursor, flow_id):
 
         c = cursor.fetchall ()
         blackholes = [i[0] for i in c]
-        print "check_blackhole: blackholes are " + str (blackholes)
-
+        # print "check_blackhole: blackholes are " + str (blackholes)
         return blackholes
 
     except psycopg2.DatabaseError, e:

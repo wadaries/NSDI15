@@ -12,6 +12,9 @@ import psycopg2.extras
 import igraph
 import logging
 
+def tfsr (start, end, base) :
+    return round ((end - start) / base, 6) * 1000
+
 def tfs (start, end) :
     return str (round (end - start, 6) * 1000)
 

@@ -11,12 +11,86 @@ import Gnuplot.funcutils
 # import psycopg2
 # import psycopg2.extras
 
-# rib_prefixes = "rib20011204_prefixes.txt"
-# rib_peerIPs = "rib20011204_nodes.txt"
-# ISP_number = 1221
-# ISP_nodes = "1221_nodes.txt"
-# ISP_edges = "1221_edges.txt"
-# global dbname
+def verify (username, dbname, rounds):
+    try:
+        conn = psycopg2.connect(database= dbname, user= username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        print "Connect to database " + dbname + ", as user " + username
+
+        dat = []
+        for i in range( rounds):
+
+            [f1, f2] = pick_flow (dict_cur, 2)
+
+            start = time.time ()
+            fg = get_forwarding_graph (dict_cur, f1)
+            end = time.time ()
+            fg_t = round (end - start, 6) * 1000
+
+            start = time.time ()
+            ed = check_disjoint_edge (dict_cur, f1, f2)
+            end = time.time ()
+            cde_t = tfsr (start, end, fg_t)
+
+            start = time.time ()
+            lp = check_dag (dict_cur, f1)
+            end = time.time ()
+            cd_t = tfsr (start, end, fg_t)
+
+            start = time.time ()
+            t = check_blackhole (dict_cur, f1)
+            end = time.time ()
+            cb_t = tfsr (start, end, fg_t)
+
+            dat.append ([i, cde_t, cd_t, cb_t])
+            
+    except psycopg2.DatabaseError, e:
+        print "Unable to connect to database " + dbname + ", as user " + username
+        print 'Error %s' % e
+
+    finally:
+        if conn:
+            conn.close()
+
+    dat_x = [d[0] for d in dat]
+    dat_y1 = [d[1] for d in dat]
+    dat_y2 = [d[2] for d in dat]
+    dat_y3 = [d[3] for d in dat]
+
+    return [dat_x, dat_y1, dat_y2, dat_y3]
+
+def plot_synthesis (username, dbname, rounds):
+
+    [x, y1, y2, y3] = verify (username, dbname, rounds)
+    y4 = [1] * len (x)
+    # print x
+    # print y3
+
+    outputfile = './dat/verify' + str (rounds) + '.png'
+    print "plot synthesize: start gnuplot"
+
+    try:
+        g = Gnuplot.Gnuplot ()
+        g.reset ()
+        g.title ("Verification time relative to forwarding graph generation")
+        g.xlabel('Total of ' + str (rounds) + ' randomly picked flows')
+        # g.ylabel('Time, relative to time for forwarding graph generation')
+        g ("set key top left")
+
+        d1 = Gnuplot.Data (x, y1, with_="points pt 5", title = "disjoint path")
+        d2 = Gnuplot.Data (x, y2, with_="points pt 7", title = "loop free")
+        d3 = Gnuplot.Data (x, y3, with_="points pt 9", title = "black hole")
+        # d Gnuplot.Data (x[i], y[i], with_="linespoints lw 3 pt 3", title = "AS " + dbname_list[i][2:6]))
+        d4 = Gnuplot.Data (x, y4, with_="lines lt -1", title = "forwarding graph")
+
+        g.plot (d1, d2, d3, d4)
+        g.hardcopy(outputfile, terminal = 'png')
+
+        g.clear ()
+        
+    except:
+        print "plot verification erro"
 
 def plot_fg_cdf (username, dbname, xsize):
 
@@ -36,16 +110,7 @@ def plot_fg_cdf (username, dbname, xsize):
         );
         """)
 
-        # [f1, f2] = pick_flow (dict_cur, 2)
-
-        # for x in range(0, rounds):
-        #     logging.info ('"Round ' + str (x) + '"                      ' + '"Time (ms)"')
-
-        #     start = time.time ()
-        #     fg = get_forwarding_graph (dict_cur, f1)
-        #     end = time.time ()
-        #     logging.info ('"forwarding graph"       ' + tfs (start, end))
-
+        # xsize = 5
         for i in range (0, xsize):
             f1 = pick_flow (dict_cur, 1)[0]
             # print f1
@@ -66,49 +131,70 @@ def plot_fg_cdf (username, dbname, xsize):
         FROM fg_time
         """)
         fg_cdf = dict_cur.fetchall ()
-
-        # dict_cur.execute ("""
-        # SELECT
-        # size AS y,
-        # COUNT(fg_time) OVER (ORDER BY size) / 
-        # (SELECT COUNT(*) FROM fg_time)::real AS x
-        # FROM fg_time
-        # """)
-        # size_cdf = dict_cur.fetchall ()
+        fg_x = [f['x'] for f in fg_cdf]
+        fg_y = [f['y'] for f in fg_cdf]
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
         print 'Error %s' % e
+
     finally:
         if conn:
             conn.close()
 
-    g=Gnuplot.Gnuplot(debug = 1)
-    # g ('reset')
-    # g ('set terminal png')
-    # print "here"
-    # g ('set output init.png')
-    # g.plot([[0,1.1], [1,5.8], [2,3.3], [3,4.2]])
-    # raw_input('Please press return to continue...\n')
+    return [fg_x, fg_y]
 
-    x1= [f['x'] for f in fg_cdf]
-    y1= [f['y'] for f in fg_cdf]
-    # x2= [f['x'] for f in size_cdf]
-    # y2= [f['y'] for f in size_cdf]
-    # # y2= [34, 78, 54, 67]
-    d1=Gnuplot.Data(x1,y1,with_="line")
-    # d2=Gnuplot.Data(x2,y2,with_="line") 
-    g.plot (d1)
-    # raw_input('Please press return to continue...\n')
-    # g.plot (d2)
-    # raw_input('Please press return to continue...\n')
-    # g.plot (d1, d2)
-    # raw_input('Please press return to continue...\n')
-    g.hardcopy('filename.png',terminal = 'png')
+def plot_fg_all (username, dbname_list, xsize):
+
+    fg_cdf_list = []
+    for i in range (len(dbname_list)):
+        fg_cdf_list.append (plot_fg_cdf (username, dbname_list[i], xsize))
+
+    # print fg_cdf_list[0]
+
+    outputfile = './dat/fg_cdf_' + str (xsize) + '.png'
+
+    try:
+        g = Gnuplot.Gnuplot ()
+        g.reset ()
+        g.title ("Cumulative Distribution")
+
+        d = []
+        x = []
+        y = []
+
+        for i in range (len (fg_cdf_list)):
+            
+            x.append(fg_cdf_list[i][0])
+            print "x[i]"
+            print x[i]
+            y.append(fg_cdf_list[i][1])
+            print "y[i]"
+            print y[i]
+            # x1= [f['x'] for f in fg_cdf]
+            # y1= [f['y'] for f in fg_cdf]
+            # d1=Gnuplot.Data(x1,y1,with_="line")
+            d.append( Gnuplot.Data (x[i], y[i], with_="linespoints lw 3 pt 3", title = "AS " + dbname_list[i][2:6]))
+
+            # x2= [f['x'] for f in fg_cdf]
+            # y2= [f['y']+1 for f in fg_cdf]
+            # d2 =Gnuplot.Data(x2,y2,with_="line")
+        g.xlabel('Fraction of forwarding graphs (total of ' + str (xsize) + ' randomly picked flows)')
+        g.ylabel('Generation Time (millisecond)')
+
+        g ("set key top left")
+
+        g.plot (d[0], d[1], d[2])
+        g.hardcopy(outputfile, terminal = 'png')
+
+        g.clear ()
+        
+    except:
+        print "Erro"
+
     # # g.plot(d1)   #uncomment this line if you want to see the gnuplot window
 
     print "plot_init: finish"
-
 
 
 def plot_init (username, dbname, dat):
@@ -293,7 +379,14 @@ if __name__ == '__main__':
     dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
     # dbname_list = ["as4755rib1000", "as6461rib1000", "as7018rib1000"]
     username = "anduo"
+    flow_num = 10000
+
+    plot_synthesis (username, dbname_list[2], flow_num)
 
     # plot_verification (dbname_list)
+
     # plot_all_init (username, dbname_list)
-    plot_fg_cdf (username, dbname_list[2], 1000)
+
+    # plot_fg_cdf (username, dbname_list[2], flow_num)
+
+    # plot_fg_all (username, dbname_list, flow_num)
