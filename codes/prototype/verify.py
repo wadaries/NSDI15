@@ -11,6 +11,34 @@ import Gnuplot.funcutils
 # import psycopg2
 # import psycopg2.extras
 
+def synthesize (username, dbname, rounds):
+    try:
+        conn = psycopg2.connect(database= dbname, user= username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        print "Connect to database " + dbname + ", as user " + username
+
+        dat = []
+        for i in range( rounds):
+
+            [f1, f2] = pick_flow (dict_cur, 2)
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to connect to database " + dbname + ", as user " + username
+        print 'Error %s' % e
+
+    finally:
+        if conn:
+            conn.close()
+
+    # dat_x = [d[0] for d in dat]
+    # dat_y1 = [d[1] for d in dat]
+    # dat_y2 = [d[2] for d in dat]
+    # dat_y3 = [d[3] for d in dat]
+
+    # return [dat_x, dat_y1, dat_y2, dat_y3]
+
+
 def verify (username, dbname, rounds):
     try:
         conn = psycopg2.connect(database= dbname, user= username)
@@ -60,10 +88,10 @@ def verify (username, dbname, rounds):
 
     return [dat_x, dat_y1, dat_y2, dat_y3]
 
-def plot_synthesis (username, dbname, rounds):
+def plot_verify (username, dbname, rounds):
 
     [x, y1, y2, y3] = verify (username, dbname, rounds)
-    y4 = [1] * len (x)
+    yk = [0] * len (x)
     # print x
     # print y3
 
@@ -73,17 +101,37 @@ def plot_synthesis (username, dbname, rounds):
     try:
         g = Gnuplot.Gnuplot ()
         g.reset ()
-        g.title ("Verification time relative to forwarding graph generation")
+        g.title ("Verification time for AS " + str (dbname[2:6]) + " relative to forwarding graph generation")
         g.xlabel('Total of ' + str (rounds) + ' randomly picked flows')
         # g.ylabel('Time, relative to time for forwarding graph generation')
         g ("set key top left")
 
-        d1 = Gnuplot.Data (x, y1, with_="points pt 5", title = "disjoint path")
-        d2 = Gnuplot.Data (x, y2, with_="points pt 7", title = "loop free")
-        d3 = Gnuplot.Data (x, y3, with_="points pt 9", title = "black hole")
-        # d Gnuplot.Data (x[i], y[i], with_="linespoints lw 3 pt 3", title = "AS " + dbname_list[i][2:6]))
-        d4 = Gnuplot.Data (x, y4, with_="lines lt -1", title = "forwarding graph")
+        xrange_max = len (x)
+        g('set xrange[0:' + str (xrange_max) +']')
+        # g ("set key font ",8")
 
+        # d1k = Gnuplot.Data ([-1], [0], with_="points pt 5 ps 2", title = "disjoint path")
+        # d1 = Gnuplot.Data (x, y1, with_="points pt 5 ps .3 rgb 'red'", title = None)
+
+        # d2k = Gnuplot.Data ([-1], [0], with_="points pt 7 ps 2", title = "loop free")
+        # d2 = Gnuplot.Data (x, y2, with_="points pt 7 ps .3", title = None)
+
+        d1 = Gnuplot.Data (x, y1, with_="linespoints lw .1", title = "disjoint path")
+        d2 = Gnuplot.Data (x, y2, with_="linespoints lw .1", title = "loop free")
+        d3 = Gnuplot.Data (x, y3, with_="linespoints lw .1", title = "black hole")
+
+        # d3k = Gnuplot.Data ([-1], [0], with_="points pt 9 ps 2", title = "black hole")
+        # d3 = Gnuplot.Data (x, y3, with_="points pt 9 ps .3", title = None)
+        # d1 = Gnuplot.Data (x, y1, with_="points pt 5 ps .3", notitle)
+        # d2 = Gnuplot.Data (x, y2, with_="points pt 7 ps .3", notitle)
+        # d3 = Gnuplot.Data (x, y3, with_="points pt 9 ps .3", notitle)
+        # d Gnuplot.Data (x[i], y[i], with_="linespoints lw 3 pt 3", title = "AS " + dbname_list[i][2:6]))
+
+        x4 = x + [len (x)]
+        y4 = [1] * (len (x) + 1)
+        d4 = Gnuplot.Data (x4, y4, with_="lines lt -1", title = "forwarding graph")
+
+        # g.plot (d1k, d1, d2k, d2, d3k, d3, d4)
         g.plot (d1, d2, d3, d4)
         g.hardcopy(outputfile, terminal = 'png')
 
@@ -379,9 +427,9 @@ if __name__ == '__main__':
     dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
     # dbname_list = ["as4755rib1000", "as6461rib1000", "as7018rib1000"]
     username = "anduo"
-    flow_num = 10000
+    flow_num = 1000
 
-    plot_synthesis (username, dbname_list[2], flow_num)
+    plot_verify (username, dbname_list[2], flow_num)
 
     # plot_verification (dbname_list)
 
