@@ -99,7 +99,7 @@ def plot_verify (username, dbname, rounds):
     print "plot synthesize: start gnuplot"
 
     try:
-        g = Gnuplot.Gnuplot ()
+        g = Gnuplot.Gnuplot (persist = 1)
         g.reset ()
         g.title ("Verification time for AS " + str (dbname[2:6]) + " relative to forwarding graph generation")
         g.xlabel('Total of ' + str (rounds) + ' randomly picked flows')
@@ -427,7 +427,7 @@ if __name__ == '__main__':
     dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
     # dbname_list = ["as4755rib1000", "as6461rib1000", "as7018rib1000"]
     username = "anduo"
-    flow_num = 1000
+    flow_num = 10
 
     plot_verify (username, dbname_list[2], flow_num)
 
