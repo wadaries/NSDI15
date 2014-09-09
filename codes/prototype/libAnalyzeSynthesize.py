@@ -540,14 +540,108 @@ def synthesize (username, dbname,
         if conn:
             conn.close()
 
-# if __name__ == '__main__':
+def get_reachability_perflow (cursor, flow_id):
 
-#     username = "anduo"
-#     dbname = "as4755rib50"
+    fg_view_name = "fg_" + str (flow_id)
+    reach_view_name = "reachability_" + str (flow_id)
+
+    try:
+        cursor.execute ("SELECT * FROM " + reach_view_name + ";")
+        reach = cursor.fetchall ()
+
+        print "get_reachability_perflow for flow: " + str (flow_id)
+        return reach
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to get_reachability_perflow for flow " + str (flow_id)
+        print 'Error %s' % e    
+
+def generate_reachability_perflow (cursor, flow_id):
+
+    fg_view_name = "fg_" + str (flow_id)
+    reach_view_name = "reachability_" + str (flow_id)
+
+    try:
+        cursor.execute("""
+        CREATE OR REPLACE view """ + reach_view_name + """ AS (
+                   WITH ingress_egress AS (
+                      SELECT DISTINCT f1.source, f2.target
+                      FROM """ + fg_view_name + """ f1, """ + fg_view_name + """ f2
+                      WHERE f1.source != f2.target AND
+                            f1.source NOT IN (SELECT DISTINCT target FROM """ + fg_view_name +""") AND
+                            f2.target NOT IN (SELECT DISTINCT source FROM """ + fg_view_name +""" )
+                      ORDER by f1.source, f2.target),
+                   ingress_egress_reachability AS (
+                      SELECT source, target,
+                             (SELECT count(*)
+                              FROM pgr_dijkstra('SELECT * FROM """ + fg_view_name + """',
+                                   source, target, TRUE, FALSE)) AS hops
+                      FROM ingress_egress)
+               SELECT * FROM ingress_egress_reachability WHERE hops != 0
+        );""")
+
+        print "generate_reachability_perflow VIEW for flow: " + str (flow_id)
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to create reachability table for flow " + str (flow_id)
+        print 'Error %s' % e    
+
+def generate_forwarding_graph (cursor, flow_id):
+
+    fg_view_name = "fg_" + str (flow_id)
+
+    try:
+        cursor.execute("""
+        CREATE OR REPLACE view """ + fg_view_name + """ AS (
+        SELECT 1 as id,
+               switch_id as source,
+	       next_id as target,
+	       1.0::float8 as cost
+        FROM configuration
+        WHERE flow_id = %s
+        );
+        """, ([flow_id]))
+
+        print "generate_forwarding_graph VIEW for flow: " + str (flow_id)
+        
+    except psycopg2.DatabaseError, e:
+        print "Unable to create fg_view table for flow " + str (flow_id)
+        print 'Error %s' % e
+
+def generate_obs_forwarding_graph (cursor, flow_id, obs)
+
+def createViews (username, dbname):
+    try:
+        conn = psycopg2.connect(database= dbname, user= username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        print "Connect to database " + dbname + ", as user " + username
+
+        f1 = pick_flow (dict_cur, 1)[0]
+
+        print f1
+
+        generate_forwarding_graph (dict_cur, f1)
+        generate_reachability_perflow (dict_cur, f1)
+        r = get_reachability_perflow (dict_cur, f1)
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to connect to database " + dbname + ", as user " + username
+        print 'Error %s' % e    
+
+    finally:
+        if conn:
+            conn.close()
+
+if __name__ == '__main__':
+
+    username = "anduo"
+    dbname = "as4755rib50"
+    # dbname = "as7018ribd"
 #     update_all = os.getcwd () + "/update_feeds/updates.20140701.0000.hr.extracted.updates"
 
 #     size = 100
 #     updates = update_all + str (size) + ".txt"
 #     os.system ("head -n " + str(size) + " " + update_all + " > " + updates)
 
-#     synthesize (username, dbname, updates)
+    createViews (username, dbname)

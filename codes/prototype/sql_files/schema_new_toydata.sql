@@ -97,9 +97,26 @@ CREATE OR REPLACE view reachability_72433 AS (
 	       			     source, target, 
  	       			    TRUE, FALSE)) as hops
               FROM ingress_egress_72433)
-	      WHERE hops != 0
-       SELECT * FROM pair_hop
+       SELECT * FROM pair_hop WHERE hops != 0
 );
+
+CREATE OR REPLACE view reachability_72433 AS (
+           WITH ingress_egress AS (
+              SELECT DISTINCT f1.source, f2.target
+       	      FROM fg_72433 f1, fg_72433 f2
+	      WHERE f1.source != f2.target AND
+       	            f1.source NOT IN (SELECT DISTINCT target FROM fg_72433) AND
+	            f2.target NOT IN (SELECT DISTINCT source FROM fg_72433)
+              ORDER by f1.source, f2.target),
+           ingress_egress_reachability AS (
+              SELECT source, target,
+       	      	     (SELECT count(*)
+		      FROM pgr_dijkstra('SELECT * FROM fg_72433',
+		      	   source, target, TRUE, FALSE)) AS hops
+              FROM ingress_egress)
+       SELECT * FROM ingress_egress_reachability WHERE hops != 0
+);
+
 
 SELECT count(*) FROM pgr_dijkstra('SELECT * FROM fg_72433',
 	       			     98, 471, 
