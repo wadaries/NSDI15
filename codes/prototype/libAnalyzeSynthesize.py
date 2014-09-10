@@ -203,7 +203,7 @@ def check_blackhole (cursor, flow_id):
 #         print "Analyze flow_id:" + str(flow_id[0])
 #         flow_e2e (flow_id[0], borders)
 
-def preprocess_feeds (dict_cur, updates):
+def preprocess_feeds (dict_cur):
     try:
         dict_cur.execute ("""
         CREATE UNLOGGED TABLE subnet (
@@ -234,7 +234,7 @@ def preprocess_feeds (dict_cur, updates):
     borders = get_borders (dict_cur)
     nodes = [n for n in isp_nodes if n not in borders.keys ()]
 
-    peerips = list(set([u.split ()[0] for u in updates]))
+    peerips = list(set([u.split ()[0] for u in updates])) 
 
     for peerip in peerips:
         if peerip not in borders.values ():
@@ -345,6 +345,69 @@ def e2e_del_dst (dict_cur, flow_id, dst):
 
 # def vn_add (dict_cur):
 #     pass
+
+def vn_init (dict_cur, topo_size, flow_size):
+    try: 
+        dict_cur.execute ("SELECT * FROM borders ;")
+        borders = [b['switch_id'] for b in dict_cur.fetchall ()]
+
+        dict_cur.execute ("SELECT * FROM flow_constraints ;")
+        flows = [f['flow_id'] for f in dict_cur.fetchall ()]
+
+        vn_nodes = random.sample (borders, topo_size)
+        vn_flows = random.sample (flows, flow_size)
+
+        print vn_nodes
+
+        dict_cur.execute ("""
+        DROP TABLE IF EXISTS vn_nodes CASCADE;
+        CREATE UNLOGGED TABLE vn_nodes (
+        switch_id      integer);
+        """)
+
+        for n in vn_nodes:
+            dict_cur.execute ("INSERT INTO vn_nodes VALUES (%s);", ([n]))
+
+        dict_cur.execute ("""
+        DROP TABLE IF EXISTS vn_flows CASCADE;
+        CREATE UNLOGGED TABLE vn_flows (
+        flow_id      integer);
+        """)
+
+        for f in vn_flows:
+            dict_cur.execute ("INSERT INTO vn_flows VALUES (%s);", ([f]))
+
+        print "vn_reachability view"
+
+        flow_id_sql = "flow_id = " + str (vn_flows[0])
+        for f in vn_flows[1:]:
+            flow_id_sql = flow_id_sql + " OR flow_id = " + str (f)
+
+        print flow_id_sql
+            
+        source_sql = "source = " + str (vn_nodes[0])
+        for n in vn_nodes[1:]:
+            source_sql = source_sql + " OR source = " + str (n)
+
+        target_sql = "target = " + str (vn_nodes[0])
+        for n in vn_nodes[1:]:
+            target_sql = target_sql + " OR target = " + str (n)
+
+        dict_cur.execute ("""
+        DROP VIEW IF EXISTS vn_reachability CASCADE;
+        CREATE OR REPLACE VIEW vn_reachability AS (
+               SELECT flow_id,
+                      source as ingress,
+                      target as egress
+               FROM reachability
+               WHERE (""" + flow_id_sql +""") AND
+                     (""" + source_sql + """) AND
+                     (""" + target_sql + """)
+        );
+        """)
+            
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
     
 def obs_init (dict_cur, size):
 
@@ -586,6 +649,32 @@ def generate_reachability_perflow (cursor, flow_id):
         print "Unable to create reachability table for flow " + str (flow_id)
         print 'Error %s' % e    
 
+def generate_reachability (cursor):
+
+    try:
+        cursor.execute("SELECT flow_id FROM flow_constraints;")
+        flows = cursor.fetchall()
+        # print flows[0:2]
+
+        cursor.execute ("""
+        CREATE TABLE reachability AS (
+         SELECT * FROM reachability_perflow (""" + str (flows[0][0]) + """) );
+        """)
+
+        for f in flows[1:]:
+            cursor.execute ("""
+            INSERT INTO reachability (flow_id, source, target, hops)
+            SELECT flow_id, source, target, hops FROM reachability_perflow (""" + str (f[0]) + """);
+            """)
+        # CREATE TABLE new_table
+        # SELECT * FROM table1
+        # UNION
+        # SELECT * FROM table2;
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to generate_reachability"
+        print "Error %s" % e
+
 def generate_forwarding_graph (cursor, flow_id):
 
     fg_view_name = "fg_" + str (flow_id)
@@ -608,7 +697,65 @@ def generate_forwarding_graph (cursor, flow_id):
         print "Unable to create fg_view table for flow " + str (flow_id)
         print 'Error %s' % e
 
-def generate_obs_forwarding_graph (cursor, flow_id, obs)
+def add_reachability_perflow_fun (cursor):
+    try:
+        cursor.execute ("""
+CREATE OR REPLACE FUNCTION reachability_perflow(f integer) RETURNS TABLE (flow_id int, source int, target int, hops bigint) AS 
+$$
+BEGIN
+	DROP TABLE IF EXISTS tmpone;
+	CREATE TABLE tmpone AS (
+	SELECT * FROM configuration c WHERE c.flow_id = f
+	) ;
+
+	RETURN query 
+           WITH ingress_egress AS (
+              SELECT DISTINCT f1.switch_id as source, f2.next_id as target
+       	      FROM tmpone f1, tmpone f2
+	      WHERE f1.switch_id != f2.next_id AND
+       	            f1.switch_id NOT IN (SELECT DISTINCT next_id FROM tmpone) AND
+	            f2.next_id NOT IN (SELECT DISTINCT switch_id FROM tmpone)
+              ORDER by source, target),
+	      reach_can AS(
+	      SELECT i.source, i.target,
+	      	      (SELECT count(*) FROM pgr_dijkstra('SELECT 1 as id,
+		      	      	       	    			 switch_id as source,
+								 next_id as target,
+								 1.0::float8 as cost FROM tmpone',
+  	       			     i.source, i.target, 
+  	       			    TRUE, FALSE)) as hops
+	      FROM ingress_egress i)
+	      SELECT f as flow_id, r.source, r.target, r.hops FROM reach_can r where r.hops != 0;
+END
+$$ LANGUAGE plpgsql;
+        """)
+    except psycopg2.DatabaseError, e:
+        print "Unable to add reachability_perflow fun"
+        print 'Error %s' % e
+
+
+
+def generate_obs_forwarding_graph (cursor, flow_id, obs):
+
+    fg_view_name = "tmp..."
+
+    try:
+        cursor.execute("""
+        CREATE OR REPLACE view """ + fg_view_name + """ AS (
+        SELECT 1 as id,
+               switch_id as source,
+               next_id as target,
+               1.0::float8 as cost
+        FROM configuration
+        WHERE flow_id = %s AND subnet_id
+        );
+        """, ([flow_id]))
+
+        print "generate_forwarding_graph VIEW for flow: " + str (flow_id)
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to create fg_view table for flow " + str (flow_id)
+        print 'Error %s' % e
 
 def createViews (username, dbname):
     try:
@@ -617,13 +764,19 @@ def createViews (username, dbname):
         dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         print "Connect to database " + dbname + ", as user " + username
 
-        f1 = pick_flow (dict_cur, 1)[0]
+        # f1 = pick_flow (dict_cur, 1)[0]
 
-        print f1
+        # print f1
 
-        generate_forwarding_graph (dict_cur, f1)
-        generate_reachability_perflow (dict_cur, f1)
-        r = get_reachability_perflow (dict_cur, f1)
+        # generate_forwarding_graph (dict_cur, f1)
+        # generate_reachability_perflow (dict_cur, f1)
+        # r = get_reachability_perflow (dict_cur, f1)
+        # add_reachability_perflow_fun (dict_cur)
+        # generate_reachability (dict_cur)
+
+        flow_size = 1000
+        topo_size = 3
+        vn_init (dict_cur, topo_size, flow_size)
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
@@ -636,12 +789,16 @@ def createViews (username, dbname):
 if __name__ == '__main__':
 
     username = "anduo"
-    dbname = "as4755rib50"
+    dbname = "as4755ribd"
     # dbname = "as7018ribd"
+    # dbname = "as6461rib1000"
+    
 #     update_all = os.getcwd () + "/update_feeds/updates.20140701.0000.hr.extracted.updates"
-
 #     size = 100
 #     updates = update_all + str (size) + ".txt"
 #     os.system ("head -n " + str(size) + " " + update_all + " > " + updates)
-
+    
     createViews (username, dbname)
+
+
+

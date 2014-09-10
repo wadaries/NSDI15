@@ -1,7 +1,7 @@
 \Section{View Interface Design}
 \label{sec:details}
 
-\subsection{View interface design}
+\subsection{View interface}
 
 The design goal of \Sys view interface is to combine the strength of
 the following:
@@ -31,62 +31,117 @@ details. Services and performance are discussed in
 \S~\ref{sec:veri-syn} and \S~\ref{sec:eval}.
 
 
-\subsection{The primitives}
+\subsection{The view primitives}
 \label{subsec:view-library}
+
+\Paragraph{Base tables}
+
+Before introducing the derived views, let us first discuss in depth
+the base tables -- the flat universe of networking data that are
+actually stored in the database. The base tables serve two roles: (1)
+a flat universe of tables to which all network configuration states
+and state changes can be easily loaded; (2) the bases for building
+layers of view abstractions where the reverse view update shall be
+(relatively) easy.
+
+\begin{sql}
+CREATE OR REPLACE FUNCTION reachability_perflow(f integer)
+RETURNS TABLE (flow_id int, source int, target int, hops bigint) AS 
+$$
+BEGIN
+	DROP TABLE IF EXISTS tmpone;
+	CREATE TABLE tmpone AS (
+	SELECT * FROM configuration c WHERE c.flow_id = f
+	) ;
+
+	RETURN query 
+        WITH ingress_egress AS (
+		SELECT DISTINCT f1.switch_id as source, f2.next_id as target
+       	      	FROM tmpone f1, tmpone f2
+	      	WHERE f1.switch_id != f2.next_id AND
+		      f1.switch_id NOT IN (SELECT DISTINCT next_id FROM tmpone) AND
+	              f2.next_id NOT IN (SELECT DISTINCT switch_id FROM tmpone)
+                ORDER by source, target),
+	     reach_can AS(
+                SELECT i.source, i.target,
+	      	       (SELECT count(*)
+                        FROM pgr_dijkstra('SELECT 1 as id,
+			     	           switch_id as source,
+					   next_id as target,
+					   1.0::float8 as cost FROM tmpone',
+			     i.source, i.target,TRUE, FALSE)) as hops
+	        FROM ingress_egress i)
+	SELECT f as flow_id, r.source, r.target, r.hops FROM reach_can r where r.hops != 0;
+END
+$$ LANGUAGE plpgsql;
+\end{sql}
 
 \Paragraph{Per-flow forwarding graph and reachability views}
 
-\begin{sql}
-def generate_forwarding_graph (cursor, flow_id):
+Lies in the heart of any pair-wise reachability views, be it
+reachability for a plain network, for an one-big-switch network, or
+for an arbitrary virtual network, is a query like the following:
+ 
+% \begin{sql}
+% SELECT source, 
+%        target,
+%        (SELECT count(*)
+%         FROM pgr_dijkstra('SELECT * FROM """ + fg_view_name + """',
+%              source, target, TRUE, FALSE)) AS hops
+% FROM ingress_egress_pairs
+% \end{sql}
 
-    fg_view_name = "fg_" + str (flow_id)
+% \begin{sql}
+% def generate_forwarding_graph (cursor, flow_id):
 
-    try:
-        cursor.execute("""
-        CREATE OR REPLACE view """ + fg_view_name + """ AS (
-        SELECT 1 as id,
-               switch_id as source,
-	       next_id as target,
-	       1.0::float8 as cost
-        FROM configuration
-        WHERE flow_id = \%s
-        );
-        """, ([flow_id]))
+%     fg_view_name = "fg_" + str (flow_id)
 
-    except psycopg2.DatabaseError, e:
-        print "Unable to create fg_view table for flow " + str (flow_id)
-        print 'Error \%s' \% e    
-\end{sql}
+%     try:
+%         cursor.execute("""
+%         CREATE OR REPLACE view """ + fg_view_name + """ AS (
+%         SELECT 1 as id,
+%                switch_id as source,
+% 	       next_id as target,
+% 	       1.0::float8 as cost
+%         FROM configuration
+%         WHERE flow_id = \%s
+%         );
+%         """, ([flow_id]))
 
-\begin{sql}
-def generate_reachability_perflow (cursor, flow_id):
+%     except psycopg2.DatabaseError, e:
+%         print "Unable to create fg_view table for flow " + str (flow_id)
+%         print 'Error \%s' \% e    
+% \end{sql}
 
-    fg_view_name = "fg_" + str (flow_id)
-    reach_view_name = "reachability_" + str (flow_id)
+% \begin{sql}
+% def generate_reachability_perflow (cursor, flow_id):
 
-    try:
-        cursor.execute("""
-        CREATE OR REPLACE view """ + reach_view_name + """ AS (
-          WITH ingress_egress AS (
-               SELECT DISTINCT f1.source, f2.target
-               FROM """ + fg_view_name + """ f1, """ + fg_view_name + """ f2
-               WHERE f1.source != f2.target AND
-                     f1.source NOT IN (SELECT DISTINCT target FROM """ + fg_view_name +""") AND
-                     f2.target NOT IN (SELECT DISTINCT source FROM """ + fg_view_name +""" )
-               ORDER by f1.source, f2.target),
-               ingress_egress_reachability AS (
-               SELECT source, target,
-                      (SELECT count(*)
-                       FROM pgr_dijkstra('SELECT * FROM """ + fg_view_name + """',
-                                         source, target, TRUE, FALSE)) AS hops
-               FROM ingress_egress)
-          SELECT * FROM ingress_egress_reachability WHERE hops != 0
-        );""")
+%     fg_view_name = "fg_" + str (flow_id)
+%     reach_view_name = "reachability_" + str (flow_id)
 
-    except psycopg2.DatabaseError, e:
-        print "Unable to create reachability table for flow " + str (flow_id)
-        print 'Error \%s' \% e      
-\end{sql}
+%     try:
+%         cursor.execute("""
+%         CREATE OR REPLACE view """ + reach_view_name + """ AS (
+%           WITH ingress_egress AS (
+%                SELECT DISTINCT f1.source, f2.target
+%                FROM """ + fg_view_name + """ f1, """ + fg_view_name + """ f2
+%                WHERE f1.source != f2.target AND
+%                      f1.source NOT IN (SELECT DISTINCT target FROM """ + fg_view_name +""") AND
+%                      f2.target NOT IN (SELECT DISTINCT source FROM """ + fg_view_name +""" )
+%                ORDER by f1.source, f2.target),
+%                ingress_egress_reachability AS (
+%                SELECT source, target,
+%                       (SELECT count(*)
+%                        FROM pgr_dijkstra('SELECT * FROM """ + fg_view_name + """',
+%                                          source, target, TRUE, FALSE)) AS hops
+%                FROM ingress_egress)
+%           SELECT * FROM ingress_egress_reachability WHERE hops != 0
+%         );""")
+
+%     except psycopg2.DatabaseError, e:
+%         print "Unable to create reachability table for flow " + str (flow_id)
+%         print 'Error \%s' \% e      
+% \end{sql}
 
 % This section presents a prototype design of \TI in more details,
 % showing preliminary evaluation with promising results.
@@ -98,4 +153,62 @@ def generate_reachability_perflow (cursor, flow_id):
 \subsection{Composition}
 \label{subsec:compose}
 
+% \Paragraph{One big switch}
+
+From user perspective, a network view is a derived table that offers
+the same tabular interface as ordinary (\ie materialized table that is
+actually stored) tables. This allows to a stacking of views ...  ...
+We use ``composition'' to loosely refer to the derivation of views
+from existing views. ...
+
+Consider one big switch, its per-flow forwarding graph view can be
+built on top of per-flow forwarding graph view and one big switch
+topology view, as follows:
+\begin{sql}
+CREATE OR REPLACE VIEW obs_1_fg_36093_3 AS (
+       select 1 as id,
+       	      switch_id as source,
+	      next_id as target,
+	      1.0::float8 as cost
+       FROM obs_1_topo, fg_36093
+       WHERE switch_id = source AND next_id = target
+       ORDER BY source, target
+);
+\end{sql}
+
+Note that, \nd{fg\_36093} is used as a filter for selecting
+\nd{obs\_1\_topo} records that ... Symmetrically, one could also
+``reverse'' the filtering and use \nd{fg\_36093} as a filter instead,
+as follows:
+\begin{sql}
+CREATE OR REPLACE VIEW obs_1_fg_36093_4 AS (
+       select 1 as id, source, target, 
+	      1.0::float8 as cost
+       FROM obs_1_topo, fg_36093
+       WHERE switch_id = source AND next_id = target
+       ORDER BY source, target
+);
+\end{sql}
+
+
+While the above two view composition, namely SQL join, is very
+intuitive: its body of ``view join'' directly translates. It is no
+longer updatable. ... As an alternative equivalent view is by
+... where one table is used as an ... parameter ...
+\begin{sql}
+CREATE OR REPLACE VIEW obs_1_fg_36093_2 AS (
+       select 1 as id,
+       	      switch_id as source,
+	      next_id as target,
+	      1.0::float8 as cost
+       FROM configuration NATURAL JOIN topology
+       WHERE flow_id = 36093 AND subnet_id = 1
+       ORDER BY source, target
+);
+\end{sql}
+
+To make advantage of view updates, \Sys adopts this
+approach. Unfortunately, views are not allowed to be paramterized in
+SQL standard. To achieve the affect of parameterized views, \Sys uses
+Python wrapper as walk-round, as follows:
 

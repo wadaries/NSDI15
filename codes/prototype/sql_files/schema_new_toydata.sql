@@ -65,11 +65,106 @@ CREATE UNLOGGED TABLE obs_1_topo_t (
 --       WHERE -- FOREIGN KEY (switch_id, next_id) REFERENCES obs_1_topo_t (switch_id, next_id)
 -- );
 
+DROP VIEW IF EXISTS vn_reachability CASCADE;
+CREATE OR REPLACE VIEW vn_reachability AS (
+       SELECT flow_id,
+       	      source as ingress,
+       	      target as egress
+       FROM reachability, topology, 
+       WHERE flow_id in (SELECT * FROM vn_flows) AND
+       	     source in (SELECT * FROM vn_nodes) AND
+	     target in (SELECT * FROM vn_nodes)
+);
+
 CREATE OR REPLACE view obs_1_reach AS (
        SELECT switch_id, next_id, 
        FROM obs_1_config
        WHERE next_id IN (select next_id FROM obs_1_topo)
 );
+
+CREATE OR REPLACE VIEW reachability_72433 AS (
+       WITH pair_hop AS (
+              SELECT source, target,
+       	      	     (SELECT count(*) FROM pgr_dijkstra('SELECT * FROM fg_72433',
+	       			     source, target, 
+ 	       			    TRUE, FALSE)) as hops
+              FROM ingress_egress_72433)
+       SELECT * FROM pair_hop WHERE hops != 0
+);
+
+CREATE OR REPLACE VIEW topo2 AS (
+       SELECT 1 as id,
+       	      switch_id as source,
+	      next_id as target,
+	      1.0::float8 as cost
+       FROM topology
+);
+
+DROP VIEW IF EXISTS configuration_view CASCADE;
+CREATE OR REPLACE VIEW configuration_view AS (
+       SELECT flow_id,
+       	      source,
+	      target,
+	      (SELECT array(SELECT id1 FROM pgr_dijkstra('SELECT 1 as id,
+	      	      	     	       	             switch_id as source,
+						     next_id as target,
+						     1.0::float8 as cost
+			                             FROM topology', source, target,TRUE, FALSE))) as pv
+       FROM reachability
+);
+
+DROP VIEW IF EXISTS conf_switch_view CASCADE;
+CREATE OR REPLACE VIEW conf_switch_view AS (
+       WITH num_list AS (
+       SELECT UNNEST (ARRAY[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]) AS num
+       )
+       SELECT DISTINCT flow_id, num, ARRAY[pv[num], pv[num+1]] as edge
+       FROM configuration_view, num_list
+       WHERE pv != '{}' AND num < array_length (pv, 1) 
+       ORDER BY flow_id, num
+);
+
+DROP VIEW IF EXISTS switch_view CASCADE;
+CREATE OR REPLACE VIEW switch_view AS (
+       SELECT DISTINCT flow_id,
+       	      edge[1] as switch_id,
+	      edge[2] as next_id
+       FROM conf_switch_view
+       ORDER BY flow_id
+);
+
+
+CREATE OR REPLACE FUNCTION fg_perflow(f integer)
+RETURNS TABLE (id int, source int, target int, cost float8) AS $$
+	       SELECT 1 as id,
+	       	      switch_id as source,
+		      next_id as target,
+		      1.0::float8 as cost
+               FROM configuration WHERE flow_id = f
+$$ LANGUAGE SQL STABLE STRICT;
+
+-- CREATE OR REPLACE FUNCTION reachability_perflow(f integer)
+-- RETURNS TABLE (source int, target int, hops bigint) AS $$
+--   SELECT DISTINCT
+--   	 b1.switch_id AS source,
+-- 	 b2.switch_id AS target,
+-- 	 (SELECT count(*) FROM pgr_dijkstra('SELECT 1 as id, switch_id as source,
+-- 	 	 	       			    next_id as target, 1.0::float8 as cost
+-- 						    FROM configuration WHERE flow_id = $1',
+-- 	       			     b1.switch_id, b2.switch_id, 
+--  	       			    TRUE, FALSE)) as hops
+--   FROM borders b1, borders b2
+--   WHERE (b1.switch_id != b2.switch_id) ;
+-- $$ LANGUAGE SQL STABLE STRICT;
+
+DROP TABLE IF EXISTS reachability CASCADE;
+CREATE UNLOGGED TABLE reachability AS
+  SELECT DISTINCT
+  	 flow_id,
+	 source, 
+	 target,
+	 hops
+  FROM flow_constraints NATURAL JOIN reachability_perflow (flow_id);
 
 
 CREATE OR REPLACE view fg_72433 AS (
@@ -81,7 +176,7 @@ CREATE OR REPLACE view fg_72433 AS (
        WHERE flow_id = 72433
 );
 
-CREATE OR REPLACE view ingress_egress_72433 AS (
+CREATE OR REPLACE VIEW ingress_egress_72433 AS (
        SELECT DISTINCT f1.source, f2.target
        FROM fg_72433 f1, fg_72433 f2
        WHERE f1.source != f2.target AND
@@ -90,7 +185,7 @@ CREATE OR REPLACE view ingress_egress_72433 AS (
        ORDER by f1.source, f2.target
 );
 
-CREATE OR REPLACE view reachability_72433 AS (
+CREATE OR REPLACE VIEW reachability_72433 AS (
        WITH pair_hop AS (
               SELECT source, target,
        	      	     (SELECT count(*) FROM pgr_dijkstra('SELECT * FROM fg_72433',
@@ -100,7 +195,7 @@ CREATE OR REPLACE view reachability_72433 AS (
        SELECT * FROM pair_hop WHERE hops != 0
 );
 
-CREATE OR REPLACE view reachability_72433 AS (
+CREATE OR REPLACE VIEW reachability_72433 AS (
            WITH ingress_egress AS (
               SELECT DISTINCT f1.source, f2.target
        	      FROM fg_72433 f1, fg_72433 f2
@@ -117,6 +212,39 @@ CREATE OR REPLACE view reachability_72433 AS (
        SELECT * FROM ingress_egress_reachability WHERE hops != 0
 );
 
+
+CREATE OR REPLACE VIEW obs_1_fg_36093_2 AS (
+       select 1 as id,
+       	      switch_id as source,
+	      next_id as target,
+	      1.0::float8 as cost
+       FROM configuration NATURAL JOIN obs_1_topo
+       WHERE flow_id = 36093
+       ORDER BY source, target
+);
+
+CREATE OR REPLACE VIEW obs_1_fg_36093_3 AS (
+       select 1 as id,
+       	      switch_id as source,
+	      next_id as target,
+	      1.0::float8 as cost
+       FROM obs_1_topo, fg_36093
+       WHERE switch_id = source AND next_id = target
+       ORDER BY source, target
+);
+
+CREATE OR REPLACE VIEW obs_1_fg_36093_4 AS (
+       select 1 as id, source, target, 
+	      1.0::float8 as cost
+       FROM obs_1_topo, fg_36093
+       WHERE switch_id = source AND next_id = target
+       ORDER BY source, target
+);
+
+
+
+CREATE OR REPLACE VIEW obs_1_reachability_72433 AS (
+)
 
 SELECT count(*) FROM pgr_dijkstra('SELECT * FROM fg_72433',
 	       			     98, 471, 
