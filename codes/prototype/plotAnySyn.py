@@ -31,14 +31,6 @@ def synthesize (username, dbname, rounds):
         if conn:
             conn.close()
 
-    # dat_x = [d[0] for d in dat]
-    # dat_y1 = [d[1] for d in dat]
-    # dat_y2 = [d[2] for d in dat]
-    # dat_y3 = [d[3] for d in dat]
-
-    # return [dat_x, dat_y1, dat_y2, dat_y3]
-
-
 def verify (username, dbname, rounds):
     try:
         conn = psycopg2.connect(database= dbname, user= username)
@@ -322,10 +314,9 @@ set style data histograms
 set style histogram cluster
 set style fill solid .5 border lt -1
 set xtics
-plot "./dat/init.dat" using 2:xticlabels(1),\\
- '' using 3:xticlabels(1),\\
- '' using 4:xticlabels(1)
-        ''')
+plot "./dat/init.dat" using 2:xticlabels(1) title "AS 1",\\
+ '' using 3:xticlabels(1) title "AS 2",\\
+ '' using 4:xticlabels(1) title "AS 3" ''')
 
         # gsf.write ('\nplot "' + dat_file + '" ')
         # gsf.write ('using 2:xtic(1), \\')
@@ -429,11 +420,11 @@ if __name__ == '__main__':
     username = "anduo"
     flow_num = 10
 
-    plot_verify (username, dbname_list[2], flow_num)
+    # plot_verify (username, dbname_list[2], flow_num)
 
     # plot_verification (dbname_list)
 
-    # plot_all_init (username, dbname_list)
+    plot_all_init (username, dbname_list)
 
     # plot_fg_cdf (username, dbname_list[2], flow_num)
 

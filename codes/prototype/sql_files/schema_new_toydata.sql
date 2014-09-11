@@ -100,8 +100,8 @@ CREATE OR REPLACE VIEW topo2 AS (
        FROM topology
 );
 
-DROP VIEW IF EXISTS configuration_view CASCADE;
-CREATE OR REPLACE VIEW configuration_view AS (
+DROP VIEW IF EXISTS configuration_pv CASCADE;
+CREATE OR REPLACE VIEW configuration_pv AS (
        SELECT flow_id,
        	      source,
 	      target,
@@ -113,19 +113,19 @@ CREATE OR REPLACE VIEW configuration_view AS (
        FROM reachability
 );
 
-DROP VIEW IF EXISTS conf_switch_view CASCADE;
-CREATE OR REPLACE VIEW conf_switch_view AS (
+DROP VIEW IF EXISTS configuration_edge CASCADE;
+CREATE OR REPLACE VIEW conf_switch_edge AS (
        WITH num_list AS (
        SELECT UNNEST (ARRAY[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]) AS num
        )
        SELECT DISTINCT flow_id, num, ARRAY[pv[num], pv[num+1]] as edge
-       FROM configuration_view, num_list
+       FROM configuration_pv, num_list
        WHERE pv != '{}' AND num < array_length (pv, 1) 
        ORDER BY flow_id, num
 );
 
-DROP VIEW IF EXISTS switch_view CASCADE;
-CREATE OR REPLACE VIEW switch_view AS (
+DROP VIEW IF EXISTS configuration_switch CASCADE;
+CREATE OR REPLACE VIEW configuration_switch AS (
        SELECT DISTINCT flow_id,
        	      edge[1] as switch_id,
 	      edge[2] as next_id
