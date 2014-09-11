@@ -50,7 +50,7 @@ $$ LANGUAGE plpgsql;
 select * from pgr_dijkstra('SELECT 1 as id, switch_id as source,
 						     next_id as target,
 						     1.0::float8 as cost
-			                             FROM topology', 19, 230,TRUE, FALSE);
+			                             FROM topology', 19, 230,FALSE, FALSE);
 
 DROP VIEW IF EXISTS configuration_pv_2 CASCADE;
 CREATE OR REPLACE VIEW configuration_pv_2 AS (
