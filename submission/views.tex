@@ -1,13 +1,12 @@
-\Section{View Interface Design}
+\section{View Interface}
 \label{sec:details}
-
-\subsection{View interface}
 
 The design goal of \Sys view interface is to combine the strength of
 the following:
 \begin{itemize}
-\item A concise interface that holds only the relevant information,
-  structured in a format that eases control logic. The challenge is to
+\item An interface that loads and transforms the dataplane states.
+  % structured in a format that eases control logic.
+  The challenge is to
   identify a small set of views that are also expressive enough for
   common networking tasks. (\S~\ref{subsec:view-library})
 \item Composition. (\S~\ref{subsec:compose})
@@ -30,11 +29,11 @@ as traffic engineering.  This section presents (1,2) in
 details. Services and performance are discussed in
 \S~\ref{sec:veri-syn} and \S~\ref{sec:eval}.
 
+\subsection{Abstraction hierarchy}
 
-\subsection{The view primitives}
 \label{subsec:view-library}
 
-\Paragraph{Base tables}
+\subsection{Base tables}
 
 Before introducing the derived views, let us first discuss in depth
 the base tables -- the flat universe of networking data that are
@@ -75,6 +74,10 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 \end{sql}
+
+\subsection{Virtual views}
+
+\subsubsection{View primitives}
 
 \Paragraph{Per-flow forwarding graph and reachability views}
 
@@ -150,7 +153,7 @@ for an arbitrary virtual network, is a query like the following:
 
 
 
-\subsection{Composition}
+\subsubsection{View composition}
 \label{subsec:compose}
 
 % \Paragraph{One big switch}

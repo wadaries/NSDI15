@@ -129,7 +129,7 @@ CREATE OR REPLACE VIEW configuration_switch AS (
        SELECT DISTINCT flow_id,
        	      edge[1] as switch_id,
 	      edge[2] as next_id
-       FROM conf_switch_view
+       FROM configuration_edge
        ORDER BY flow_id
 );
 

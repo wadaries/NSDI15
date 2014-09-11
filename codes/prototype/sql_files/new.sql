@@ -1,5 +1,5 @@
-CREATE OR REPLACE FUNCTION reachability_perflow(f integer)
-RETURNS TABLE (flow_id int, source int, target int, hops bigint) AS 
+CREATE OR REPLACE FUNCTION reachability_perflow2(f integer)
+RETURNS TABLE (flow_id int, source int, target int, hops bigint, pv int[]) AS 
 $$
 BEGIN
 	-- CREATE TABLE tmpone AS (
@@ -29,9 +29,14 @@ BEGIN
 			     	           switch_id as source,
 					   next_id as target,
 					   1.0::float8 as cost FROM tmpone',
-			     i.source, i.target,TRUE, FALSE)) as hops
+			     i.source, i.target,TRUE, FALSE)) as hops,
+	      	       (SELECT array(SELECT id1 FROM pgr_dijkstra('SELECT 1 as id,
+			     	           switch_id as source,
+					   next_id as target,
+					   1.0::float8 as cost FROM tmpone',
+			     i.source, i.target,TRUE, FALSE))) as pv
 	        FROM ingress_egress i)
-	SELECT f as flow_id, r.source, r.target, r.hops FROM reach_can r where r.hops != 0;
+	SELECT f as flow_id, r.source, r.target, r.hops, r.pv FROM reach_can r where r.hops != 0;
   -- SELECT DISTINCT
   -- 	 source , target,
   -- 	 (SELECT count(*) FROM pgr_dijkstra('SELECT * FROM tmpone',
@@ -42,6 +47,28 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+select * from pgr_dijkstra('SELECT 1 as id, switch_id as source,
+						     next_id as target,
+						     1.0::float8 as cost
+			                             FROM topology', 19, 230,TRUE, FALSE);
+
+DROP VIEW IF EXISTS configuration_pv_2 CASCADE;
+CREATE OR REPLACE VIEW configuration_pv_2 AS (
+       SELECT flow_id,
+       	      source,
+	      target,
+	      (SELECT count(*) FROM pgr_dijkstra('SELECT 1 as id,
+	      	      	     	       	             switch_id as source,
+						     next_id as target,
+						     1.0::float8 as cost
+			                             FROM topology', source, target,FALSE, FALSE)) as hops,
+	      (SELECT array(SELECT id1 FROM pgr_dijkstra('SELECT 1 as id,
+	      	      	     	       	             switch_id as source,
+						     next_id as target,
+						     1.0::float8 as cost
+			                             FROM topology', source, target,FALSE, FALSE))) as pv
+       FROM reachability
+);
 
 
 DROP VIEW IF EXISTS configuration_pv CASCADE;

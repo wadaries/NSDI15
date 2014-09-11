@@ -619,7 +619,7 @@ def get_reachability_perflow (cursor, flow_id):
         print "Unable to get_reachability_perflow for flow " + str (flow_id)
         print 'Error %s' % e    
 
-def generate_reachability_perflow (cursor, flow_id):
+def add_reachability_perflow (cursor, flow_id):
 
     fg_view_name = "fg_" + str (flow_id)
     reach_view_name = "reachability_" + str (flow_id)
@@ -649,7 +649,7 @@ def generate_reachability_perflow (cursor, flow_id):
         print "Unable to create reachability table for flow " + str (flow_id)
         print 'Error %s' % e    
 
-def generate_reachability (cursor):
+def add_reachability_table (cursor):
 
     try:
         cursor.execute("SELECT flow_id FROM flow_constraints;")
@@ -696,6 +696,47 @@ def generate_forwarding_graph (cursor, flow_id):
     except psycopg2.DatabaseError, e:
         print "Unable to create fg_view table for flow " + str (flow_id)
         print 'Error %s' % e
+
+def add_configuration_view (cursor):
+    try:
+        cursor.execute ("""
+DROP VIEW IF EXISTS configuration_pv CASCADE;
+CREATE OR REPLACE VIEW configuration_pv AS (
+       SELECT flow_id,
+       	      source,
+	      target,
+	      (SELECT array(SELECT id1 FROM pgr_dijkstra('SELECT 1 as id,
+	      	      	     	       	             switch_id as source,
+						     next_id as target,
+						     1.0::float8 as cost
+			                             FROM topology', source, target,TRUE, FALSE))) as pv
+       FROM reachability
+);
+
+DROP VIEW IF EXISTS configuration_edge CASCADE;
+CREATE OR REPLACE VIEW configuration_edge AS (
+       WITH num_list AS (
+       SELECT UNNEST (ARRAY[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]) AS num
+       )
+       SELECT DISTINCT flow_id, num, ARRAY[pv[num], pv[num+1]] as edge
+       FROM configuration_pv, num_list
+       WHERE pv != '{}' AND num < array_length (pv, 1) 
+       ORDER BY flow_id, num
+);
+
+DROP VIEW IF EXISTS configuration_switch CASCADE;
+CREATE OR REPLACE VIEW configuration_switch AS (
+       SELECT DISTINCT flow_id,
+       	      edge[1] as switch_id,
+	      edge[2] as next_id
+       FROM configuration_edge
+       ORDER BY flow_id
+);        
+        """)
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to generate configuration_view"
+        print "Error %s" % e
 
 def add_reachability_perflow_fun (cursor):
     try:
@@ -771,10 +812,13 @@ def createViews (username, dbname):
         # generate_forwarding_graph (dict_cur, f1)
         # generate_reachability_perflow (dict_cur, f1)
         # r = get_reachability_perflow (dict_cur, f1)
-        # add_reachability_perflow_fun (dict_cur)
-        # generate_reachability (dict_cur)
 
-        flow_size = 1000
+        add_reachability_perflow_fun (dict_cur)
+        # add_reachability_table (dict_cur)
+        add_configuration_view (dict_cur)
+
+
+        flow_size = 100
         topo_size = 3
         vn_init (dict_cur, topo_size, flow_size)
 
