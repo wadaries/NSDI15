@@ -11,6 +11,56 @@ import Gnuplot.funcutils
 # import psycopg2
 # import psycopg2.extras
 
+def time_e2e_vn_insert (dict_cur):
+
+    dict_cur.execute ("SELECT * FROM vn_reachability;")
+    vns = random.sample (dict_cur.fetchall (), 1)[0]
+    flow_id = vns[0]
+
+    switchb_start = time.time ()
+    dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
+    switchb = dict_cur.fetchall ()
+    switchb_end = time.time ()
+
+    del_start = time.time ()
+    dict_cur.execute ("DELETE FROM vn_reachability WHERE flow_id = %s and ingress = %s and egress = %s ;", ([vns[0], vns[1], vns[2]]))
+    del_end = time.time ()
+
+    switcha_start = time.time ()
+    dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
+    switcha = dict_cur.fetchall ()
+    switcha_end = time.time ()
+
+    del_time = tfsf (del_start, del_end)
+    switch_delta_time = tfsf (switchb_start, switchb_end) + tfsf (switcha_start, switcha_end)
+
+    switch_delta = [s for s in switchb if s not in switcha]
+    print "switch delta after del of " + str (flow_id) + " between " + str (vns[1]) + " and "+ str (vns[2])
+    print switch_delta
+
+    switchb_start2 = time.time ()
+    dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
+    switchb2 = dict_cur.fetchall ()
+    switchb_end2 = time.time ()
+
+    ins_start = time.time ()
+    dict_cur.execute ("INSERT INTO vn_reachability VALUES (%s, %s, %s);", ([vns[0], vns[1], vns[2]]))
+    ins_end = time.time ()
+
+    switcha_start2 = time.time ()
+    dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
+    switcha2 = dict_cur.fetchall ()
+    switcha_end2 = time.time ()
+    
+    switch_delta2 = [s for s in switcha2 if s not in switchb2]
+    print "switch delta after ins of " + str (flow_id) + " between " + str (vns[1]) + " and "+ str (vns[2])
+    print switch_delta2
+
+    ins_time = tfsf (ins_start, ins_end)
+    switch_delta_time2 = tfsf (switchb_start2, switchb_end2) + tfsf (switcha_start2, switcha_end2)
+
+    return [del_time, switch_delta_time, ins_time, switch_delta_time2]
+
 def synthesize (username, dbname, rounds):
     try:
         conn = psycopg2.connect(database= dbname, user= username)
@@ -22,30 +72,20 @@ def synthesize (username, dbname, rounds):
 
         dat = []
         for i in range( rounds):
-            flow_size = 100
-            topo_size = 10
+            flow_size = 10
+            topo_size = 3
             vn_init (dict_cur, topo_size, flow_size)
 
-            dict_cur.execute ("SELECT * FROM vn_reachability;")
-            vns = random.sample (dict_cur.fetchall (), 1)[0]
-            flow_id = vns[0]
-            # print "flow_id is " + str (flow_id)
-            print vns
+            [del_time, del_swith_time, ins_time, ins_swith_time] = time_e2e_vn_insert (dict_cur)
 
-            dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
-            switcheb = dict_cur.fetchall ()
-            # print switcheb
-            dict_cur.execute ("DELETE FROM vn_reachability WHERE flow_id = %s and ingress = %s and egress = %s ;", ([vns[0], vns[1], vns[2]]))
-            dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
-            switchea = dict_cur.fetchall ()
-            # print switchea
-            switche_delta = [s for s in switcheb if s not in switchea]
-            print "delta after delte: "
-            print switche_delta
+            print del_time
+            print del_swith_time
+            print ins_time
+            print ins_swith_time
+
 
             # dict_cur.execute ("SELECT * FROM configuration_pv WHERE flow_id = %s;", ([flow_id]))
             # vnr_before = dict_cur.fetchall ()
-            dict_cur.execute ("INSERT INTO vn_reachability VALUES (%s, %s, %s);", ([vns[0], vns[1], vns[2]]))
             # dict_cur.execute ("SELECT * FROM configuration_pv WHERE flow_id = %s;", ([flow_id]))
             # vnr_after = dict_cur.fetchall ()
             # vnr_delta = len (vnr_after) - len (vnr_before)
