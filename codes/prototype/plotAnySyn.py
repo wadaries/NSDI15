@@ -7,7 +7,7 @@ import libAnalyzeSynthesize
 import Gnuplot
 import Gnuplot.funcutils
 # import subprocess
-# sys.path.append('/usr/local/lib/python2.7/site-packages/') 
+# sys.path.append('/usr/local/lib/python2.7/site-packages/')
 # import psycopg2
 # import psycopg2.extras
 
@@ -18,10 +18,39 @@ def synthesize (username, dbname, rounds):
         dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         print "Connect to database " + dbname + ", as user " + username
 
+        add_configuration_view (dict_cur)
+
         dat = []
         for i in range( rounds):
+            flow_size = 100
+            topo_size = 10
+            vn_init (dict_cur, topo_size, flow_size)
 
-            [f1, f2] = pick_flow (dict_cur, 2)
+            dict_cur.execute ("SELECT * FROM vn_reachability;")
+            vns = random.sample (dict_cur.fetchall (), 1)[0]
+            flow_id = vns[0]
+            # print "flow_id is " + str (flow_id)
+            print vns
+
+            dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
+            switcheb = dict_cur.fetchall ()
+            # print switcheb
+            dict_cur.execute ("DELETE FROM vn_reachability WHERE flow_id = %s and ingress = %s and egress = %s ;", ([vns[0], vns[1], vns[2]]))
+            dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
+            switchea = dict_cur.fetchall ()
+            # print switchea
+            switche_delta = [s for s in switcheb if s not in switchea]
+            print "delta after delte: "
+            print switche_delta
+
+            # dict_cur.execute ("SELECT * FROM configuration_pv WHERE flow_id = %s;", ([flow_id]))
+            # vnr_before = dict_cur.fetchall ()
+            dict_cur.execute ("INSERT INTO vn_reachability VALUES (%s, %s, %s);", ([vns[0], vns[1], vns[2]]))
+            # dict_cur.execute ("SELECT * FROM configuration_pv WHERE flow_id = %s;", ([flow_id]))
+            # vnr_after = dict_cur.fetchall ()
+            # vnr_delta = len (vnr_after) - len (vnr_before)
+            # print "delta after insert: "
+            # print vnr_delta
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
@@ -30,6 +59,9 @@ def synthesize (username, dbname, rounds):
     finally:
         if conn:
             conn.close()
+
+def plot_synthesize (username, dbname, rounds):
+    pass
 
 def verify (username, dbname, rounds):
     try:
@@ -46,24 +78,24 @@ def verify (username, dbname, rounds):
             start = time.time ()
             fg = get_forwarding_graph (dict_cur, f1)
             end = time.time ()
-            fg_t = round (end - start, 6) * 1000
+            fg_t = tfsf (start, end)
 
             start = time.time ()
             ed = check_disjoint_edge (dict_cur, f1, f2)
             end = time.time ()
-            cde_t = tfsr (start, end, fg_t)
+            cde_t = tfsf (start, end)
 
             start = time.time ()
             lp = check_dag (dict_cur, f1)
             end = time.time ()
-            cd_t = tfsr (start, end, fg_t)
+            cd_t = tfsf (start, end)
 
             start = time.time ()
             t = check_blackhole (dict_cur, f1)
             end = time.time ()
-            cb_t = tfsr (start, end, fg_t)
+            cb_t = tfsf (start, end)
 
-            dat.append ([i, cde_t, cd_t, cb_t])
+            dat.append ([fg_t, cde_t, cd_t, cb_t])
             
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
@@ -73,57 +105,77 @@ def verify (username, dbname, rounds):
         if conn:
             conn.close()
 
-    dat_x = [d[0] for d in dat]
+    dat_b = [d[0] for d in dat]
     dat_y1 = [d[1] for d in dat]
     dat_y2 = [d[2] for d in dat]
     dat_y3 = [d[3] for d in dat]
 
-    return [dat_x, dat_y1, dat_y2, dat_y3]
+    return [dat_b, dat_y1, dat_y2, dat_y3]
 
-def plot_verify (username, dbname, rounds):
+# class discrete_cdf:
+#     def __init__(data):
+#         self._data = data # must be sorted
+#         self._data_len = float(len(data))
 
-    [x, y1, y2, y3] = verify (username, dbname, rounds)
-    yk = [0] * len (x)
-    # print x
-    # print y3
+#     def __call__(point):
+#         return (len(self._data[:bisect_left(self._data, point)]) / 
+#                 self._data_len)
 
-    outputfile = './dat/verify' + str (rounds) + '.png'
+def plot_verify_cdf (username, dbname, rounds):
+
+    [b, y1, y2, y3] = verify (username, dbname, rounds)
+    # yk = [0] * len (x)
+
+    b.sort ()
+    y1.sort ()
+    y2.sort ()
+    y3.sort ()
+
+    def gen_cdf_x (y_list):
+        x = []
+        xlen = len (y_list)
+        for i in range (xlen):
+            xt = float(i+1)/ xlen
+            x.append (xt)
+        return x
+
+    xb = gen_cdf_x (b)
+    x1 = gen_cdf_x (y1)
+    x2 = gen_cdf_x (y2)
+    x3 = gen_cdf_x (y3)
+
+    outputfile = './dat/verify_cdf' + str (rounds) + '.png'
     print "plot synthesize: start gnuplot"
 
     try:
-        g = Gnuplot.Gnuplot (persist = 1)
+        g = Gnuplot.Gnuplot ()
         g.reset ()
         g.title ("Verification time for AS " + str (dbname[2:6]) + " relative to forwarding graph generation")
         g.xlabel('Total of ' + str (rounds) + ' randomly picked flows')
-        # g.ylabel('Time, relative to time for forwarding graph generation')
+        g.ylabel('Time (millisecond)')
         g ("set key top left")
 
-        xrange_max = len (x)
-        g('set xrange[0:' + str (xrange_max) +']')
-        # g ("set key font ",8")
+        # xrange_max = len (x)
+        # g('set xrange[0:' + str (xrange_max) +']')
 
-        # d1k = Gnuplot.Data ([-1], [0], with_="points pt 5 ps 2", title = "disjoint path")
-        # d1 = Gnuplot.Data (x, y1, with_="points pt 5 ps .3 rgb 'red'", title = None)
+        y1.sort ()
+        d1 = Gnuplot.Data (x1, y1, with_="linespoints lw .1", title = "disjoint path")
+        print x1
+        print y1
 
-        # d2k = Gnuplot.Data ([-1], [0], with_="points pt 7 ps 2", title = "loop free")
-        # d2 = Gnuplot.Data (x, y2, with_="points pt 7 ps .3", title = None)
+        y2.sort ()
+        d2 = Gnuplot.Data (x2, y2, with_="linespoints lw .1", title = "loop free")
 
-        d1 = Gnuplot.Data (x, y1, with_="linespoints lw .1", title = "disjoint path")
-        d2 = Gnuplot.Data (x, y2, with_="linespoints lw .1", title = "loop free")
-        d3 = Gnuplot.Data (x, y3, with_="linespoints lw .1", title = "black hole")
+        y3.sort ()
+        d3 = Gnuplot.Data (x3, y3, with_="linespoints lw .1", title = "black hole")
 
-        # d3k = Gnuplot.Data ([-1], [0], with_="points pt 9 ps 2", title = "black hole")
-        # d3 = Gnuplot.Data (x, y3, with_="points pt 9 ps .3", title = None)
-        # d1 = Gnuplot.Data (x, y1, with_="points pt 5 ps .3", notitle)
-        # d2 = Gnuplot.Data (x, y2, with_="points pt 7 ps .3", notitle)
-        # d3 = Gnuplot.Data (x, y3, with_="points pt 9 ps .3", notitle)
-        # d Gnuplot.Data (x[i], y[i], with_="linespoints lw 3 pt 3", title = "AS " + dbname_list[i][2:6]))
+        # x4 = x + [len (x)]
+        # y4 = [1] * (len (x) + 1)
+        b.sort ()
+        d4 = Gnuplot.Data (xb, b, with_="lines lt -1", title = "forwarding graph")
+        print xb
+        print b
 
-        x4 = x + [len (x)]
-        y4 = [1] * (len (x) + 1)
-        d4 = Gnuplot.Data (x4, y4, with_="lines lt -1", title = "forwarding graph")
-
-        # g.plot (d1k, d1, d2k, d2, d3k, d3, d4)
         g.plot (d1, d2, d3, d4)
         g.hardcopy(outputfile, terminal = 'png')
 
@@ -131,6 +183,59 @@ def plot_verify (username, dbname, rounds):
         
     except:
         print "plot verification erro"
+
+
+# def plot_verify (username, dbname, rounds):
+
+#     [x, y1, y2, y3] = verify (username, dbname, rounds)
+#     yk = [0] * len (x)
+#     # print x
+#     # print y3
+
+#     outputfile = './dat/verify' + str (rounds) + '.png'
+#     print "plot synthesize: start gnuplot"
+
+#     try:
+#         g = Gnuplot.Gnuplot (persist = 1)
+#         g.reset ()
+#         g.title ("Verification time for AS " + str (dbname[2:6]) + " relative to forwarding graph generation")
+#         g.xlabel('Total of ' + str (rounds) + ' randomly picked flows')
+#         # g.ylabel('Time, relative to time for forwarding graph generation')
+#         g ("set key top left")
+
+#         xrange_max = len (x)
+#         g('set xrange[0:' + str (xrange_max) +']')
+#         # g ("set key font ",8")
+
+#         # d1k = Gnuplot.Data ([-1], [0], with_="points pt 5 ps 2", title = "disjoint path")
+#         # d1 = Gnuplot.Data (x, y1, with_="points pt 5 ps .3 rgb 'red'", title = None)
+
+#         # d2k = Gnuplot.Data ([-1], [0], with_="points pt 7 ps 2", title = "loop free")
+#         # d2 = Gnuplot.Data (x, y2, with_="points pt 7 ps .3", title = None)
+
+#         d1 = Gnuplot.Data (x, y1, with_="linespoints lw .1", title = "disjoint path")
+#         d2 = Gnuplot.Data (x, y2, with_="linespoints lw .1", title = "loop free")
+#         d3 = Gnuplot.Data (x, y3, with_="linespoints lw .1", title = "black hole")
+
+#         # d3k = Gnuplot.Data ([-1], [0], with_="points pt 9 ps 2", title = "black hole")
+#         # d3 = Gnuplot.Data (x, y3, with_="points pt 9 ps .3", title = None)
+#         # d1 = Gnuplot.Data (x, y1, with_="points pt 5 ps .3", notitle)
+#         # d2 = Gnuplot.Data (x, y2, with_="points pt 7 ps .3", notitle)
+#         # d3 = Gnuplot.Data (x, y3, with_="points pt 9 ps .3", notitle)
+#         # d Gnuplot.Data (x[i], y[i], with_="linespoints lw 3 pt 3", title = "AS " + dbname_list[i][2:6]))
+
+#         x4 = x + [len (x)]
+#         y4 = [1] * (len (x) + 1)
+#         d4 = Gnuplot.Data (x4, y4, with_="lines lt -1", title = "forwarding graph")
+
+#         # g.plot (d1k, d1, d2k, d2, d3k, d3, d4)
+#         g.plot (d1, d2, d3, d4)
+#         g.hardcopy(outputfile, terminal = 'png')
+
+#         g.clear ()
+        
+#     except:
+#         print "plot verification erro"
 
 def plot_fg_cdf (username, dbname, xsize):
 
@@ -418,14 +523,18 @@ if __name__ == '__main__':
     dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
     # dbname_list = ["as4755rib1000", "as6461rib1000", "as7018rib1000"]
     username = "anduo"
-    flow_num = 10
+    flow_num = 10000
 
     # plot_verify (username, dbname_list[2], flow_num)
 
     # plot_verification (dbname_list)
 
-    plot_all_init (username, dbname_list)
+    # plot_all_init (username, dbname_list)
 
     # plot_fg_cdf (username, dbname_list[2], flow_num)
 
     # plot_fg_all (username, dbname_list, flow_num)
+
+    # plot_verify_cdf (username, dbname, flow_num)
+    rounds = 1
+    synthesize (username, dbname, rounds)

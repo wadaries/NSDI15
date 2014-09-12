@@ -87,3 +87,46 @@ generic algorithm for future work.
 
 \subsection{Synthesis example}
 
+\begin{sql}
+select * from vn_reachability where flow_id = 77899 ;
+ flow_id | ingress | egress 
+---------+---------+--------
+   77899 |     486 |     19  
+   ...
+\end{sql}
+
+This entry corresponds to a record in configuration as follows:
+\begin{sql}
+SELECT flow_id, pv FROM configuration_pv WHERE flow_id = 77899;
+---------+----------------------------------
+ flow_id |                pv                
+   77899 | {486,498,462,463,456,472,109,19}
+\end{sql}
+
+To update the virtual network policy that revoke transient service for
+flow \nd{77899} between ingress \nd{486} and egress \nd{19}, the user
+could direcly modify the \nd{vn\_reachability} table by deleting the
+corresponding record as follows:
+\begin{sql}
+DELETE FROM vn_reachability WHERE 
+        flow_id = 27079 AND ingress = 486 AND egress = 19;  
+\end{sql}
+
+This deletion results in the deletion of three switch-level
+configurations as follows:
+\begin{sql}
+[[77899, 462, 463], [77899, 486, 498], [77899, 498, 462]]  
+\end{sql}
+
+\begin{sql}
+SELECT flow_id, pv FROM configuration_pv WHERE flow_id = 77899;
+ flow_id |                pv                
+---------+----------------------------------
+   77899 | {483,463,456,472,109,19}
+   77899 | {486,498,462,463,456,472,109,19}
+   ...
+\end{sql}
+
+
+
+

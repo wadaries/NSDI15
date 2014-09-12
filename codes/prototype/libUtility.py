@@ -15,6 +15,9 @@ import logging
 def tfsr (start, end, base) :
     return round ((end - start) / base, 6) * 1000
 
+def tfsf (start, end) :
+    return round (end - start, 6) * 1000
+
 def tfs (start, end) :
     return str (round (end - start, 6) * 1000)
 

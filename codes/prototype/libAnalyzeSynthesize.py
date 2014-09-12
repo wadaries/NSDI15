@@ -357,7 +357,7 @@ def vn_init (dict_cur, topo_size, flow_size):
         vn_nodes = random.sample (borders, topo_size)
         vn_flows = random.sample (flows, flow_size)
 
-        print vn_nodes
+        # print vn_nodes
 
         dict_cur.execute ("""
         DROP TABLE IF EXISTS vn_nodes CASCADE;
@@ -383,7 +383,7 @@ def vn_init (dict_cur, topo_size, flow_size):
         for f in vn_flows[1:]:
             flow_id_sql = flow_id_sql + " OR flow_id = " + str (f)
 
-        print flow_id_sql
+        # print flow_id_sql
             
         source_sql = "source = " + str (vn_nodes[0])
         for n in vn_nodes[1:]:
@@ -705,11 +705,16 @@ CREATE OR REPLACE VIEW configuration_pv AS (
        SELECT flow_id,
        	      source,
 	      target,
+	      (SELECT count(*) FROM pgr_dijkstra('SELECT 1 as id,
+	      	      	     	       	             switch_id as source,
+						     next_id as target,
+						     1.0::float8 as cost
+			                             FROM topology', source, target,FALSE, FALSE)) as hops,
 	      (SELECT array(SELECT id1 FROM pgr_dijkstra('SELECT 1 as id,
 	      	      	     	       	             switch_id as source,
 						     next_id as target,
 						     1.0::float8 as cost
-			                             FROM topology', source, target,TRUE, FALSE))) as pv
+			                             FROM topology', source, target,FALSE, FALSE))) as pv
        FROM reachability
 );
 
@@ -813,14 +818,15 @@ def createViews (username, dbname):
         # generate_reachability_perflow (dict_cur, f1)
         # r = get_reachability_perflow (dict_cur, f1)
 
-        add_reachability_perflow_fun (dict_cur)
+        # add_reachability_perflow_fun (dict_cur)
         # add_reachability_table (dict_cur)
+
         add_configuration_view (dict_cur)
 
 
-        flow_size = 100
-        topo_size = 3
-        vn_init (dict_cur, topo_size, flow_size)
+        # flow_size = 100
+        # topo_size = 3
+        # vn_init (dict_cur, topo_size, flow_size)
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
@@ -842,7 +848,7 @@ if __name__ == '__main__':
 #     updates = update_all + str (size) + ".txt"
 #     os.system ("head -n " + str(size) + " " + update_all + " > " + updates)
     
-    createViews (username, dbname)
+    # createViews (username, dbname)
 
 
 
