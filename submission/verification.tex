@@ -132,19 +132,29 @@ SELECT flow_id, pv FROM configuration_pv WHERE flow_id = 77899;
 Similarly, on user request for adding new or updating exiting virtual
 network end to end policy, \Sys synthesizes the relevant switch-level
 configuration modification.
+Add new policy:
+\begin{sql}
+INSERT INTO vn_reachability VALUES (55716, 557, 483);  
+\end{sql}
+
+Update policy:
+\begin{sql}
+UPDATE vn_reachability SET egress = 230
+        WHERE flow_id = 97940 AND ingress = 497;  
+\end{sql}
 
 Finally, it is worth noting that, a policy update request may not
 always be valid. For example, a deletion of policy \nd{(42692, 497,
-  375)} in
+  375)} in ... 
 
 \begin{sql}
-select pv from configuration_pv where flow_id = 42692;
-                pv                 
------------------------------------
- {486,498,462,463,456,472,108,375}
- {497,462,463,456,230}
- {497,462,463,456,472,108,375}
- ...
+SELECT source, target, pv FROM configuration_pv WHERE flow_id = 42692;
+ source | target |                pv                 
+--------+--------+-----------------------------------
+    486 |    375 | {486,498,462,463,456,472,108,375}
+    497 |    230 | {497,462,463,456,230}
+    497 |    375 | {497,462,463,456,472,108,375}
+    ...
 \end{sql}
 
 While \Sys, which utilizes the default view updates mechanism
