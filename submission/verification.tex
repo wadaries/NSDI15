@@ -1,9 +1,17 @@
 \section{Verification and synthesis}
 \label{sec:veri-syn}
 
+This section presents in more details the view interface and their
+usage by three examples, namely real-time verification and synthesis
+that are fully automatically enabled by database for virtual network,
+one big switch, and distributed firewalls.
+
+% three example view abstractions, together with the fully automatic
+% verification and synthesis services,
+
 \Subsection{Verification and synthesis as data synchronization}
 
-\todo{(this subsection) HotNet texts, will rework}
+% \todo{(this subsection) HotNet texts, will rework}
 
 A network is in constant change. A virtual view is useful only if its
 records are fresh -- reflecting the latest network instantly. For
@@ -83,9 +91,11 @@ generic algorithm for future work.
 % \input{preliminary-eval}
 
 
-\subsection{Verification example}
+% \subsection{Verification example}
 
-\subsection{Synthesis example}
+% \subsection{Synthesis example}
+
+\subsection{Virtual network}
 
 \begin{sql}
 select * from vn_reachability where flow_id = 77899 ;
@@ -165,9 +175,10 @@ configuration unchanged.
 % Switch delta after del of 42692 between 497 and 375 []
 % \end{sql}
 
+\subsection{One big switch abstraction}
 
+\subsection{Distributed firewall}
 
-
-
-
-
+\begin{sql}
+ALTER VIEW reachability_rel_obs_out2 ALTER COLUMN source SET DEFAULT 591;  
+\end{sql}

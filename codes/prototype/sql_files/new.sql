@@ -102,30 +102,37 @@ CREATE OR REPLACE VIEW reachability_rel_obs_out AS (
 	      flow_id IN (SELECT * FROM obs_flows)
 );
 
-
-DROP VIEW IF EXISTS obs_reachability_in CASCADE;
-CREATE OR REPLACE VIEW obs_reachability_in AS (
-       SELECT flow_id,
-       	      source,
-	      1 as target
-       FROM reachability, obs_mapping
-       WHERE source NOT IN (SELECT * FROM obs_nodes) AND
-       	     target IN (SELECT * FROM obs_nodes) AND
-	     flow_id IN (SELECT * FROM obs_flows)
-       ORDER by flow_id, source, target
-);
-
 DROP VIEW IF EXISTS obs_reachability_out CASCADE;
 CREATE OR REPLACE VIEW obs_reachability_out AS (
        SELECT flow_id,
-       	      1 as source,
 	      target
-       FROM reachability, obs_mapping
-       WHERE source IN (SELECT * FROM obs_nodes) AND
-       	     target NOT IN (SELECT * FROM obs_nodes) AND
-	     flow_id IN (SELECT * FROM obs_flows) 
-       ORDER by flow_id, source, target
+       FROM reachability_rel_obs_out2
 );
+
+
+-- DROP VIEW IF EXISTS obs_reachability_in CASCADE;
+-- CREATE OR REPLACE VIEW obs_reachability_in AS (
+--        SELECT flow_id,
+--        	      source,
+-- 	      1 as target
+--        FROM reachability, obs_mapping
+--        WHERE source NOT IN (SELECT * FROM obs_nodes) AND
+--        	     target IN (SELECT * FROM obs_nodes) AND
+-- 	     flow_id IN (SELECT * FROM obs_flows)
+--        ORDER by flow_id, source, target
+-- );
+
+-- DROP VIEW IF EXISTS obs_reachability_out CASCADE;
+-- CREATE OR REPLACE VIEW obs_reachability_out AS (
+--        SELECT flow_id,
+--        	      1 as source,
+-- 	      target
+--        FROM reachability, obs_mapping
+--        WHERE source IN (SELECT * FROM obs_nodes) AND
+--        	     target NOT IN (SELECT * FROM obs_nodes) AND
+-- 	     flow_id IN (SELECT * FROM obs_flows) 
+--        ORDER by flow_id, source, target
+-- );
 
 DROP VIEW IF EXISTS configuration_pv_2 CASCADE;
 CREATE OR REPLACE VIEW configuration_pv_2 AS (

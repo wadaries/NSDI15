@@ -388,6 +388,30 @@ def obs_new_init (dict_cur, topo_size, flow_size):
         for f in obs_flows:
             dict_cur.execute ("INSERT INTO obs_flows VALUES (%s);", ([f]))
 
+        obs_nodes_sql = "NOT (source != " + str (obs_nodes[0]) 
+        for n in obs_nodes[1:]:
+            obs_nodes_sql = obs_nodes_sql + ("  AND source != " + str (n))
+        obs_nodes_sql = obs_nodes_sql + " )"
+        print obs_nodes_sql
+
+        obs_flows_sql = "NOT (flow_id != " + str (obs_flows[0]) 
+        for f in obs_flows[1:]:
+            obs_flows_sql = obs_flows_sql + (" AND flow_id != " + str (f))
+        obs_flows_sql = obs_flows_sql + ")"
+        print obs_flows_sql
+            
+        dict_cur.execute ("""
+        DROP VIEW IF EXISTS reachability_rel_obs_out2 CASCADE;
+        CREATE OR REPLACE VIEW reachability_rel_obs_out2 AS (
+        SELECT *
+        FROM reachability
+        WHERE """ + obs_nodes_sql + """ AND 
+              """ + obs_flows_sql + """            
+        );
+        """)
+
+# source IN (SELECT * FROM obs_nodes) AND
+# flow_id IN (SELECT * FROM obs_flows)
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
 
