@@ -11,11 +11,12 @@ import Gnuplot.funcutils
 # import psycopg2
 # import psycopg2.extras
 
-def time_e2e_vn_insert (dict_cur):
+def time_e2e_vn (dict_cur):
 
     dict_cur.execute ("SELECT * FROM vn_reachability;")
     vns = random.sample (dict_cur.fetchall (), 1)[0]
     flow_id = vns[0]
+    # print flow_id
 
     switchb_start = time.time ()
     dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
@@ -35,33 +36,67 @@ def time_e2e_vn_insert (dict_cur):
     switch_delta_time = tfsf (switchb_start, switchb_end) + tfsf (switcha_start, switcha_end)
 
     switch_delta = [s for s in switchb if s not in switcha]
-    print "switch delta after del of " + str (flow_id) + " between " + str (vns[1]) + " and "+ str (vns[2])
-    print switch_delta
+    # print "switch delta after del of " + str (flow_id) + " between " + str (vns[1]) + " and "+ str (vns[2])
+    # print switch_delta
 
-    switchb_start2 = time.time ()
-    dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
-    switchb2 = dict_cur.fetchall ()
-    switchb_end2 = time.time ()
+    # switchb_start2 = time.time ()
+    # dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
+    # switchb2 = dict_cur.fetchall ()
+    # switchb_end2 = time.time ()
 
     ins_start = time.time ()
     dict_cur.execute ("INSERT INTO vn_reachability VALUES (%s, %s, %s);", ([vns[0], vns[1], vns[2]]))
     ins_end = time.time ()
-
-    switcha_start2 = time.time ()
-    dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
-    switcha2 = dict_cur.fetchall ()
-    switcha_end2 = time.time ()
-    
-    switch_delta2 = [s for s in switcha2 if s not in switchb2]
-    print "switch delta after ins of " + str (flow_id) + " between " + str (vns[1]) + " and "+ str (vns[2])
-    print switch_delta2
-
     ins_time = tfsf (ins_start, ins_end)
-    switch_delta_time2 = tfsf (switchb_start2, switchb_end2) + tfsf (switcha_start2, switcha_end2)
 
-    return [del_time, switch_delta_time, ins_time, switch_delta_time2]
+    # switcha_start2 = time.time ()
+    # dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
+    # switcha2 = dict_cur.fetchall ()
+    # switcha_end2 = time.time ()
+    
+    # switch_delta2 = [s for s in switcha2 if s not in switchb2]
+    # print "switch delta after ins of " + str (flow_id) + " between " + str (vns[1]) + " and "+ str (vns[2])
+    # print switch_delta2
 
-def synthesize (username, dbname, rounds):
+    dict_cur.execute ("SELECT * FROM vn_nodes ;")
+    nodes = dict_cur.fetchall ()
+    dict_cur.execute ("SELECT egress FROM vn_reachability WHERE flow_id = %s;", ([flow_id]))
+    egress = dict_cur.fetchall ()
+    dict_cur.execute ("SELECT ingress FROM vn_reachability WHERE flow_id = %s;", ([flow_id]))
+    ingress = dict_cur.fetchall ()
+    newi = random.sample (ingress, 1)[0][0]
+
+    new_nodes = [n for n in nodes if n not in egress]
+    if new_nodes != []:
+        dict_cur.execute ("SELECT egress from vn_reachability where flow_id = %s and ingress = %s", ([flow_id, newi]))
+        olde = dict_cur.fetchall ()[0][0]
+        if olde in new_nodes:
+            newe = random.sample (new_nodes.remove (olde), 1)[0][0]
+        else:
+            newe = random.sample (new_nodes, 1)[0][0]
+        # print newe
+
+        # print "update for flow_id " + str (flow_id) + " from ingress " + str (newi) + " to egress " + str (olde)
+        # raw_input ("pause, enter to continue")
+
+        up_start = time.time ()
+        dict_cur.execute ("UPDATE vn_reachability SET egress = %s where flow_id = %s and ingress = %s;", ([newe, flow_id, newi]))
+        up_end = time.time ()
+
+        # print "update egress to " + str (newe)
+        # raw_input ("pause, enter to continue")
+        
+        up_time = tfsf (up_start, up_end)
+        dict_cur.execute ("UPDATE vn_reachability SET egress = %s where flow_id = %s and ingress = %s;", ([olde, flow_id, newi]))
+    else:
+        up_time = 0
+
+        # dict_cur.execute ("UPDATE vn_reachability SET egress = %s where flow_id = %s and ingress = %s;", ([newe, flow_id, newi]))
+    # switch_delta_time2 = tfsf (switchb_start2, switchb_end2) + tfsf (switcha_start2, switcha_end2)
+
+    return [del_time, switch_delta_time, ins_time, up_time]
+
+def plot_vn_synthesize (username, dbname, rounds):
     try:
         conn = psycopg2.connect(database= dbname, user= username)
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
@@ -72,25 +107,70 @@ def synthesize (username, dbname, rounds):
 
         dat = []
         for i in range( rounds):
-            flow_size = 10
-            topo_size = 3
+            flow_size = 100
+            topo_size = 10
             vn_init (dict_cur, topo_size, flow_size)
 
-            [del_time, del_swith_time, ins_time, ins_swith_time] = time_e2e_vn_insert (dict_cur)
+            [del_time, del_swith_time, ins_time, up_time] = time_e2e_vn (dict_cur)
 
-            print del_time
-            print del_swith_time
-            print ins_time
-            print ins_swith_time
+            if up_time != 0:
+                dat_i = [del_time, del_swith_time, ins_time, up_time]
+            else:
+                dat_i = []
+
+            dat.append (dat_i)
+
+        # [y_del, y_switch, y_ins, y_up] = dat
+        y_del = [d[0] for d in dat]
+        y_del.sort ()
+
+        y_switch = [d[1] for d in dat]
+        y_switch.sort ()
+
+        y_ins = [d[2] for d in dat]
+        y_ins.sort ()
+
+        y_up = [d[3] for d in dat]
+        y_up.sort ()
+
+        def gen_cdf_x (y_list):
+            x = []
+            xlen = len (y_list)
+            for i in range (xlen):
+                xt = float(i+1)/ xlen
+                x.append (xt)
+            return x
+
+        x_del = gen_cdf_x (y_del)
+        x_switch = gen_cdf_x (y_switch)
+        x_ins = gen_cdf_x (y_ins)
+        x_up = gen_cdf_x (y_up)
+
+        outputfile = './dat/vn_synthesis_cdf' + str (rounds) + '.png'
+        print "plot vn synthesize: start gnuplot"
+
+        g = Gnuplot.Gnuplot ()
+        g.reset ()
+        g.title ("Synthesis for virtual network policy, AS " + str (dbname[2:6]))
+        g.xlabel('Total of ' + str (rounds) + ' randomly picked insertion / deletion / updates')
+        g.ylabel('Time (millisecond)')
+        g ("set logscale y")
+        g ("set key top left")
+
+        d1 = Gnuplot.Data (x_del, y_del, with_="linespoints lw .1", title = "policy deletion")
+        d2 = Gnuplot.Data (x_switch, y_switch, with_="linespoints lw .1", title = "compute per-switch configuration delta")
+
+        d3 = Gnuplot.Data (x_ins, y_ins, with_="linespoints lw .1", title = "policy insertion")
+        d4 = Gnuplot.Data (x_up, y_up, with_="linespoints lw .1", title = "policy update")
+
+        # x4 = x + [len (x)]
+        # y4 = [1] * (len (x) + 1)
+        g.plot (d1, d3, d4, d2)
+        g.hardcopy(outputfile, terminal = 'png')
+
+        g.clear ()
 
 
-            # dict_cur.execute ("SELECT * FROM configuration_pv WHERE flow_id = %s;", ([flow_id]))
-            # vnr_before = dict_cur.fetchall ()
-            # dict_cur.execute ("SELECT * FROM configuration_pv WHERE flow_id = %s;", ([flow_id]))
-            # vnr_after = dict_cur.fetchall ()
-            # vnr_delta = len (vnr_after) - len (vnr_before)
-            # print "delta after insert: "
-            # print vnr_delta
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
@@ -100,8 +180,8 @@ def synthesize (username, dbname, rounds):
         if conn:
             conn.close()
 
-def plot_synthesize (username, dbname, rounds):
-    pass
+# def plot_synthesize (username, dbname, rounds):
+#     pass
 
 def verify (username, dbname, rounds):
     try:
@@ -193,6 +273,7 @@ def plot_verify_cdf (username, dbname, rounds):
         g.title ("Verification time for AS " + str (dbname[2:6]) + " relative to forwarding graph generation")
         g.xlabel('Total of ' + str (rounds) + ' randomly picked flows')
         g.ylabel('Time (millisecond)')
+        g ("set logscale y")
         g ("set key top left")
 
         # xrange_max = len (x)
@@ -558,7 +639,7 @@ def plot_verification (dbname_list):
 
 if __name__ == '__main__':
 
-    rounds = 200
+    rounds = 1000
 
     dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
     # dbname_list = ["as4755rib1000", "as6461rib1000", "as7018rib1000"]
@@ -575,6 +656,5 @@ if __name__ == '__main__':
 
     # plot_fg_all (username, dbname_list, flow_num)
 
-    # plot_verify_cdf (username, dbname, flow_num)
-    rounds = 1
-    synthesize (username, dbname, rounds)
+    plot_verify_cdf (username, dbname, flow_num)
+    # plot_vn_synthesize (username, dbname, rounds)

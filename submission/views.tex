@@ -153,7 +153,7 @@ for an arbitrary virtual network, is a query like the following:
 
 
 
-\subsubsection{View composition}
+\subsubsection{Composition}
 \label{subsec:compose}
 
 From user perspective, a network view is a derived table that offers
@@ -213,3 +213,26 @@ approach. Unfortunately, views are not allowed to be paramterized in
 SQL standard. To achieve the affect of parameterized views, \Sys uses
 Python wrapper as walk-round, as follows:
 
+% \subsection{Example}
+
+\Paragraph{Virtual network example}
+
+\begin{sql}
+DROP TABLE IF EXISTS vn_nodes CASCADE;
+CREATE UNLOGGED TABLE vn_nodes (
+switch_id      integer);
+\end{sql}
+
+\begin{sql}
+CREATE OR REPLACE VIEW vn_reachability AS (
+       SELECT flow_id,
+       	      source as ingress,
+       	      target as egress
+       FROM reachability
+       WHERE flow_id in (SELECT * FROM vn_flows) AND
+       	     source in (SELECT * FROM vn_nodes) AND
+	     target in (SELECT * FROM vn_nodes)
+);
+\end{sql}
+
+\Paragraph{One big switch example}

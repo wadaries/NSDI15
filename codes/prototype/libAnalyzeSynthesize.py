@@ -343,8 +343,21 @@ def e2e_del_dst (dict_cur, flow_id, dst):
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
 
-# def vn_add (dict_cur):
-#     pass
+
+def obs_new_init (dict_cur, topo_size, flow_size):
+    try:
+        dict_cur.execute ("SELECT * FROM borders ;")
+        borders = [b['switch_id'] for b in dict_cur.fetchall ()]
+
+        dict_cur.execute ("SELECT * FROM flow_constraints ;")
+        flows = [f['flow_id'] for f in dict_cur.fetchall ()]
+
+        obs_nodes = random.sample (borders, topo_size)
+        obs_flows = random.sample (flows, flow_size)
+
+        
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
 
 def vn_init (dict_cur, topo_size, flow_size):
     try: 

@@ -47,10 +47,24 @@ BEGIN
 END
 $$ LANGUAGE plpgsql;
 
+DROP VIEW IF EXISTS vn_reachability CASCADE;
+CREATE OR REPLACE VIEW vn_reachability AS (
+       SELECT flow_id,
+       	      source as ingress,
+       	      target as egress
+       FROM reachability
+       WHERE flow_id in (SELECT * FROM vn_flows) AND
+       	     source in (SELECT * FROM vn_nodes) AND
+	     target in (SELECT * FROM vn_nodes)
+);
+
+
 select * from pgr_dijkstra('SELECT 1 as id, switch_id as source,
 						     next_id as target,
 						     1.0::float8 as cost
 			                             FROM topology', 19, 230,FALSE, FALSE);
+
+DROP VIEW IF EXISTS obs_reachability CASCADE;
 
 DROP VIEW IF EXISTS configuration_pv_2 CASCADE;
 CREATE OR REPLACE VIEW configuration_pv_2 AS (
