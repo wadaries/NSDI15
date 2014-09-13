@@ -65,12 +65,66 @@ select * from pgr_dijkstra('SELECT 1 as id, switch_id as source,
 			                             FROM topology', 19, 230,FALSE, FALSE);
 
 DROP VIEW IF EXISTS obs_reachability CASCADE;
-CREATE VIEW IF EXISTS obs_reachability AS (
+CREATE OR REPLACE VIEW obs_reachability AS (
        SELECT flow_id,
-       	      o1.v_node as source,
-	      o2.v_node as target
+       	      o1.mapped_id AS source,
+	      o2.mapped_id AS target
        FROM reachability, obs_mapping o1, obs_mapping o2
-       WHERE reachability.source = o1.source and reachability.target = o2.target and flow_id in obs_flows
+       WHERE reachability.source = o1.switch_id AND
+       	     reachability.target = o2.switch_id AND
+	     flow_id IN (SELECT * FROM obs_flows) AND
+	     (o1.mapped_id = 1 OR o2.mapped_id = 1)
+       ORDER by flow_id, source, target
+);
+
+DROP VIEW IF EXISTS reachability_rel_obs CASCADE;
+CREATE OR REPLACE VIEW reachability_rel_obs AS (
+       SELECT *
+       FROM reachability
+       WHERE (source IN (SELECT * FROM obs_nodes) OR
+       	      target IN (SELECT * FROM obs_nodes)) AND
+	      flow_id IN (SELECT * FROM obs_flows)
+);
+
+DROP VIEW IF EXISTS reachability_rel_obs_in CASCADE;
+CREATE OR REPLACE VIEW reachability_rel_obs_in AS (
+       SELECT *
+       FROM reachability
+       WHERE  target IN (SELECT * FROM obs_nodes) AND
+	      flow_id IN (SELECT * FROM obs_flows)
+);
+
+DROP VIEW IF EXISTS reachability_rel_obs_out CASCADE;
+CREATE OR REPLACE VIEW reachability_rel_obs_out AS (
+       SELECT *
+       FROM reachability
+       WHERE  source IN (SELECT * FROM obs_nodes) AND
+	      flow_id IN (SELECT * FROM obs_flows)
+);
+
+
+DROP VIEW IF EXISTS obs_reachability_in CASCADE;
+CREATE OR REPLACE VIEW obs_reachability_in AS (
+       SELECT flow_id,
+       	      source,
+	      1 as target
+       FROM reachability, obs_mapping
+       WHERE source NOT IN (SELECT * FROM obs_nodes) AND
+       	     target IN (SELECT * FROM obs_nodes) AND
+	     flow_id IN (SELECT * FROM obs_flows)
+       ORDER by flow_id, source, target
+);
+
+DROP VIEW IF EXISTS obs_reachability_out CASCADE;
+CREATE OR REPLACE VIEW obs_reachability_out AS (
+       SELECT flow_id,
+       	      1 as source,
+	      target
+       FROM reachability, obs_mapping
+       WHERE source IN (SELECT * FROM obs_nodes) AND
+       	     target NOT IN (SELECT * FROM obs_nodes) AND
+	     flow_id IN (SELECT * FROM obs_flows) 
+       ORDER by flow_id, source, target
 );
 
 DROP VIEW IF EXISTS configuration_pv_2 CASCADE;

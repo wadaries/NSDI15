@@ -355,18 +355,29 @@ def obs_new_init (dict_cur, topo_size, flow_size):
         obs_nodes = random.sample (borders, topo_size)
         obs_flows = random.sample (flows, flow_size)
 
+        print "obs_new_init"
+
+        dict_cur.execute ("""
+        DROP TABLE IF EXISTS obs_nodes CASCADE;
+        CREATE UNLOGGED TABLE obs_nodes (
+        switch_id      integer);
+        """)
+
+        for n in obs_nodes:
+            dict_cur.execute ("INSERT INTO obs_nodes VALUES (%s);", ([n]))
+
         dict_cur.execute ("""
         DROP TABLE IF EXISTS obs_mapping CASCADE;
-        CREATE UNLOGGED TABLE obs_nodes (
+        CREATE UNLOGGED TABLE obs_mapping (
         switch_id      integer,
         mapped_id      integer);
         """)
 
         for n in borders:
             if n in obs_nodes:
-                dict_cur.execute ("INSERT INTO obs_nodes VALUES (%s, %s);", ([n, 1]))
+                dict_cur.execute ("INSERT INTO obs_mapping VALUES (%s, %s);", ([n, 1]))
             else:
-                dict_cur.execute ("INSERT INTO obs_nodes VALUES (%s, %s);", ([n, n]))
+                dict_cur.execute ("INSERT INTO obs_mapping VALUES (%s, %s);", ([n, n]))
 
         dict_cur.execute ("""
         DROP TABLE IF EXISTS obs_flows CASCADE;
@@ -374,10 +385,8 @@ def obs_new_init (dict_cur, topo_size, flow_size):
         flow_id      integer);
         """)
 
-        for f in vn_flows:
+        for f in obs_flows:
             dict_cur.execute ("INSERT INTO obs_flows VALUES (%s);", ([f]))
-
-
 
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
@@ -857,12 +866,12 @@ def createViews (username, dbname):
         # add_reachability_perflow_fun (dict_cur)
         # add_reachability_table (dict_cur)
 
-        add_configuration_view (dict_cur)
+        # add_configuration_view (dict_cur)
 
-
-        # flow_size = 100
-        # topo_size = 3
+        flow_size = 10
+        topo_size = 3
         # vn_init (dict_cur, topo_size, flow_size)
+        obs_new_init (dict_cur, topo_size, flow_size)
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
@@ -878,13 +887,14 @@ if __name__ == '__main__':
     dbname = "as4755ribd"
     # dbname = "as7018ribd"
     # dbname = "as6461rib1000"
+
     
 #     update_all = os.getcwd () + "/update_feeds/updates.20140701.0000.hr.extracted.updates"
 #     size = 100
 #     updates = update_all + str (size) + ".txt"
 #     os.system ("head -n " + str(size) + " " + update_all + " > " + updates)
     
-    # createViews (username, dbname)
+    createViews (username, dbname)
 
 
 
