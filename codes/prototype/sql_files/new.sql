@@ -65,6 +65,13 @@ select * from pgr_dijkstra('SELECT 1 as id, switch_id as source,
 			                             FROM topology', 19, 230,FALSE, FALSE);
 
 DROP VIEW IF EXISTS obs_reachability CASCADE;
+CREATE VIEW IF EXISTS obs_reachability AS (
+       SELECT flow_id,
+       	      o1.v_node as source,
+	      o2.v_node as target
+       FROM reachability, obs_mapping o1, obs_mapping o2
+       WHERE reachability.source = o1.source and reachability.target = o2.target and flow_id in obs_flows
+);
 
 DROP VIEW IF EXISTS configuration_pv_2 CASCADE;
 CREATE OR REPLACE VIEW configuration_pv_2 AS (

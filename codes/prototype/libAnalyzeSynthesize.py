@@ -355,7 +355,30 @@ def obs_new_init (dict_cur, topo_size, flow_size):
         obs_nodes = random.sample (borders, topo_size)
         obs_flows = random.sample (flows, flow_size)
 
-        
+        dict_cur.execute ("""
+        DROP TABLE IF EXISTS obs_mapping CASCADE;
+        CREATE UNLOGGED TABLE obs_nodes (
+        switch_id      integer,
+        mapped_id      integer);
+        """)
+
+        for n in borders:
+            if n in obs_nodes:
+                dict_cur.execute ("INSERT INTO obs_nodes VALUES (%s, %s);", ([n, 1]))
+            else:
+                dict_cur.execute ("INSERT INTO obs_nodes VALUES (%s, %s);", ([n, n]))
+
+        dict_cur.execute ("""
+        DROP TABLE IF EXISTS obs_flows CASCADE;
+        CREATE UNLOGGED TABLE obs_flows (
+        flow_id      integer);
+        """)
+
+        for f in vn_flows:
+            dict_cur.execute ("INSERT INTO obs_flows VALUES (%s);", ([f]))
+
+
+
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
 

@@ -364,7 +364,7 @@ def plot_fg_cdf (username, dbname, xsize):
         conn = psycopg2.connect(database= dbname, user= username)
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
         dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        print "plot_init: Connect to database " + dbname + ", as user " + username
+        print "plot_fg_cdf: Connect to database " + dbname + ", as user " + username
 
         dict_cur.execute ("""
         DROP TABLE IF EXISTS fg_time CASCADE;
@@ -447,6 +447,7 @@ def plot_fg_all (username, dbname_list, xsize):
             # d2 =Gnuplot.Data(x2,y2,with_="line")
         g.xlabel('Fraction of forwarding graphs (total of ' + str (xsize) + ' randomly picked flows)')
         g.ylabel('Generation Time (millisecond)')
+        g ("set logscale y")
 
         g ("set key top left")
 
@@ -652,9 +653,7 @@ if __name__ == '__main__':
 
     # plot_all_init (username, dbname_list)
 
-    # plot_fg_cdf (username, dbname_list[2], flow_num)
+    plot_fg_all (username, dbname_list, flow_num)
 
-    # plot_fg_all (username, dbname_list, flow_num)
-
-    plot_verify_cdf (username, dbname, flow_num)
+    # plot_verify_cdf (username, dbname, flow_num)
     # plot_vn_synthesize (username, dbname, rounds)
