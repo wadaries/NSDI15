@@ -115,8 +115,10 @@ DELETE FROM vn_reachability WHERE
 This deletion results in the deletion of three switch-level
 configurations as follows:
 \begin{sql}
-[[77899, 462, 463], [77899, 486, 498], [77899, 498, 462]]  
+[[462, 463], [486, 498], [498, 462]]  
 \end{sql}
+The reason that only three entries at switches \nd{462, 486, 498} are
+removed is that the rest of the ... are 
 
 \begin{sql}
 SELECT flow_id, pv FROM configuration_pv WHERE flow_id = 77899;
@@ -126,6 +128,35 @@ SELECT flow_id, pv FROM configuration_pv WHERE flow_id = 77899;
    77899 | {486,498,462,463,456,472,109,19}
    ...
 \end{sql}
+
+Similarly, on user request for adding new or updating exiting virtual
+network end to end policy, \Sys synthesizes the relevant switch-level
+configuration modification.
+
+Finally, it is worth noting that, a policy update request may not
+always be valid. For example, a deletion of policy \nd{(42692, 497,
+  375)} in
+
+\begin{sql}
+select pv from configuration_pv where flow_id = 42692;
+                pv                 
+-----------------------------------
+ {486,498,462,463,456,472,108,375}
+ {497,462,463,456,230}
+ {497,462,463,456,472,108,375}
+ ...
+\end{sql}
+
+While \Sys, which utilizes the default view updates mechanism
+implemented by postgres, will simply remove policy \nd{(42692, 497,
+  375)} from \nd{vn\_reachability} view, and leaves the per-switch
+configuration unchanged. 
+% \begin{sql}
+% Switch delta after del of 42692 between 497 and 375 []
+% \end{sql}
+
+
+
 
 
 
