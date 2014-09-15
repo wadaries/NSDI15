@@ -95,7 +95,7 @@ generic algorithm for future work.
 
 % \subsection{Synthesis example}
 
-\subsection{Virtual network}
+\subsection{Virtual network abstraction and enterprise outsourcing}
 
 \begin{sql}
 select * from vn_reachability where flow_id = 77899 ;
@@ -175,10 +175,28 @@ configuration unchanged.
 % Switch delta after del of 42692 between 497 and 375 []
 % \end{sql}
 
-\subsection{One big switch abstraction}
-
-\subsection{Distributed firewall}
+\subsection{One big switch abstraction and distributed firewall}
 
 \begin{sql}
 ALTER VIEW reachability_rel_obs_out2 ALTER COLUMN source SET DEFAULT 591;  
+\end{sql}
+
+
+
+\begin{sql}
+INSERT INTO reachability_rel_obs_out2  (flow_id, source, target)
+SELECT flow_id, source, target FROM
+       (SELECT * FROM
+       	       (SELECT 89406 as flow_id,
+	       	       switch_id as source,
+	       	       483 as target, 
+		       (SELECT count(*) FROM
+		        pgr_dijkstra('SELECT 1 as id, switch_id as source,
+					     next_id as target,
+					     1.0::float8 as cost
+			              FROM topology', switch_id, 483,FALSE, FALSE)
+                       ) AS hops 
+                FROM obs_nodes
+	       ) AS tmp WHERE hops !=0
+       ) AS tmp2 ORDER by hops LIMIT 1;  
 \end{sql}

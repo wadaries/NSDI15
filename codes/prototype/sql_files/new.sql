@@ -183,13 +183,20 @@ CREATE OR REPLACE VIEW configuration_pv_2 AS (
 
 
 INSERT INTO reachability_rel_obs_out2  (flow_id, source, target)
-SELECT flow_id, source, target FROM (SELECT * FROM (SELECT 89406 as flow_id, switch_id as source, 483 as target, 
-	(SELECT count(*) FROM pgr_dijkstra('SELECT 1 as id,
-			                    switch_id as source,
-					    next_id as target,
-						     1.0::float8 as cost
-			                             FROM topology', switch_id, 483,FALSE, FALSE)) as hops 
-FROM obs_nodes) AS tmp WHERE hops !=0) AS tmp2 ORDER by hops LIMIT 1;
+SELECT flow_id, source, target FROM
+       (SELECT * FROM
+       	       (SELECT 89406 as flow_id,
+	       	       switch_id as source,
+	       	       483 as target, 
+		       (SELECT count(*) FROM
+		        pgr_dijkstra('SELECT 1 as id, switch_id as source,
+					     next_id as target,
+					     1.0::float8 as cost
+			              FROM topology', switch_id, 483,FALSE, FALSE)
+                       ) AS hops 
+                FROM obs_nodes
+	       ) AS tmp WHERE hops !=0
+       ) AS tmp2 ORDER by hops LIMIT 1;
 
 
 -- SELECT 89406 as flow_id,
