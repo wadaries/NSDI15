@@ -64,6 +64,26 @@ select * from pgr_dijkstra('SELECT 1 as id, switch_id as source,
 						     1.0::float8 as cost
 			                             FROM topology', 19, 230,FALSE, FALSE);
 
+-- DROP VIEW IF EXISTS obs_reach_new CASCADE;
+-- CREATE OR REPLACE VIEW obs_reach_new AS (
+--        SELECT flow_id,
+--        	      target
+--        FROM reachability
+--        WHERE source IN (SELECT * FROM obs_nodes)
+--        ORDER by flow_id, target
+-- );
+
+DROP VIEW IF EXISTS waypoint_view CASCADE;
+CREATE OR REPLACE VIEW waypoint_view AS (
+       SELECT flow_id,
+       	      source,
+	      1 as testcol
+       FROM reachability
+       -- WHERE source IN (SELECT * FROM obs_nodes)
+       -- ORDER by flow_id, target
+);
+
+
 DROP VIEW IF EXISTS obs_reachability CASCADE;
 CREATE OR REPLACE VIEW obs_reachability AS (
        SELECT flow_id,
