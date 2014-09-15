@@ -64,6 +64,11 @@ select * from pgr_dijkstra('SELECT 1 as id, switch_id as source,
 						     1.0::float8 as cost
 			                             FROM topology', 19, 230,FALSE, FALSE);
 
+select * from pgr_dijkstra('SELECT 1 as id, switch_id as source,
+						     next_id as target,
+						     1.0::float8 as cost
+			                             FROM topology', 230, 19,TRUE, FALSE);
+
 -- DROP VIEW IF EXISTS obs_reach_new CASCADE;
 -- CREATE OR REPLACE VIEW obs_reach_new AS (
 --        SELECT flow_id,
@@ -73,12 +78,14 @@ select * from pgr_dijkstra('SELECT 1 as id, switch_id as source,
 --        ORDER by flow_id, target
 -- );
 
-DROP VIEW IF EXISTS waypoint_view CASCADE;
-CREATE OR REPLACE VIEW waypoint_view AS (
-       SELECT flow_id,
-       	      source,
-	      1 as testcol
-       FROM reachability
+DROP VIEW IF EXISTS reachability2 CASCADE;
+CREATE OR REPLACE VIEW reachability2 AS (
+       SELECT r1.flow_id,
+       	      r1.source,
+	      r1. target as middle,
+	      r2.target
+       FROM reachability r1, reachability r2
+       WHERE r1.target = r2.source AND r1.flow_id = r2.flow_id
        -- WHERE source IN (SELECT * FROM obs_nodes)
        -- ORDER by flow_id, target
 );
@@ -171,6 +178,29 @@ CREATE OR REPLACE VIEW configuration_pv_2 AS (
 			                             FROM topology', source, target,FALSE, FALSE))) as pv
        FROM reachability
 );
+
+
+
+
+INSERT INTO reachability_rel_obs_out2  (flow_id, source, target)
+SELECT flow_id, source, target FROM (SELECT * FROM (SELECT 89406 as flow_id, switch_id as source, 483 as target, 
+	(SELECT count(*) FROM pgr_dijkstra('SELECT 1 as id,
+			                    switch_id as source,
+					    next_id as target,
+						     1.0::float8 as cost
+			                             FROM topology', switch_id, 483,FALSE, FALSE)) as hops 
+FROM obs_nodes) AS tmp WHERE hops !=0) AS tmp2 ORDER by hops LIMIT 1;
+
+
+-- SELECT 89406 as flow_id,
+--        (SELECT	switch_id, 
+-- 		SELECT count(*) as hops FROM pgr_dijkstra('SELECT 1 as id,
+-- 	      	      	     	       	             switch_id as source,
+-- 						     next_id as target,
+-- 						     1.0::float8 as cost
+-- 			                             FROM topology', source, 483,TRUE, FALSE) as hop
+--         FROM obs_nodes
+--        )
 
 
 DROP VIEW IF EXISTS configuration_pv CASCADE;
