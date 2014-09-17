@@ -920,8 +920,8 @@ def createViews (username, dbname):
 
         # add_configuration_view (dict_cur)
 
-        flow_size = 10
-        topo_size = 5
+        flow_size = 1000
+        topo_size = 10
         # vn_init (dict_cur, topo_size, flow_size)
         obs_new_init (dict_cur, topo_size, flow_size)
 

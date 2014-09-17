@@ -73,15 +73,9 @@ def time_obs (dict_cur):
     print "external_node 2:"
     print external_node2
 
-    raw_input ("pause, enter to continue")
+    # raw_input ("pause, enter to continue")
 
     dict_cur.execute ("UPDATE obs_reachability_external SET target = %s Where flow_id = %s AND target = %s;", ([external_node2, flow_id, external_node]))
-        # dict_cur.execute ("UPDATE obs_reachability_internal SET target = %s Where flow_id = %s AND source = %s;", ([external_node2, flow_id, external_node]))
-
-        # dict_cur.execute ("SELECT * FROM obs_flows;")
-        # obs_flows = [f[0] for f in dict_cur.fetchall ()]
-        # print "flows: "
-        # print obs_flows
 
 def plot_obs_synthesize2 (username, dbname, rounds):
     try:
