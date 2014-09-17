@@ -3,6 +3,49 @@ execfile ("./libAnalyzeSynthesize.py")
 import libAnalyzeSynthesize
 import pyGnuplot as gp
 
+def gen_cdf_x (y_list):
+    x = []
+    xlen = len (y_list)
+    for i in range (xlen):
+        xt = float(i+1)/ xlen
+        x.append (xt)
+    return x
+
+def time_obs (dict_cur):
+    dict_cur.execute ("SELECT * FROM obs_reachability_internal;")
+    ors = random.sample (dict_cur.fetchall (), 1)[0]
+    flow_id = ors[0]
+    print flow_id
+
+    dict_cur.execute ("SELECT * FROM obs_nodes;")
+    obs_nodes = dict_cur.fetchall ()
+    print "nodes: "
+    print obs_nodes
+
+    dict_cur.execute ("SELECT * FROM obs_flows;")
+    obs_flows = dict_cur.fetchall ()
+    print "flows: "
+    print obs_flows
+
+    dict_cur.execute ("SELECT * FROM obs_reachability_external")
+
+def plot_obs_synthesize2 (username, dbname, rounds):
+    try:
+        conn = psycopg2.connect(database= dbname, user= username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        print "Connect to database " + dbname + ", as user " + username
+
+        time_obs (dict_cur)
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to connect to database " + dbname + ", as user " + username
+        print 'Error %s' % e
+
+    finally:
+        if conn:
+            conn.close()
+
 def time_e2e_vn (dict_cur):
 
     dict_cur.execute ("SELECT * FROM vn_reachability;")
@@ -141,7 +184,7 @@ def plot_vn_synthesize2 (username, dbname, rounds):
         pf = open (pltfile, "w")
         pf.write ('''
 reset
-set terminal pdfcairo font "Gill Sans,9" linewidth 4 rounded fontscale 1.0
+set terminal pdfcairo font "Gill Sans,9" linewidth 2 rounded fontscale 1
 
 set logscale y
 
@@ -151,15 +194,16 @@ set style line 81 lt rgb "#808080"
 set grid back linestyle 81
 set border 3 back linestyle 80
 
-set style line 1 lt rgb "#A00000" lw 2 pt 1
-set style line 2 lt rgb "#00A000" lw 2 pt 6
-set style line 3 lt rgb "#5060D0" lw 2 pt 2
-set style line 4 lt rgb "#F25900" lw 2 pt 9
+set style line 1 lt rgb "#A00000" lw 1 pt 1 ps 1
+set style line 2 lt rgb "#00A000" lw 1 pt 6 ps 1
+set style line 3 lt rgb "#5060D0" lw 1 pt 2 ps 1
+set style line 4 lt rgb "#F25900" lw 1 pt 9 ps 1
 
 set xtics nomirror
 set ytics nomirror
-
 set key bottom right
+
+set ylabel "Cumulative distribution of time (ms)"
 set output "''' + outputfile + '''"
 
 plot "'''+ datfile +'''" using 2 title "synthesize policy deletion" with lp ls 1,\\
@@ -168,6 +212,7 @@ plot "'''+ datfile +'''" using 2 title "synthesize policy deletion" with lp ls 1
  '' using 5 title "compute per-switch configuration delta" with lp ls 4''')
 
         os.system ("gnuplot " + pltfile)
+        print "successfully vn_synthesis_cdf2"
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
@@ -315,6 +360,83 @@ def verify (username, dbname, rounds):
 
     return [dat_b, dat_y1, dat_y2, dat_y3]
 
+def plot_verify_cdf2 (username, dbname, rounds):
+
+    datfile = './dat/verify_cdf' + str (rounds) + '.dat'
+    if os.path.isfile (datfile) == False:
+
+        df = open(datfile, "w")
+
+        [b, y1, y2, y3] = verify (username, dbname, rounds)
+        b.sort ()
+        y1.sort ()
+        y2.sort ()
+        y3.sort ()
+        x = gen_cdf_x (b)
+
+        for i in range (len(x)) :
+            print "current i: " + str (i)
+            df.write (str (x[i]) + '\t' + str (b[i]) + '\t' + str (y1[i]) + '\t' + str (y2[i]) + '\t' + str (y3[i]) + '\n')
+        df.close ()
+
+    pltfile = './dat/verify_cdf' + str (rounds) + '.plt'
+    outputfile = './dat/verify_cdf' + str (rounds) + '.pdf'
+    print "plot verify_cdf: start gnuplot"
+
+    pf = open (pltfile, "w")
+    pf.write ('''
+reset
+set terminal pdfcairo font "Gill Sans,9" linewidth 2 rounded fontscale 1
+
+set logscale y
+
+set style line 80 lt rgb "#808080"
+set style line 81 lt 0  # dashed
+set style line 81 lt rgb "#808080"
+set grid back linestyle 81
+set border 3 back linestyle 80
+
+set style line 1 lt rgb "#A00000" lw 1 pt 1 ps 1
+set style line 2 lt rgb "#00A000" lw 1 pt 6 ps 1
+set style line 3 lt rgb "#5060D0" lw 1 pt 2 ps 1
+set style line 4 lt rgb "#F25900" lw 1 pt 9 ps 1
+
+set xtics nomirror
+set ytics nomirror
+set key top left
+
+set ylabel "Cumulative distribution of time (ms)"
+set xlabel "Total of ''' + str (rounds) + ''' randomly picked flows"
+set title "Verification time for AS ''' + str (dbname[2:6]) + '''"
+set output "''' + outputfile + '''"
+
+plot "'''+ datfile +'''" using 2 title "forwarding graph" with lp ls 1,\\
+ '' using 3 title "disjoint path" with lp ls 2,\\
+ '' using 4 title "loop free" with lp ls 3,\\
+ '' using 5 title "black hole" with lp ls 4''')
+
+    pf.close ()
+
+    print "successfully plot_verify_cdf2"
+
+    # xvals = xb
+    # yvals = b
+    # p=g.plot(xvals,yvals,style = 'lp ls 1', title="forwarding graph")
+
+    # xvals = x1
+    # yvals = y1
+    # p.add (yvals,xvals,style = 'lp ls 2',title="disjoint path")
+
+    # xvals = x2
+    # yvals = y2
+    # p.add (yvals,xvals,style = 'lp ls 3',title="loop free")
+
+    # xvals = x3
+    # yvals = y3
+    # p.add (yvals,xvals,style = 'lp ls 4',title="black hole")
+
+    print "plot_verify_cdf: finish"
+
 
 def plot_verify_cdf (username, dbname, rounds, g):
 
@@ -445,6 +567,66 @@ def plot_fg_all (username, dbname_list, xsize, g):
     g.hardcopy(p,file=outputfile,truecolor=True) 
     print g.readlines()  
     print "plot_init: finish"
+
+def plot_fg_all2 (username, dbname_list, xsize):
+
+    datfile = './dat/fg_cdf' + str (xsize) + '.dat'
+    print datfile
+    if os.path.isfile (datfile) == False:
+        df = open(datfile, "w")
+
+        fg_cdf_list = []
+        for i in range (len(dbname_list)):
+            fg_cdf_list.append (plot_fg_cdf (username, dbname_list[i], xsize))
+        print fg_cdf_list[0]
+        print len (fg_cdf_list)
+        print len (fg_cdf_list[0][1])
+
+        for i in range (len (fg_cdf_list[1][0])):
+            print "current i: " + str (i)
+            df.write (str (i) + '\t' + str (fg_cdf_list[0][1][i]) + '\t' + str (fg_cdf_list[1][1][i]) + '\t' + str (fg_cdf_list[2][1][i]) + '\n')
+        df.close ()
+
+    pltfile = './dat/fg_cdf' + str (xsize) + '.plt'
+    outputfile = './dat/fg_cdf' + str (xsize) + '.pdf'
+    print "plot fg_cdf_all: start gnuplot"
+
+
+
+    pf = open (pltfile, "w")
+    pf.write ('''
+reset
+set terminal pdfcairo font "Gill Sans,9" linewidth 2 rounded fontscale 1
+
+set logscale y
+
+set style line 80 lt rgb "#808080"
+set style line 81 lt 0  # dashed
+set style line 81 lt rgb "#808080"
+set grid back linestyle 81
+set border 3 back linestyle 80
+
+set style line 1 lt rgb "#A00000" lw 1 pt 1 ps 1
+set style line 2 lt rgb "#00A000" lw 1 pt 6 ps 1
+set style line 3 lt rgb "#5060D0" lw 1 pt 2 ps 1
+set style line 4 lt rgb "#F25900" lw 1 pt 9 ps 1
+
+set xtics nomirror
+set ytics nomirror
+set key top left
+
+set ylabel "Cumulative distribution of time (ms)"
+set xlabel "Number of forwarding graphs (total of ''' + str (xsize) + ''' randomly picked)"
+set title "Forwarding graph generation time"
+set output "''' + outputfile + '''"
+
+plot "'''+ datfile +'''" using 2 title "AS '''+ str (dbname_list[0][2:6])+ '''" with lp ls 1,\\
+ '' using 3 title "AS ''' +str (dbname_list[1][2:6])+ '''" with lp ls 2,\\
+ '' using 4 title "AS ''' +str (dbname_list[2][2:6])+'''" with lp ls 3''')
+
+    pf.close ()
+
+    print "successfully fg_cdf_all2"
 
 def plot_init (username, dbname, dat):
     try:
@@ -635,8 +817,8 @@ def plot_verification (dbname_list):
 
 if __name__ == '__main__':
 
-    rounds = 1000
-    flow_num = 10
+    rounds = 1
+    flow_num = 1000
     dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
     username = "anduo"
 
@@ -660,11 +842,15 @@ if __name__ == '__main__':
     # plot_all_init (username, dbname_list)
 
     # plot_fg_all (username, dbname_list, flow_num, g)
+    # plot_fg_all2 (username, dbname_list, flow_num)
     
     # plot_verify_cdf (username, dbname, flow_num, g)
+    # plot_verify_cdf2 (username, dbname, flow_num)
 
     # plot_vn_synthesize (username, dbname, rounds, g)
     # plot_vn_synthesize2 (username, dbname, rounds)
+
+    plot_obs_synthesize2 (username, dbname, rounds)
 
     ############################################################
     # outdated

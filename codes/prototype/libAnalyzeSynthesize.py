@@ -393,33 +393,39 @@ def obs_new_init (dict_cur, topo_size, flow_size):
         for n in obs_nodes[1:]:
             obs_nodes_sql = obs_nodes_sql + ("  AND source != " + str (n))
         obs_nodes_sql = obs_nodes_sql + " )"
-        print obs_nodes_sql
+        # print obs_nodes_sql
 
         obs_flows_sql = "NOT (flow_id != " + str (obs_flows[0]) 
         for f in obs_flows[1:]:
             obs_flows_sql = obs_flows_sql + (" AND flow_id != " + str (f))
         obs_flows_sql = obs_flows_sql + ")"
-        print obs_flows_sql
+        # print obs_flows_sql
             
         dict_cur.execute ("""
         DROP VIEW IF EXISTS obs_reachability_out CASCADE;
         CREATE OR REPLACE VIEW obs_reachability_out AS (
-        SELECT flow_id, target
+        SELECT flow_id, source, target
         FROM reachability
         WHERE """ + obs_nodes_sql + """ AND 
               """ + obs_flows_sql + """            
-        );
+        ORDER BY flow_id);
         """)
 
-        obs_nodes_sql2s = "NOT (source != " + str (obs_nodes[0]) 
+        dict_cur.execute ("""
+        DROP VIEW IF EXISTS obs_reachability_external CASCADE;
+        CREATE OR REPLACE VIEW obs_reachability_external AS (
+        SELECT flow_id, target
+        FROM obs_reachability_out);
+        """)
+
+        obs_nodes_sql2s = "NOT (source != " + str (obs_nodes[0])
         for n in obs_nodes[1:]:
             obs_nodes_sql2s = obs_nodes_sql2s + ("  AND source != " + str (n))
         obs_nodes_sql2s = obs_nodes_sql2s + " )"
         obs_nodes_sql2t = "NOT (target != " + str (obs_nodes[0]) 
         for n in obs_nodes[1:]:
-            obs_nodes_sql2t = obs_nodes_sql2t + ("  AND source != " + str (n))
+            obs_nodes_sql2t = obs_nodes_sql2t + ("  AND target != " + str (n))
         obs_nodes_sql2t = obs_nodes_sql2t + " )"
-        print obs_nodes_sql2t
         obs_nodes_sql2 = obs_nodes_sql2s + " AND " + obs_nodes_sql2t
 
         dict_cur.execute ("""
@@ -914,7 +920,7 @@ def createViews (username, dbname):
 
         # add_configuration_view (dict_cur)
 
-        flow_size = 100
+        flow_size = 10
         topo_size = 5
         # vn_init (dict_cur, topo_size, flow_size)
         obs_new_init (dict_cur, topo_size, flow_size)
@@ -940,7 +946,7 @@ if __name__ == '__main__':
 #     updates = update_all + str (size) + ".txt"
 #     os.system ("head -n " + str(size) + " " + update_all + " > " + updates)
     
-    createViews (username, dbname)
+    # createViews (username, dbname)
 
 
 
