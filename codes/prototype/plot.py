@@ -94,9 +94,72 @@ def plot_obs_synthesize2 (username, dbname, rounds):
         dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         print "Connect to database " + dbname + ", as user " + username
 
-        for i in range (rounds):
-            t = time_obs (dict_cur)
-            print t
+        def gen_cdf_x (y_list):
+            x = []
+            xlen = len (y_list)
+            for i in range (xlen):
+                xt = float(i+1)/ xlen
+                x.append (xt)
+            return x
+
+        datfile = './dat/obs_synthesis_cdf' + str (rounds) + '.dat'
+        if os.path.isfile (datfile) == False:
+
+            yi = []
+            yd = []
+            yu = []
+            for i in range (rounds):
+                t = time_obs (dict_cur)
+                yi.append (t[0])
+                yd.append (t[1])
+                yu.append (t[2])
+
+            yi.sort ()
+            yd.sort ()
+            yu.sort ()
+            x = gen_cdf_x (yi)
+
+            df = open(datfile, "w")
+            for i in range (rounds) :
+                print "current i: " + str (i)
+                df.write (str (x[i]) + '\t' + str (yi[i]) + '\t' + str (yd[i]) + '\t' + str (yu[i])  + '\n')
+            df.close ()
+
+        pltfile = './dat/obs_synthesis_cdf' + str (rounds) + '.plt'
+        outputfile = './dat/obs_synthesis_cdf' + str (rounds) + '.pdf'
+        print "plot obs synthesize: start gnuplot"
+
+        pf = open (pltfile, "w")
+        pf.write ('''
+reset
+set terminal pdfcairo font "Gill Sans,9" linewidth 2 rounded fontscale 1
+
+set logscale y
+
+set style line 80 lt rgb "#808080"
+set style line 81 lt 0  # dashed
+set style line 81 lt rgb "#808080"
+set grid back linestyle 81
+set border 3 back linestyle 80
+
+set style line 1 lt rgb "#A00000" lw 1 pt 1 ps 1
+set style line 2 lt rgb "#00A000" lw 1 pt 6 ps 1
+set style line 3 lt rgb "#5060D0" lw 1 pt 2 ps 1
+set style line 4 lt rgb "#F25900" lw 1 pt 9 ps 1
+
+set xtics nomirror
+set ytics nomirror
+set key bottom right
+
+set ylabel "Cumulative distribution of time (ms)"
+set output "''' + outputfile + '''"
+
+plot "'''+ datfile +'''" using 2 title "synthesize policy insertion" with lp ls 1,\\
+ '' using 3 title "synthesize policy deletion" with lp ls 2,\\
+ '' using 4 title "synthesize policy update" with lp ls 3''')
+
+        os.system ("gnuplot " + pltfile)
+        print "successfully obs_synthesis_cdf2"            
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
@@ -877,7 +940,7 @@ def plot_verification (dbname_list):
 
 if __name__ == '__main__':
 
-    rounds = 10
+    rounds = 1000
     flow_num = 1000
     dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
     username = "anduo"
