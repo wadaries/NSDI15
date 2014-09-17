@@ -1,3 +1,4 @@
+execfile ("libUtility.py")
 import libUtility
 
 def get_borders (cursor):
@@ -366,18 +367,18 @@ def obs_new_init (dict_cur, topo_size, flow_size):
         for n in obs_nodes:
             dict_cur.execute ("INSERT INTO obs_nodes VALUES (%s);", ([n]))
 
-        dict_cur.execute ("""
-        DROP TABLE IF EXISTS obs_mapping CASCADE;
-        CREATE UNLOGGED TABLE obs_mapping (
-        switch_id      integer,
-        mapped_id      integer);
-        """)
+        # dict_cur.execute ("""
+        # DROP TABLE IF EXISTS obs_mapping CASCADE;
+        # CREATE UNLOGGED TABLE obs_mapping (
+        # switch_id      integer,
+        # mapped_id      integer);
+        # """)
 
-        for n in borders:
-            if n in obs_nodes:
-                dict_cur.execute ("INSERT INTO obs_mapping VALUES (%s, %s);", ([n, 1]))
-            else:
-                dict_cur.execute ("INSERT INTO obs_mapping VALUES (%s, %s);", ([n, n]))
+        # for n in borders:
+        #     if n in obs_nodes:
+        #         dict_cur.execute ("INSERT INTO obs_mapping VALUES (%s, %s);", ([n, 1]))
+        #     else:
+        #         dict_cur.execute ("INSERT INTO obs_mapping VALUES (%s, %s);", ([n, n]))
 
         dict_cur.execute ("""
         DROP TABLE IF EXISTS obs_flows CASCADE;
@@ -401,11 +402,32 @@ def obs_new_init (dict_cur, topo_size, flow_size):
         print obs_flows_sql
             
         dict_cur.execute ("""
-        DROP VIEW IF EXISTS reachability_rel_obs_out2 CASCADE;
-        CREATE OR REPLACE VIEW reachability_rel_obs_out2 AS (
-        SELECT *
+        DROP VIEW IF EXISTS obs_reachability_out CASCADE;
+        CREATE OR REPLACE VIEW obs_reachability_out AS (
+        SELECT flow_id, target
         FROM reachability
         WHERE """ + obs_nodes_sql + """ AND 
+              """ + obs_flows_sql + """            
+        );
+        """)
+
+        obs_nodes_sql2s = "NOT (source != " + str (obs_nodes[0]) 
+        for n in obs_nodes[1:]:
+            obs_nodes_sql2s = obs_nodes_sql2s + ("  AND source != " + str (n))
+        obs_nodes_sql2s = obs_nodes_sql2s + " )"
+        obs_nodes_sql2t = "NOT (target != " + str (obs_nodes[0]) 
+        for n in obs_nodes[1:]:
+            obs_nodes_sql2t = obs_nodes_sql2t + ("  AND source != " + str (n))
+        obs_nodes_sql2t = obs_nodes_sql2t + " )"
+        print obs_nodes_sql2t
+        obs_nodes_sql2 = obs_nodes_sql2s + " AND " + obs_nodes_sql2t
+
+        dict_cur.execute ("""
+        DROP VIEW IF EXISTS obs_reachability_internal CASCADE;
+        CREATE OR REPLACE VIEW obs_reachability_internal AS (
+        SELECT *
+        FROM reachability
+        WHERE """ + obs_nodes_sql2 + """ AND 
               """ + obs_flows_sql + """            
         );
         """)
@@ -892,8 +914,8 @@ def createViews (username, dbname):
 
         # add_configuration_view (dict_cur)
 
-        flow_size = 10
-        topo_size = 3
+        flow_size = 100
+        topo_size = 5
         # vn_init (dict_cur, topo_size, flow_size)
         obs_new_init (dict_cur, topo_size, flow_size)
 
@@ -918,7 +940,7 @@ if __name__ == '__main__':
 #     updates = update_all + str (size) + ".txt"
 #     os.system ("head -n " + str(size) + " " + update_all + " > " + updates)
     
-    # createViews (username, dbname)
+    createViews (username, dbname)
 
 
 

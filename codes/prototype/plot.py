@@ -88,7 +88,96 @@ def time_e2e_vn (dict_cur):
 
     return [del_time, switch_delta_time, ins_time, up_time]
 
-def plot_vn_synthesize (username, dbname, rounds):
+def plot_vn_synthesize2 (username, dbname, rounds):
+    try:
+        conn = psycopg2.connect(database= dbname, user= username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        print "Connect to database " + dbname + ", as user " + username
+
+        def gen_cdf_x (y_list):
+            x = []
+            xlen = len (y_list)
+            for i in range (xlen):
+                xt = float(i+1)/ xlen
+                x.append (xt)
+            return x
+
+        datfile = './dat/vn_synthesis_cdf' + str (rounds) + '.dat'
+        if os.path.isfile (datfile) == False:
+            dat = []
+            for i in range( rounds):
+                flow_size = 100
+                topo_size = 10
+                vn_init (dict_cur, topo_size, flow_size)
+                [del_time, del_swith_time, ins_time, up_time] = time_e2e_vn (dict_cur)
+                if up_time != 0:
+                    dat_i = [del_time, up_time, ins_time, del_swith_time]
+                else:
+                    dat_i = []
+                dat.append (dat_i)
+            y_del = [d[0] for d in dat]
+            y_del.sort ()
+            y_up = [d[1] for d in dat]
+            y_up.sort ()
+            y_ins = [d[2] for d in dat]
+            y_ins.sort ()
+            y_switch = [d[3] for d in dat]
+            y_switch.sort ()
+
+            x = gen_cdf_x (y_del)
+            df = open(datfile, "w")
+            for i in range (len(x)) :
+                print "current i: " + str (i)
+                print x[i]
+                print y_del[i]
+                df.write (str (x[i]) + '\t' + str (y_del[i]) + '\t' + str (y_ins[i]) + '\t' + str (y_up[i]) + '\t' + str (y_switch[i]) + '\n')
+            df.close ()
+
+        pltfile = './dat/vn_synthesis_cdf' + str (rounds) + '.plt'
+        outputfile = './dat/vn_synthesis_cdf' + str (rounds) + '.pdf'
+        print "plot vn synthesize: start gnuplot"
+
+        pf = open (pltfile, "w")
+        pf.write ('''
+reset
+set terminal pdfcairo font "Gill Sans,9" linewidth 4 rounded fontscale 1.0
+
+set logscale y
+
+set style line 80 lt rgb "#808080"
+set style line 81 lt 0  # dashed
+set style line 81 lt rgb "#808080"
+set grid back linestyle 81
+set border 3 back linestyle 80
+
+set style line 1 lt rgb "#A00000" lw 2 pt 1
+set style line 2 lt rgb "#00A000" lw 2 pt 6
+set style line 3 lt rgb "#5060D0" lw 2 pt 2
+set style line 4 lt rgb "#F25900" lw 2 pt 9
+
+set xtics nomirror
+set ytics nomirror
+
+set key bottom right
+set output "''' + outputfile + '''"
+
+plot "'''+ datfile +'''" using 2 title "synthesize policy deletion" with lp ls 1,\\
+ '' using 3 title "synthesize policy insertion" with lp ls 2,\\
+ '' using 4 title "synthesize policy update" with lp ls 3,\\
+ '' using 5 title "compute per-switch configuration delta" with lp ls 4''')
+
+        os.system ("gnuplot " + pltfile)
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to connect to database " + dbname + ", as user " + username
+        print 'Error %s' % e
+
+    finally:
+        if conn:
+            conn.close()
+
+def plot_vn_synthesize (username, dbname, rounds, g):
     try:
         conn = psycopg2.connect(database= dbname, user= username)
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
@@ -138,31 +227,33 @@ def plot_vn_synthesize (username, dbname, rounds):
         x_ins = gen_cdf_x (y_ins)
         x_up = gen_cdf_x (y_up)
 
-        outputfile = './dat/vn_synthesis_cdf' + str (rounds) + '.png'
+        outputfile = './dat/vn_synthesis_cdf' + str (rounds) + '.pdf'
         print "plot vn synthesize: start gnuplot"
 
-        g = Gnuplot.Gnuplot ()
-        g.reset ()
-        g.title ("Synthesis for virtual network policy, AS " + str (dbname[2:6]))
-        g.xlabel('Total of ' + str (rounds) + ' randomly picked insertion / deletion / updates')
-        g.ylabel('Time (millisecond)')
-        g ("set logscale y")
-        g ("set key top left")
+        g('set xlabel "Total of ' + str (rounds) + ' randomly picked insertion / deletion / updates"')
+        g('set ylabel "Time (millisecond)"')
 
-        d1 = Gnuplot.Data (x_del, y_del, with_="linespoints lw .1", title = "policy deletion")
-        d2 = Gnuplot.Data (x_switch, y_switch, with_="linespoints lw .1", title = "compute per-switch configuration delta")
+        xvals = x_del
+        yvals = y_del
+        p=g.plot(xvals,yvals,style = 'lp ls 1', title="synthesize policy deletion")
 
-        d3 = Gnuplot.Data (x_ins, y_ins, with_="linespoints lw .1", title = "policy insertion")
-        d4 = Gnuplot.Data (x_up, y_up, with_="linespoints lw .1", title = "policy update")
+        xvals = x_switch
+        yvals = y_switch
+        p.add(xvals,yvals,style = 'lp ls 2', title="compute per-switch configuration delta")
 
-        # x4 = x + [len (x)]
-        # y4 = [1] * (len (x) + 1)
-        g.plot (d1, d3, d4, d2)
-        g.hardcopy(outputfile, terminal = 'png')
+        xvals = x_ins
+        yvals = y_ins
+        p.add(xvals,yvals,style = 'lp ls 3', title="synthesize policy insertion")
 
-        g.clear ()
+        xvals = x_up
+        yvals = y_up
+        p.add(xvals,yvals,style = 'lp ls 4', title="synthesize policy update")
 
+        p.title ("Synthesis for virtual network policy, AS " + str (dbname[2:6]))
 
+        g.hardcopy(p,file=outputfile,truecolor=True) 
+        print g.readlines()  
+        print "plot_verify_cdf: finish"
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
@@ -427,11 +518,24 @@ set xrange [-0.3 : 3.5]
 # set key autotitle columnhead
 set logscale y
 
-set boxwidth 0.9 relative
+set boxwidth 0.8 absolute
 set style data histograms
 set style histogram cluster
-set style fill solid .5 border lt -1
+set style fill solid 1.00 noborder
+
+set terminal pdfcairo font "Gill Sans,9" linewidth 4 rounded fontscale 1.0
+set style line 80 lt rgb "#808080"
+set style line 81 lt 0  # dashed
+set style line 81 lt rgb "#808080"
+set grid back linestyle 81
+set border 3 back linestyle 80
+set style line 1 lt rgb "#A00000" lw 2 pt 1
+set style line 2 lt rgb "#00A000" lw 2 pt 6
+set style line 3 lt rgb "#5060D0" lw 2 pt 2
+set style line 4 lt rgb "#F25900" lw 2 pt 9
 set xtics
+set key top left
+
 plot "./dat/init.dat" using 2:xticlabels(1) title "AS ''' +dbname_list[0][2:6]+ '''",\\
  '' using 3:xticlabels(1) title "AS ''' +dbname_list[1][2:6]+ '''",\\
  '' using 4:xticlabels(1) title "AS ''' +dbname_list[2][2:6]+ '''" ''')
@@ -531,12 +635,10 @@ def plot_verification (dbname_list):
 
 if __name__ == '__main__':
 
-    rounds = 10
-
+    rounds = 1000
+    flow_num = 10
     dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
-    # dbname_list = ["as4755rib1000", "as6461rib1000", "as7018rib1000"]
     username = "anduo"
-    flow_num = 1000
 
     g = gp.gnuplot(persist = True)
     g ('set term pdfcairo')
@@ -544,7 +646,7 @@ if __name__ == '__main__':
     # g ("set key top left")
     g ('set key bottom right')
 
-    g ('set terminal pdfcairo font "Gill Sans,11" linewidth 6 rounded fontscale 1.0')
+    g ('set terminal pdfcairo font "Gill Sans,9" linewidth 4 rounded fontscale 1.0')
     g ('set style line 80 lt rgb "#808080"')
     g ('set style line 81 lt 0  # dashed')
     g ('set style line 81 lt rgb "#808080"')
@@ -553,22 +655,20 @@ if __name__ == '__main__':
     g ('set style line 1 lt rgb "#A00000" lw 2 pt 1')
     g ('set style line 2 lt rgb "#00A000" lw 2 pt 6')
     g ('set style line 3 lt rgb "#5060D0" lw 2 pt 2')
-    g ('set style line 4 lt rgb "#F25900" lw 2 pt 9')    
-
-    # plot_verify (username, dbname_list[2], flow_num)
-
-    # plot_verification (dbname_list)
+    g ('set style line 4 lt rgb "#F25900" lw 2 pt 9')
 
     # plot_all_init (username, dbname_list)
 
     # plot_fg_all (username, dbname_list, flow_num, g)
     
-    plot_verify_cdf (username, dbname, flow_num, g)
+    # plot_verify_cdf (username, dbname, flow_num, g)
 
-    # plot_vn_synthesize (username, dbname, rounds)
+    # plot_vn_synthesize (username, dbname, rounds, g)
+    # plot_vn_synthesize2 (username, dbname, rounds)
 
-    # Plot a list of (x, y) pairs (tuples or a Numeric array would
-    # also be OK):
+    ############################################################
+    # outdated
+    # plot_verify (username, dbname_list[2], flow_num)
+    # plot_verification (dbname_list)
 
 
-    # raw_input('Please press return to continue...\n')
