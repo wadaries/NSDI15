@@ -14,68 +14,78 @@ def gen_cdf_x (y_list):
 def time_obs (dict_cur):
     dict_cur.execute ("SELECT switch_id FROM borders;")
     borders = [n[0] for n in dict_cur.fetchall ()]
-    print borders
+    # print borders
 
     dict_cur.execute ("SELECT * FROM obs_nodes;")
     obs_nodes = [n[0] for n in dict_cur.fetchall ()]
-    print "nodes: "
-    print obs_nodes
+    # print "nodes: "
+    # print obs_nodes
     
     dict_cur.execute ("SELECT flow_id FROM obs_reachability_internal;")
     obs_reach = dict_cur.fetchall ()
     if obs_reach != []:
         flow_id = random.sample (obs_reach, 1)[0][0]
-        print "random picked flow appeared in obs_reachability_internal:"
-        print flow_id
+        # print "random picked flow appeared in obs_reachability_internal:"
+        # print flow_id
 
         dict_cur.execute ("SELECT source FROM obs_reachability_internal where flow_id = %s", ([flow_id]))
         ingress_nodes = [n[0] for n in dict_cur.fetchall ()]
 
         if len (ingress_nodes) != 0:
             ingress_node = random.sample (ingress_nodes, 1)[0]
-            print "ingress_node for the flow: "
-            print ingress_node
+            # print "ingress_node for the flow: "
+            # print ingress_node
 
             exit_node = random.sample ([n for n in obs_nodes if n not in [ingress_node]], 1)[0]
-            print "exit_node:"
-            print exit_node
+            # print "exit_node:"
+            # print exit_node
 
             dict_cur.execute ("ALTER VIEW obs_reachability_out ALTER COLUMN source SET DEFAULT %s ;", ([exit_node]))
 
     else:
         dict_cur.execute ("SELECT * FROM obs_flows;")
         obs_flows = [f[0] for f in dict_cur.fetchall ()]
-        print "flows: "
-        print obs_flows
+        # print "flows: "
+        # print obs_flows
         flow_id = random.sample (obs_flows, 1)[0]
-        print flow_id
+        # print flow_id
         ingress_node = random.sample (obs_nodes, 1)[0]
-        print ingress_node
+        # print ingress_node
         exit_node = random.sample ([n for n in obs_nodes if n not in [ingress_node]], 1)[0]
-        print exit_node
+        # print exit_node
 
     external_node = random.sample ([n for n in borders if n not in obs_nodes],1)[0]
-    print "randomly-pick external_node to add for flow: "
-    print external_node
+    # print "randomly-pick external_node to add for flow: "
+    # print external_node
 
+    s_i = time.time ()
     dict_cur.execute ("INSERT INTO obs_reachability_external values (%s, %s);", ([flow_id, external_node]))
 
     dict_cur.execute ("INSERT INTO obs_reachability_internal values (%s, %s, %s);", ([flow_id, ingress_node, exit_node]))
+    e_i = time.time ()
+    delta_i = tfsf (s_i, e_i)
 
+    s_d = time.time ()
     dict_cur.execute ("DELETE FROM obs_reachability_external where flow_id = %s AND target = %s;", ([flow_id, external_node]))
-
     dict_cur.execute ("DELETE FROM obs_reachability_internal where flow_id = %s AND source = %s AND target = %s;", ([flow_id, ingress_node, exit_node]))
+    e_d = time.time ()
+    delta_d = tfsf (s_d, e_d)
 
     dict_cur.execute ("INSERT INTO obs_reachability_external values (%s, %s);", ([flow_id, external_node]))
     dict_cur.execute ("INSERT INTO obs_reachability_internal values (%s, %s, %s);", ([flow_id, ingress_node, exit_node]))
 
     external_node2 = random.sample ([n for n in borders if n not in [external_node] + obs_nodes], 1)[0]
-    print "external_node 2:"
-    print external_node2
+    # print "external_node 2:"
+    # print external_node2
 
     # raw_input ("pause, enter to continue")
 
+    s_u = time.time ()
     dict_cur.execute ("UPDATE obs_reachability_external SET target = %s Where flow_id = %s AND target = %s;", ([external_node2, flow_id, external_node]))
+    e_u = time.time ()
+    delta_u = tfsf (s_u, e_u)
+
+    return [delta_i, delta_d, delta_u]
 
 def plot_obs_synthesize2 (username, dbname, rounds):
     try:
@@ -84,7 +94,9 @@ def plot_obs_synthesize2 (username, dbname, rounds):
         dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
         print "Connect to database " + dbname + ", as user " + username
 
-        time_obs (dict_cur)
+        for i in range (rounds):
+            t = time_obs (dict_cur)
+            print t
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
@@ -865,7 +877,7 @@ def plot_verification (dbname_list):
 
 if __name__ == '__main__':
 
-    rounds = 1
+    rounds = 10
     flow_num = 1000
     dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
     username = "anduo"
