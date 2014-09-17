@@ -1,11 +1,13 @@
+execfile ("./libUtility.py")
+execfile ("./libAnalyzeSynthesize.py")
 # import sys
 # import time
 # import random
 # import os
 # import glob
 import libAnalyzeSynthesize
-import Gnuplot
-import Gnuplot.funcutils
+import Gnuplot, Gnuplot.funcutils
+# Gnuplot.GnuplotOpts.default_term = 'pdfcairo'
 # import subprocess
 # sys.path.append('/usr/local/lib/python2.7/site-packages/')
 # import psycopg2
@@ -418,11 +420,12 @@ def plot_fg_all (username, dbname_list, xsize):
 
     # print fg_cdf_list[0]
 
-    outputfile = './dat/fg_cdf_' + str (xsize) + '.png'
+    outputfile = './dat/fg_cdf_' + str (xsize) + '.pdf'
 
     try:
         g = Gnuplot.Gnuplot ()
         g.reset ()
+        g ("set term pdfcairo")
         g.title ("Cumulative Distribution")
 
         d = []
@@ -452,7 +455,7 @@ def plot_fg_all (username, dbname_list, xsize):
         g ("set key top left")
 
         g.plot (d[0], d[1], d[2])
-        g.hardcopy(outputfile, terminal = 'png')
+        g.hardcopy(outputfile, terminal = 'pdfcairo')
 
         g.clear ()
         
@@ -526,8 +529,8 @@ def plot_all_init (username, dbname_list):
 
         gsf.write ('''
 reset
-set terminal png
-set output '/Users/anduo/Documents/NSDI15/codes/prototype/dat/init.png'\n''')
+set term pdfcairo
+set output '/Users/anduo/Documents/NSDI15/codes/prototype/dat/init.pdf'\n''')
 
         # gsf.write ('set title "Verification time for AS ' + str (ISP_number) + " initialized with " + dbname + '"\n')
         gsf.write ('''
@@ -645,7 +648,7 @@ if __name__ == '__main__':
     dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
     # dbname_list = ["as4755rib1000", "as6461rib1000", "as7018rib1000"]
     username = "anduo"
-    flow_num = 10000
+    flow_num = 1000
 
     # plot_verify (username, dbname_list[2], flow_num)
 
@@ -653,7 +656,43 @@ if __name__ == '__main__':
 
     # plot_all_init (username, dbname_list)
 
-    plot_fg_all (username, dbname_list, flow_num)
+    # plot_fg_all (username, dbname_list, flow_num)
 
     # plot_verify_cdf (username, dbname, flow_num)
     # plot_vn_synthesize (username, dbname, rounds)
+
+    # Plot a list of (x, y) pairs (tuples or a Numeric array would
+    # also be OK):
+
+
+    # raw_input('Please press return to continue...\n')
+
+    outputfile = './dat/test.pdf'
+    # print "plot, test pdf term"
+
+    try:
+        g = Gnuplot.Gnuplot(debug=1)
+        print "ok2"
+        # raw_input ("pause, enter to continue")
+        # g.title('A simple example') # (optional)
+        # # raw_input ("pause, enter to continue")
+        # # g ("set terminal pdfcairo")
+        # # g('set data style linespoints') # give gnuplot an arbitrary command
+        # # g.plot([[0,1.1], [1,5.8], [2,3.3], [3,4.2]])
+        # raw_input ("pause, enter to continue")
+        # d1 = Gnuplot.Data (x_del, y_del, with_="linespoints lw .1", title = "policy deletion")
+        # d2 = Gnuplot.Data (x_switch, y_switch, with_="linespoints lw .1", title = "compute per-switch configuration delta")
+
+        # d3 = Gnuplot.Data (x_ins, y_ins, with_="linespoints lw .1", title = "policy insertion")
+        # d4 = Gnuplot.Data (x_up, y_up, with_="linespoints lw .1", title = "policy update")
+
+        # # x4 = x + [len (x)]
+        # # y4 = [1] * (len (x) + 1)
+        # g.plot (d1, d3, d4, d2)
+        # g.hardcopy(outputfile, terminal = 'pdfcairo')
+        # raw_input ("pause, enter to continue")
+        g.clear ()
+
+
+    except: 
+        print 'Error'

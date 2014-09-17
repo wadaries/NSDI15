@@ -39,8 +39,6 @@ that is notoriously challenging and tedious.
 % one-big-switch abstraction needs to explicitly inspect user program
 % context.}.
 
-
-
 % For example, software-defined networks (SDN), by exploiting the idea
 % of network operating system, exposes and maintains a separate
 % network-wide abstraction -- a network representation (analogous to
@@ -52,7 +50,6 @@ that is notoriously challenging and tedious.
 % underlying physical networks, gives tenants an abstract network
 % representation (virtual topology, address \etc), through APIs over a
 % spectrum of granularity.
-
 
 Similar to the transition of online commercial data management in the
 1980s, this paper champions a shift from OS/PL techniques in
@@ -67,9 +64,7 @@ recovery control without severely hurting performance.  In networking,
 distributed network data-plane, while \TR creates an illusion of
 isolated user operations in a shared infrastructure.  By porting data
 independence and transaction processing into networking, we propose a
-\textbf{D}atabase \textbf{B}ased \textbf{N}etworking (\Sys)
-design. % that features two-levels
-% abstraction, which we call \TI and \TR respectively.
+\textbf{D}atabase \textbf{B}ased \textbf{N}etworking (\Sys) design.
 
 % This is analogous to pre\hyp{}database day computerized management
 % of commercial data, when programmers write applications over
@@ -80,19 +75,19 @@ design. % that features two-levels
 % APIs that enable the applications to read and write the appropriate
 % data.
 
-% However, network operation and innovation remain manual and difficult,
-% due to the grand challenge in finding the right abstractions that
-% strikes a balance between two conflicting goals: human convenience and
-% reasonable (feature-rich) system performance, over a distributed,
-% shared, unreliable network of heterogeneous devices. Existing
-% approaches either achieves simplicity, performance, or moderate gain
-% on both both.  On one extreme, L2 LAN abstraction, though simple and
-% configuration-free, does not scale beyond certain topology (\eg
-% spanning tree) and network size (due to flat address); On the other,
-% L3 IP-routing offers an end-to-end abstraction that scales to the
-% entire Interest, however, imposes administration burden through manual
-% configurations. Abstraction sitting in the middle includes SDN and
-% virtual networks. 
+% However, network operation and innovation remain manual and
+% difficult, due to the grand challenge in finding the right
+% abstractions that strikes a balance between two conflicting goals:
+% human convenience and reasonable (feature-rich) system performance,
+% over a distributed, shared, unreliable network of heterogeneous
+% devices. Existing approaches either achieves simplicity,
+% performance, or moderate gain on both both.  On one extreme, L2 LAN
+% abstraction, though simple and configuration-free, does not scale
+% beyond certain topology (\eg spanning tree) and network size (due to
+% flat address); On the other, L3 IP-routing offers an end-to-end
+% abstraction that scales to the entire Interest, however, imposes
+% administration burden through manual configurations. Abstraction
+% sitting in the middle includes SDN and virtual networks.
 
 More specifically, \TI offers a programmable user-level abstraction
 exposing a human interface that simplifies user logic, together with a
@@ -111,16 +106,15 @@ application-specific perspectives.  For example, end-to-end
 reachability policy is nothing but a view -- the abstract network-wide
 data-structure selected from the distributed FIBs and restructured in
 a form, \eg a relation named \nd{e2e\_policy} of three attributes
-\nd{\{flow\_id,source,dest\}}, reducing high-level policy manipulation to
-simple DB operations. Similarly, routing policy is a view of
-\nd{\{flow\_id, path\_vector\}}. To enable network management directly on
-views, \Sys utilizes DB view mechanisms, namely view maintenance and 
-update. View maintenance keeps abstractions updated as the
-network changes (i.e., FIB changes), enabling ad-hoc network
-verification by running queries over views against the latest network
-state. For example, to verify reachable switches for a flow with id
-\nd{3} via a node \nd{W} (waypoint), operator issues the following
-query:
+\nd{\{flow\_id,source,dest\}}, reducing high-level policy manipulation
+to simple DB operations. Similarly, routing policy is a view of
+\nd{\{flow\_id, path\_vector\}}. To enable network management directly
+on views, \Sys utilizes DB view mechanisms, namely view maintenance
+and update. View maintenance keeps abstractions updated as the network
+changes (i.e., FIB changes), enabling ad-hoc network verification by
+running queries over views against the latest network state. For
+example, to verify reachable switches for a flow with id \nd{3} via a
+node \nd{W} (waypoint), operator issues the following query:
 \begin{sql}
 SELECT e.dest
 FROM   e2e_policy e NATURAL JOIN routing_policy r
@@ -130,8 +124,8 @@ which returns all the reachable nodes in real time. Conversely, view
 update compiles an abstract view operation into a collection of
 network FIBs operations, synthesizing the actual FIB implementation
 based on higher-level policy constraints. For example, to set up a new
-path for flow \nd{4} between node \nd{A} and \nd{B}, the operator simply
-inserts this constraint into the policy view:
+path for flow \nd{4} between node \nd{A} and \nd{B}, the operator
+simply inserts this constraint into the policy view:
 \begin{sql}
 INSERT INTO e2e_policy VALUES (1, 'A', 'B');
 \end{sql}
@@ -145,8 +139,8 @@ sequentiality ensures user operations proceed \textit{atomically} and
 are \textit{isolated} from one another, always leaving the network in
 a \textit{consistent} state; and recoverability assures operation
 failure does not pollute network state, leaving effects of committed
-operation \textit{durable}. Unlike conventional database systems (DBSes)
-where the operations, transaction, and their connections are
+operation \textit{durable}. Unlike conventional database systems
+(DBSes) where the operations, transaction, and their connections are
 obvious~\cite{Bernstein:concurrency-recovery,concurrency-recovery-alg,principles-tp,concurrency-ddb},
 the interpretation in networking is obscure, as observed in early
 works~\cite{hotsdn-transactional-networking,On-Consistent-Updates,of-cpp}.
@@ -169,15 +163,14 @@ two-phase locking, according to that view (the SQL query), \Sys
 translates locks over the abstract view into a set of locks that can
 be performed locally at the relevant distributed base tables.
 
-%  switch\footnote{\Sys postulates that future switches
-  % shall support transaction primitives such as locking, either built
-  % in hardware, or simulated via software.}
+% switch\footnote{\Sys postulates that future switches shall support
+% transaction primitives such as locking, either built
+% in hardware, or simulated via software.}
 
-
-% For example, if transaction processing is implemented by
-% two-phase locking, rather than grabbing and releasing global locks
-% over the views, which is in-efficient and complicated, \TR translates
-% the view locking into FIB lockings that can be directly implemented on
+% For example, if transaction processing is implemented by two-phase
+% locking, rather than grabbing and releasing global locks over the
+% views, which is in-efficient and complicated, \TR translates the
+% view locking into FIB lockings that can be directly implemented on
 % relevant switch hardware. Note that the FIBs correspond to the base
 % tables from which a user view is derived, therefore, the same SQL
 % query that creates the view is used to compile the global view locks
@@ -187,36 +180,27 @@ be performed locally at the relevant distributed base tables.
 % follows. Section~\ref{sec:design} outlines the SDN database design,
 % featureing \TI and \TR.  Section~\ref{sec:details} describes \TI in
 % more details, presents early stage implementation that evaluates the
-% \TI design. Section~\ref{sec:discussion} discusses the opportunities,
-% challenges, and limits of SDN database. Section~\ref{sec:related}
-% connects SDN database to relevant OS/PL
-% efforts. Section~\ref{sec:conclusion} concludes the paper.
+% \TI design. Section~\ref{sec:discussion} discusses the
+% opportunities, challenges, and limits of SDN
+% database. Section~\ref{sec:related} connects SDN database to
+% relevant OS/PL efforts. Section~\ref{sec:conclusion} concludes the
+% paper.
 
-In sum, by leveraging decades of DB research, \Sys introduces
-the following features:
-
-% \Paragraph{Customizable and ad-hoc abstractions} that allow creation
-% and change of abstractions
-% on-demand. (\S~\ref{sec:design},~\ref{sec:details})
-
-% \Paragraph{Realtime verification and synthesis} 
-% that provide online support for network state verification and ad-hoc
-% requirement implementation. (\S~\ref{sec:design},~\ref{sec:details})
-
-% \Paragraph{Transaction processing} that hides concurrency and recovery
-% control. (\S~\ref{sec:design})
+In sum, by leveraging decades of DB research, \Sys introduces the
+following features:
 
 \vspace{-1.5mm}
 \begin{compactList}
-\item \textbf{Customizable and ad-hoc abstractions} that allow creation
-and change of abstractions
-on-demand. (\S~\ref{sec:design},~\ref{sec:details})
-\vspace{-1.5mm}
+\item \textbf{Customizable and ad-hoc abstractions} that allow
+  creation and change of abstractions
+  on-demand. (\S~\ref{sec:design},~\ref{sec:details}) \vspace{-1.5mm}
 \item \textbf{Realtime verification and synthesis} 
 that provide online support for network state verification and ad-hoc
 requirement implementation. (\S~\ref{sec:design},~\ref{sec:details})
-\vspace{-1.5mm}
-\item \textbf{Transaction processing} that hides concurrency and recovery
-control. (\S~\ref{sec:design})
+\item \textbf{Evaluation} that explores scalability of database
+  management on data-plane \vspace{-1.5mm}
+  % \item \textbf{Transaction processing} that hides concurrency and
+  %   recovery
+  %   control. (\S~\ref{sec:design})
 
 \end{compactList}

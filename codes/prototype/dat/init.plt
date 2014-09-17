@@ -1,8 +1,8 @@
 # gnuplot script
 
 reset
-set terminal png
-set output '/Users/anduo/Documents/NSDI15/codes/prototype/dat/init.png'
+set term pdfcairo
+set output '/Users/anduo/Documents/NSDI15/codes/prototype/dat/init.pdf'
 
 set xrange [-0.3 : 3.5]
 # set xtics border in scale 1,0.5 # nomirror rotate by -30  offset character 0, 0, 0 autojustify

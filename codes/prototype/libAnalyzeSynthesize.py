@@ -918,7 +918,7 @@ if __name__ == '__main__':
 #     updates = update_all + str (size) + ".txt"
 #     os.system ("head -n " + str(size) + " " + update_all + " > " + updates)
     
-    createViews (username, dbname)
+    # createViews (username, dbname)
 
 
 
