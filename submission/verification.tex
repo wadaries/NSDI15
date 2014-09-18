@@ -177,12 +177,13 @@ configuration unchanged.
 
 \subsection{One big switch abstraction and distributed firewall}
 
+Set default switch 
 \begin{sql}
 ALTER VIEW reachability_rel_obs_out2 ALTER COLUMN source SET DEFAULT 591;  
 \end{sql}
 
 
-
+Dynamically pick switch that is closest to destination
 \begin{sql}
 INSERT INTO reachability_rel_obs_out2  (flow_id, source, target)
 SELECT flow_id, source, target FROM
