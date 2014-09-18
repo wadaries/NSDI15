@@ -2,13 +2,44 @@
 \Section{Discussion and Future Work}
 \label{sec:discussion}
 
-\subsection{Network updates and synthesis}
+\subsection{Network orchestration and view updates}
 
-\Paragraph{Forwarding plane updates via query optimization}
+Discuss the semantics of view updates: An ideal case of view update
+keeps a view's complement constant ... that is, a view update does not
+impose side affects that may corrupt other views.
 
-\Paragraph{Network synthesis via database provenance}
+View updates ... briefly introduce existing works, connection to
+recent provenance work.
+% \Paragraph{Forwarding plane updates via query optimization}
+% \Paragraph{Network synthesis via database provenance}
 
-\subsection{Distributed forwarding plane}
+\subsection{Consistent forwarding plane and transaction processing}
+
+\todo{need re-write: but all raw texts are here}
+
+Next, \Sys's \TR provides sequential and recoverable behavior of
+concurrent user operations, with \textit{ACID} semantics:
+sequentiality ensures user operations proceed \textit{atomically} and
+are \textit{isolated} from one another, always leaving the network in
+a \textit{consistent} state; and recoverability assures operation
+failure does not pollute network state, leaving effects of committed
+operation \textit{durable}. Unlike conventional database systems
+(DBSes) where the operations, transaction, and their connections are
+obvious~\cite{Bernstein:concurrency-recovery,concurrency-recovery-alg,principles-tp,concurrency-ddb},
+the interpretation in networking is obscure, as observed in early
+works~\cite{hotsdn-transactional-networking,On-Consistent-Updates,of-cpp}.
+The inherent dilemma is that transaction, the logical unit that
+preserves ACID, usually is meaningful only for network-wide actions;
+whereas the enabling mechanism usually is only efficiently enforceable
+for switch-level operation. \TTR solves this by leveraging the view
+abstraction introduced in \TI: transactions, like other high-level
+operations, are specified over views; whereas the enforcing mechanisms
+are built on base tables.  For example, if a transaction over a
+particular view is processed via two-phase locking, according to that
+view (the SQL query), \Sys translates locks over the abstract view
+into a set of locks that can be performed locally at the relevant
+distributed base tables.
+
 
 Transactional networking offers an efficient execution abstraction of
 user programs in a shared distributed network, freeing the user from

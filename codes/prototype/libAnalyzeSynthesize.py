@@ -918,7 +918,7 @@ def createViews (username, dbname):
         # add_reachability_perflow_fun (dict_cur)
         # add_reachability_table (dict_cur)
 
-        # add_configuration_view (dict_cur)
+        add_configuration_view (dict_cur)
 
         flow_size = 1000
         topo_size = 10
@@ -936,9 +936,9 @@ def createViews (username, dbname):
 if __name__ == '__main__':
 
     username = "anduo"
-    dbname = "as4755ribd"
+    # dbname = "as4755ribd"
     # dbname = "as7018ribd"
-    # dbname = "as6461rib1000"
+    dbname = "as6461ribd"
 
     
 #     update_all = os.getcwd () + "/update_feeds/updates.20140701.0000.hr.extracted.updates"

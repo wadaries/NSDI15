@@ -102,7 +102,7 @@ def plot_obs_synthesize2 (username, dbname, rounds):
                 x.append (xt)
             return x
 
-        datfile = './dat/obs_synthesis_cdf' + str (rounds) + '.dat'
+        datfile = './dat/obs_synthesis_cdf' + str (rounds) + 'as' + dbname[2:6] + '.dat'
         if os.path.isfile (datfile) == False:
 
             yi = []
@@ -125,8 +125,8 @@ def plot_obs_synthesize2 (username, dbname, rounds):
                 df.write (str (x[i]) + '\t' + str (yi[i]) + '\t' + str (yd[i]) + '\t' + str (yu[i])  + '\n')
             df.close ()
 
-        pltfile = './dat/obs_synthesis_cdf' + str (rounds) + '.plt'
-        outputfile = './dat/obs_synthesis_cdf' + str (rounds) + '.pdf'
+        pltfile = './dat/obs_synthesis_cdf' + str (rounds) + 'as' + dbname[2:6] + '.plt'
+        outputfile = './dat/obs_synthesis_cdf' + str (rounds) + 'as' + dbname[2:6] + '.pdf'
         print "plot obs synthesize: start gnuplot"
 
         pf = open (pltfile, "w")
@@ -151,12 +151,13 @@ set xtics nomirror
 set ytics nomirror
 set key bottom right
 
-set ylabel "Cumulative distribution of time (ms)"
+set ylabel " Time (ms)"
+set title "CDF of synthesis time for AS " ''' + dbname[2:6]+ '''
 set output "''' + outputfile + '''"
 
-plot "'''+ datfile +'''" using 2 title "synthesize policy insertion" with lp ls 1,\\
- '' using 3 title "synthesize policy deletion" with lp ls 2,\\
- '' using 4 title "synthesize policy update" with lp ls 3''')
+plot "'''+ datfile +'''" using 2 title "synthesize ACL insertion" with lp ls 1,\\
+ '' using 3 title "synthesize ACL deletion" with lp ls 2,\\
+ '' using 4 title "synthesize ACL update" with lp ls 3''')
 
         os.system ("gnuplot " + pltfile)
         print "successfully obs_synthesis_cdf2"            
@@ -973,6 +974,8 @@ if __name__ == '__main__':
     # plot_vn_synthesize (username, dbname, rounds, g)
     # plot_vn_synthesize2 (username, dbname, rounds)
 
+    # dbname = "as7018ribd"
+    dbname = "as6461ribd"
     plot_obs_synthesize2 (username, dbname, rounds)
 
     ############################################################
