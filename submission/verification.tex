@@ -4,7 +4,7 @@
 This section presents in more details the view interface and their
 usage by three examples, namely real-time verification and synthesis
 that are fully automatically enabled by database for virtual network,
-one big switch, and distributed firewalls.
+one big switch, and distributed firewall.
 
 % three example view abstractions, together with the fully automatic
 % verification and synthesis services,
@@ -21,8 +21,8 @@ automatically returns the updated \nd{e2e} reachability. Conversely,
 to enable network manipulation via views, the base tables need to be
 updated to reflect operations on the views.  For example, to set a new
 route \nd{(1,5,4)} for \nd{flow 1} in the example network
-(Figure~\ref{fig:eg-one-big-switch} (left)), a user simply insert a new
-record denoting the path into the \nd{routing\_policy} view with
+(Figure~\ref{fig:eg-one-big-switch} (left)), a user simply insert a
+new record denoting the path into the \nd{routing\_policy} view with
 \nd{flow} attribute set to \nd{1}. \Sys is responsible of pushing this
 abstract view insert into the relevant base \nd{configuration}
 inserts.
@@ -33,12 +33,12 @@ bi-directional data synchronizer between the base and the view. While
 modern DBSes implement view maintenance very efficiently, view update
 is supported for restricted
 cases~\cite{ak-view-udpate-thesis,relational-lenses}. This is no
-surprise, as view update is the harder one: a view contains only partial
-information of the base, it is not always possible to locate a unique
-base table update~\cite{Bancilhon:view-update-semantics}. To enable
-network operations on views, \Sys takes advantage of existing view
-maintenance implementation and extends the support of view updates to
-network view updates.
+surprise, as view update is the harder one: a view contains only
+partial information of the base, it is not always possible to locate a
+unique base table update~\cite{Bancilhon:view-update-semantics}. To
+enable network operations on views, \Sys takes advantage of existing
+view maintenance implementation and extends the support of view
+updates to network view updates.
 
 \Paragraph{Real-time view maintenance enables network verification.}
 \textit{View maintenance} is well supported in modern database systems
@@ -54,45 +54,15 @@ base tables.
 % views. In this case, view maintenance incrementally updates the
 % materialized view table with regard to base table change.
 Interestingly, view maintenance offers exactly what is needed in
-real-time network verification: by specifying the property of interests
-as $p$ over $q$, view maintenance performs check of $p \circ q$ on
-network states on the fly. % As shown in \S~\ref{sec:eval},
+real-time network verification: by specifying the property of
+interests as $p$ over $q$, view maintenance performs check of $p \circ
+q$ on network states on the fly. % As shown in \S~\ref{sec:eval},
 % checking reachability on a network with more than 10k nodes costs
 % less than 10 ms, magnitudes smaller compared to the typically
 % per-rule installation or TE operation delay~\cite{b4,ffc}.
 
-\Paragraph{Real-time view update enables network synthesis.}  
-Given the ambiguity and non-existence in view update, we first
-characterize the correctness criteria in networking. We identify
-updates that keep a view's independent and complementary counter-parts
-constant. Two views are \textit{independent} if the update on one does
-not affect that on the other. Two views are \textit{complementary}, if
-they contain enough information to recover the base tables.
-% , \ie there alawys exists some base table updates that correctly
-% reflect the updated view while keeping the rest views constant.
-% In \Sys, it is desirable for views to be independent so they don't
-% conflict each other. 
-A view updates that keeps the independent views constant eliminates
-accident changes made to other existing views; An update that keep a
-view's \textit{complementary} constant is a stronger requirement that
-does not pollute any possible views (existing and future ones).
-
-\Sys assumes user views are independent, and only performs updates
-that keep independent views constant.  In the current prototype, view
-update is implemented by hand coded triggers, the call-back functions
-that are automatically fired to update the bases when the associated
-view update is issued. We evaluate this manual implementation (details
-in \S~\ref{sec:eval}) to measure the DB induced delay.
-Ultimately, \Sys aims for a generic view update algorithm that
-synthesizes for any user-defined views. (We have sketched a novel
-algorithm, omitted due to space.) We leave the implementation of the
-generic algorithm for future work.
-
 % \input{preliminary-eval}
-
-
 % \subsection{Verification example}
-
 % \subsection{Synthesis example}
 
 \subsection{Virtual network abstraction and enterprise outsourcing}

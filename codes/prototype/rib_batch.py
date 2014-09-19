@@ -1,3 +1,6 @@
+execfile ("libUtility.py")
+execfile ("libRouteviewReplay.py")
+execfile ("libParsers.py")
 import libUtility
 import libRouteviewReplay
 import libParsers

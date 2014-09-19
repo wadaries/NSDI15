@@ -1,5 +1,4 @@
-\vspace{-.5em}
-\Section{Discussion and Future Work}
+\section{Discussion and Future Work}
 \label{sec:discussion}
 
 \subsection{Network orchestration and view updates}
@@ -10,6 +9,34 @@ impose side affects that may corrupt other views.
 
 View updates ... briefly introduce existing works, connection to
 recent provenance work.
+
+\Paragraph{Real-time view update enables network synthesis.}  
+Given the ambiguity and non-existence in view update, we first
+characterize the correctness criteria in networking. We identify
+updates that keep a view's independent and complementary counter-parts
+constant. Two views are \textit{independent} if the update on one does
+not affect that on the other. Two views are \textit{complementary}, if
+they contain enough information to recover the base tables.
+% , \ie there alawys exists some base table updates that correctly
+% reflect the updated view while keeping the rest views constant.
+% In \Sys, it is desirable for views to be independent so they don't
+% conflict each other. 
+A view update that keeps the independent views constant eliminates
+accident changes made to other existing views; An update that keep a
+view's \textit{complementary} constant is a stronger requirement that
+does not pollute any possible views (existing and future ones).
+
+\Sys assumes user views are independent, and only performs updates
+that keep independent views constant.  In the current prototype, view
+update is implemented by hand coded triggers, the call-back functions
+that are automatically fired to update the bases when the associated
+view update is issued. We evaluate this manual implementation (details
+in \S~\ref{sec:eval}) to measure the DB induced delay.
+Ultimately, \Sys aims for a generic view update algorithm that
+synthesizes for any user-defined views. (We have sketched a novel
+algorithm, omitted due to space.) We leave the implementation of the
+generic algorithm for future work.
+
 % \Paragraph{Forwarding plane updates via query optimization}
 % \Paragraph{Network synthesis via database provenance}
 

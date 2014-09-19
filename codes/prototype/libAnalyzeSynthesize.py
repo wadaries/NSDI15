@@ -679,7 +679,6 @@ def synthesize (username, dbname,
         # obs_del (dict_cur, 13)
         # obs_del (dict_cur, 14)
         # obs_del (dict_cur, 15)
-
         # for update in updates:
         #     peerIP = update.split ()[0]
         #     prefix = update.split ()[1]
@@ -749,24 +748,22 @@ def add_reachability_perflow (cursor, flow_id):
 def add_reachability_table (cursor):
 
     try:
-        cursor.execute("SELECT flow_id FROM flow_constraints;")
-        flows = cursor.fetchall()
-        # print flows[0:2]
+        cursor.execute ("select * from information_schema.tables where table_name = %s;", (['reachability']))
+        if (len (cursor.fetchall ()) == 0):
+        
+            cursor.execute("SELECT flow_id FROM flow_constraints;")
+            flows = cursor.fetchall()
 
-        cursor.execute ("""
-        CREATE TABLE reachability AS (
-         SELECT * FROM reachability_perflow (""" + str (flows[0][0]) + """) );
-        """)
-
-        for f in flows[1:]:
             cursor.execute ("""
-            INSERT INTO reachability (flow_id, source, target, hops)
-            SELECT flow_id, source, target, hops FROM reachability_perflow (""" + str (f[0]) + """);
+            CREATE TABLE reachability AS (
+             SELECT * FROM reachability_perflow (""" + str (flows[0][0]) + """) );
             """)
-        # CREATE TABLE new_table
-        # SELECT * FROM table1
-        # UNION
-        # SELECT * FROM table2;
+
+            for f in flows[1:]:
+                cursor.execute ("""
+                INSERT INTO reachability (flow_id, source, target, hops)
+                SELECT flow_id, source, target, hops FROM reachability_perflow (""" + str (f[0]) + """);
+                """)
 
     except psycopg2.DatabaseError, e:
         print "Unable to generate_reachability"
@@ -915,15 +912,18 @@ def createViews (username, dbname):
         # generate_reachability_perflow (dict_cur, f1)
         # r = get_reachability_perflow (dict_cur, f1)
 
-        # add_reachability_perflow_fun (dict_cur)
-        # add_reachability_table (dict_cur)
-
+        add_reachability_perflow_fun (dict_cur)
+        add_reachability_table (dict_cur)
         add_configuration_view (dict_cur)
 
-        flow_size = 1000
-        topo_size = 10
-        # vn_init (dict_cur, topo_size, flow_size)
-        obs_new_init (dict_cur, topo_size, flow_size)
+        # flow_size = 1000
+        # topo_size = 10
+        # # vn_init (dict_cur, topo_size, flow_size)
+        # obs_new_init (dict_cur, topo_size, flow_size)
+
+        dict_cur.execute ("select * from information_schema.tables where table_name = %s;", (['reachability']))
+        c = dict_cur.fetchall ()
+        # print c
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
@@ -936,9 +936,9 @@ def createViews (username, dbname):
 if __name__ == '__main__':
 
     username = "anduo"
-    # dbname = "as4755ribd"
+    dbname = "as4755ribd"
     # dbname = "as7018ribd"
-    dbname = "as6461ribd"
+    # dbname = "as6461ribd"
 
     
 #     update_all = os.getcwd () + "/update_feeds/updates.20140701.0000.hr.extracted.updates"
@@ -946,7 +946,7 @@ if __name__ == '__main__':
 #     updates = update_all + str (size) + ".txt"
 #     os.system ("head -n " + str(size) + " " + update_all + " > " + updates)
     
-    # createViews (username, dbname)
+    createViews (username, dbname)
 
 
 

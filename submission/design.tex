@@ -1,16 +1,17 @@
-\Section{System overview}
+\section{System overview}
 \label{sec:design}
 
-\Sys's design is view-centric, application-specific data (\eg policy)
-is nothing but a piece of selected and restructured view, managed
-through DB operations.  This section outlines the two enabling
-components: \TI that interfaces users with customer abstractions and
-\TR that processes operations.
+\Sys is view-centric, networking policies are nothing but derived
+(virtual) DB views -- application-specific data selected and
+restructured from the source (base) forwarding plane data, defined and
+manipulated through DB operations.
+
+% This section outlines the two enabling components: \TI that
+% interfaces users with customer abstractions and \TR that processes
+% operations.
 
 % \Subsection{Data\hyp{}independent networking}
-
 % \subsection{Network abstractions on demand}
-
 % \subsection{Services}
 
 \TI offers a two-level data abstraction, internal base tables for
@@ -105,7 +106,7 @@ user logic. In the following, we use an example network
 % not for the purpose of managing them from a user (administrator or a
 % network application) perspective.
 % To extract the data abstraction
-% that best suits a user's demand on the fly, \Sys is designed to
+% that best suits a user's demand on the fly, \Sys is designed to\\
 % utilize DB view mechanism that allows a user to create abstraction on
 % demand.  Specifically, the dataplane is treated as base (\ie stored)
 % tables, whereas application data become user views derived from the

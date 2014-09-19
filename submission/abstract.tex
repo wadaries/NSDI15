@@ -6,8 +6,8 @@ they are still too low-level and inflexible from the perspective of
 network designers interested in application- and policy-level goals.
 We believe one of the key long-term challenges for SDN research is to
 develop abstractions that effectively navigate the tradeoff space of
-human convenience managing distributed data, and performance in a shared
-infrastructure.
+human convenience managing distributed data, and performance in a
+shared infrastructure.
 
 We attack this abstraction challenge by championing a shift from OS/PL
 to database (DB)-oriented techniques. Our ``Database-Based
@@ -18,11 +18,10 @@ distributed network on-demand, and exploits \emph{transaction
 processing} to efficiently schedule user programs in a shared
 environment while preserving ACID. While this is an ambitious
 long-term goal, a prototype of several core features demonstrates
-promising performance, showing \Sys-induced per-rule update latency
-of 14ms, for the most expensive DB operation on a datacenter
-network of 10k nodes (4.3k links). We also discuss the opportunities
-and challenges of \Sys.
-
+promising performance, showing \Sys-induced per-rule update latency of
+14ms, for the most expensive DB operation on a datacenter network of
+10k nodes (4.3k links). We also discuss the opportunities and
+challenges of \Sys.
 
 %To simplify and renovate networking, many recent efforts decouple logical abstractions from physical infrastructure via operating system (OS) and programming language (PL) means. Network operations and innovations, however, remain manual and difficult, due to the grand challenge of nailing down the right \textit{abstraction} while striking a balance between \textit{human convenience} and \textit{(feature-rich) system performance}. To bring about the needed abstraction capable of reconciling what a human mind perfects and how today's network performs, we champion a shift from OS/PL to database system (DB) technique, propose Software-defined network (SDN) database, featureing a two-level network abstraction design. The programmable user-level abstraction exposes a high-level human interface that simplifies user logic, together with a language that creates the abstraction on demand, and a mechanism that pushes abstract operation back into the network device. Whereas the separate transaction abstraction, on the other hand, is responsible for efficient execution of user programs while preserving an isolated sequential semantics by concurrency control implemented at switch-level. Early stage implementation evaluates the design. We also discuss the opportunities, challenges, limits of SDN database, as well as its connection to related OS/PL efforts.
 

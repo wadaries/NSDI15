@@ -56,15 +56,21 @@ def runParser ():
     stat_f = open("stat", "w")
     stat_f.write ("# AS (number)\t\tedges (number)\t\t nodes (number)\n")
 
+    stat = []
     for f in file_list:
         e_num_string = subprocess.check_output(["wc", "-l", f[1]])
         e_num = int (e_num_string.split ()[0]) 
         n_num_string = subprocess.check_output(["wc", "-l", f[2]])
         n_num = int (n_num_string.split ()[0])
-
         as_num = f[0].split ('.')[0]
-
         stat_f.write (as_num + "\t\t\t" + str (e_num) + " \t\t\t" + str (n_num) + "\n")
+        stat.append ([as_num, e_num, n_num])
+
+    n_nums = [s[2] for s in stat]
+    n_nums.sort ()
+
+    for i in range (len (n_nums)):
+        stat_f.write (str (i) + ':\t' +  str (n_nums[i]) + "\n")
 
     stat_f.close ()
 

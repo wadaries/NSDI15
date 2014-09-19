@@ -3,6 +3,25 @@ execfile ("./libAnalyzeSynthesize.py")
 import libAnalyzeSynthesize
 import pyGnuplot as gp
 
+gnuplot_script = '''
+reset
+set terminal pdfcairo font "Gill Sans,9" linewidth 2 rounded fontscale 1
+
+set style line 80 lt rgb "#808080"
+set style line 81 lt 0  # dashed
+set style line 81 lt rgb "#808080"
+set grid back linestyle 81
+set border 3 back linestyle 80
+
+set style line 1 lt rgb "#A00000" lw 1 pt 1 ps 1
+set style line 2 lt rgb "#00A000" lw 1 pt 6 ps 1
+set style line 3 lt rgb "#5060D0" lw 1 pt 2 ps 1
+set style line 4 lt rgb "#F25900" lw 1 pt 9 ps 1
+
+set xtics nomirror
+set ytics nomirror'''
+# '''set output "''' + outputfile + '''"
+
 def gen_cdf_x (y_list):
     x = []
     xlen = len (y_list)
@@ -75,8 +94,6 @@ def time_obs (dict_cur):
     dict_cur.execute ("INSERT INTO obs_reachability_internal values (%s, %s, %s);", ([flow_id, ingress_node, exit_node]))
 
     external_node2 = random.sample ([n for n in borders if n not in [external_node] + obs_nodes], 1)[0]
-    # print "external_node 2:"
-    # print external_node2
 
     # raw_input ("pause, enter to continue")
 
@@ -130,37 +147,21 @@ def plot_obs_synthesize2 (username, dbname, rounds):
         print "plot obs synthesize: start gnuplot"
 
         pf = open (pltfile, "w")
-        pf.write ('''
-reset
-set terminal pdfcairo font "Gill Sans,9" linewidth 2 rounded fontscale 1
-
-set logscale y
-
-set style line 80 lt rgb "#808080"
-set style line 81 lt 0  # dashed
-set style line 81 lt rgb "#808080"
-set grid back linestyle 81
-set border 3 back linestyle 80
-
-set style line 1 lt rgb "#A00000" lw 1 pt 1 ps 1
-set style line 2 lt rgb "#00A000" lw 1 pt 6 ps 1
-set style line 3 lt rgb "#5060D0" lw 1 pt 2 ps 1
-set style line 4 lt rgb "#F25900" lw 1 pt 9 ps 1
-
-set xtics nomirror
-set ytics nomirror
+        pf.write (gnuplot_script + '''
+set logscale x
 set key bottom right
 
 set ylabel " Time (ms)"
-set title "CDF of synthesis time for AS " ''' + dbname[2:6]+ '''
+set title "CDF of synthesis time for AS ''' + dbname[2:6]+ '''"
 set output "''' + outputfile + '''"
 
-plot "'''+ datfile +'''" using 2 title "synthesize ACL insertion" with lp ls 1,\\
- '' using 3 title "synthesize ACL deletion" with lp ls 2,\\
- '' using 4 title "synthesize ACL update" with lp ls 3''')
+plot "'''+ datfile +'''" using 2:1 title "synthesize ACL insertion" with lp ls 1,\\
+ '' using 3:1 title "synthesize ACL deletion" with lp ls 2,\\
+ '' using 4:1 title "synthesize ACL update" with lp ls 3''')
 
-        os.system ("gnuplot " + pltfile)
-        print "successfully obs_synthesis_cdf2"            
+        # os.system ("gnuplot " + pltfile)
+        print "gnuplot " + pltfile
+        # print "successfully obs_synthesis_cdf2"            
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
@@ -503,41 +504,24 @@ def plot_verify_cdf2 (username, dbname, rounds):
             df.write (str (x[i]) + '\t' + str (b[i]) + '\t' + str (y1[i]) + '\t' + str (y2[i]) + '\t' + str (y3[i]) + '\n')
         df.close ()
 
-    pltfile = './dat/verify_cdf' + str (rounds) + '.plt'
-    outputfile = './dat/verify_cdf' + str (rounds) + '.pdf'
+    pltfile = '/Users/anduo/Documents/NSDI15/codes/prototype/dat/verify_cdf' + str (rounds) + '.plt'
+    outputfile = '/Users/anduo/Documents/NSDI15/codes/prototype/dat/verify_cdf' + str (rounds) + '.pdf'
     print "plot verify_cdf: start gnuplot"
 
     pf = open (pltfile, "w")
-    pf.write ('''
-reset
-set terminal pdfcairo font "Gill Sans,9" linewidth 2 rounded fontscale 1
-
-set logscale y
-
-set style line 80 lt rgb "#808080"
-set style line 81 lt 0  # dashed
-set style line 81 lt rgb "#808080"
-set grid back linestyle 81
-set border 3 back linestyle 80
-
-set style line 1 lt rgb "#A00000" lw 1 pt 1 ps 1
-set style line 2 lt rgb "#00A000" lw 1 pt 6 ps 1
-set style line 3 lt rgb "#5060D0" lw 1 pt 2 ps 1
-set style line 4 lt rgb "#F25900" lw 1 pt 9 ps 1
-
-set xtics nomirror
-set ytics nomirror
-set key top left
+    pf.write (gnuplot_script + '''
+set logscale x
+set key bottom right
 
 set ylabel "Cumulative distribution of time (ms)"
 set xlabel "Total of ''' + str (rounds) + ''' randomly picked flows"
 set title "Verification time for AS ''' + str (dbname[2:6]) + '''"
 set output "''' + outputfile + '''"
 
-plot "'''+ datfile +'''" using 2 title "forwarding graph" with lp ls 1,\\
- '' using 3 title "disjoint path" with lp ls 2,\\
- '' using 4 title "loop free" with lp ls 3,\\
- '' using 5 title "black hole" with lp ls 4''')
+plot "'''+ datfile +'''" using 2:1 title "forwarding graph" with lp ls 1,\\
+ '' using 3:1 title "disjoint path" with lp ls 2,\\
+ '' using 4:1 title "loop free" with lp ls 3,\\
+ '' using 5:1 title "black hole" with lp ls 4''')
 
     pf.close ()
 
@@ -612,7 +596,7 @@ def plot_verify_cdf (username, dbname, rounds, g):
     print g.readlines()  
     print "plot_verify_cdf: finish"
 
-def plot_fg_cdf (username, dbname, xsize):
+def fg_cdf (username, dbname, xsize):
 
     try:
         conn = psycopg2.connect(database= dbname, user= username)
@@ -664,44 +648,16 @@ def plot_fg_cdf (username, dbname, xsize):
 
     return [fg_x, fg_y]
 
-def plot_fg_all (username, dbname_list, xsize, g):
+def plot_fg_cdf2 (username, dbname_list, xsize):
 
-    fg_cdf_list = []
-    for i in range (len(dbname_list)):
-        fg_cdf_list.append (plot_fg_cdf (username, dbname_list[i], xsize))
-
-    print fg_cdf_list[0]
-
-    outputfile = './dat/fg_cdf_' + str (xsize) + '.pdf'
-
-    g ('set xlabel "Number of forwarding graphs (for a total of ' + str (xsize) + ' randomly picked flows)')
-    g ('set ylabel "Cumulative Distribution, Time (millisecond)"')
-
-    xvals = fg_cdf_list[0][0]
-    yvals = fg_cdf_list[0][1]
-    p=g.plot(xvals,yvals,style = 'lp ls 1', title="AS " + str (dbname_list[0][2:6]))
-
-    for i in range (len (fg_cdf_list))[1:]:
-        xvals = fg_cdf_list[i][0]
-        yvals = fg_cdf_list[i][1]
-        p.add (yvals,xvals,style = 'lp ls ' + str (i+1),title="AS " + str (dbname_list[i][2:6]))
-
-    p.title ("Forwarding graph generation")    
-
-    g.hardcopy(p,file=outputfile,truecolor=True) 
-    print g.readlines()  
-    print "plot_init: finish"
-
-def plot_fg_all2 (username, dbname_list, xsize):
-
-    datfile = './dat/fg_cdf' + str (xsize) + '.dat'
+    datfile = os.getcwd() + '/dat/fg_cdf' + str (xsize) + '.dat'
     print datfile
     if os.path.isfile (datfile) == False:
         df = open(datfile, "w")
 
         fg_cdf_list = []
         for i in range (len(dbname_list)):
-            fg_cdf_list.append (plot_fg_cdf (username, dbname_list[i], xsize))
+            fg_cdf_list.append (fg_cdf (username, dbname_list[i], xsize))
         print fg_cdf_list[0]
         print len (fg_cdf_list)
         print len (fg_cdf_list[0][1])
@@ -711,32 +667,13 @@ def plot_fg_all2 (username, dbname_list, xsize):
             df.write (str (i) + '\t' + str (fg_cdf_list[0][1][i]) + '\t' + str (fg_cdf_list[1][1][i]) + '\t' + str (fg_cdf_list[2][1][i]) + '\n')
         df.close ()
 
-    pltfile = './dat/fg_cdf' + str (xsize) + '.plt'
-    outputfile = './dat/fg_cdf' + str (xsize) + '.pdf'
+    pltfile = os.getcwd() + '/dat/fg_cdf' + str (xsize) + '.plt'
+    outputfile = os.getcwd() + '/dat/fg_cdf' + str (xsize) + '.pdf'
     print "plot fg_cdf_all: start gnuplot"
 
-
-
     pf = open (pltfile, "w")
-    pf.write ('''
-reset
-set terminal pdfcairo font "Gill Sans,9" linewidth 2 rounded fontscale 1
-
-set logscale y
-
-set style line 80 lt rgb "#808080"
-set style line 81 lt 0  # dashed
-set style line 81 lt rgb "#808080"
-set grid back linestyle 81
-set border 3 back linestyle 80
-
-set style line 1 lt rgb "#A00000" lw 1 pt 1 ps 1
-set style line 2 lt rgb "#00A000" lw 1 pt 6 ps 1
-set style line 3 lt rgb "#5060D0" lw 1 pt 2 ps 1
-set style line 4 lt rgb "#F25900" lw 1 pt 9 ps 1
-
-set xtics nomirror
-set ytics nomirror
+    pf.write (gnuplot_script + '''
+set logscale x
 set key top left
 
 set ylabel "Cumulative distribution of time (ms)"
@@ -744,13 +681,13 @@ set xlabel "Number of forwarding graphs (total of ''' + str (xsize) + ''' random
 set title "Forwarding graph generation time"
 set output "''' + outputfile + '''"
 
-plot "'''+ datfile +'''" using 2 title "AS '''+ str (dbname_list[0][2:6])+ '''" with lp ls 1,\\
- '' using 3 title "AS ''' +str (dbname_list[1][2:6])+ '''" with lp ls 2,\\
- '' using 4 title "AS ''' +str (dbname_list[2][2:6])+'''" with lp ls 3''')
+plot "'''+ datfile +'''" using 2:1 title "AS '''+ str (dbname_list[0][2:6])+ '''" with lp ls 1,\\
+ '' using 3:1 title "AS ''' +str (dbname_list[1][2:6])+ '''" with lp ls 2,\\
+ '' using 4:1 title "AS ''' +str (dbname_list[2][2:6])+'''" with lp ls 3''')
 
     pf.close ()
 
-    print "successfully fg_cdf_all2"
+    print "successfully fg_cdf2"
 
 def plot_init (username, dbname, dat):
     try:
@@ -904,6 +841,82 @@ def analyze (username, dbname, log):
             conn.close()
         print "Finish analyze_config"
 
+
+if __name__ == '__main__':
+
+    rounds = 50
+    flow_num = 50
+    dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
+    username = "anduo"
+
+    g = gp.gnuplot(persist = True)
+    g ('set term pdfcairo')
+    g ("set logscale y")
+    # g ("set key top left")
+    g ('set key bottom right')
+
+    g ('set terminal pdfcairo font "Gill Sans,9" linewidth 4 rounded fontscale 1.0')
+    g ('set style line 80 lt rgb "#808080"')
+    g ('set style line 81 lt 0  # dashed')
+    g ('set style line 81 lt rgb "#808080"')
+    g ('set grid back linestyle 81')
+    g ('set border 3 back linestyle 80')
+    g ('set style line 1 lt rgb "#A00000" lw 2 pt 1')
+    g ('set style line 2 lt rgb "#00A000" lw 2 pt 6')
+    g ('set style line 3 lt rgb "#5060D0" lw 2 pt 2')
+    g ('set style line 4 lt rgb "#F25900" lw 2 pt 9')
+
+    # plot_all_init (username, dbname_list)
+
+    # plot_fg_all (username, dbname_list, flow_num, g)
+    # plot_fg_cdf2 (username, dbname_list, flow_num)
+
+    # dbname = "as4755ribd"
+    # plot_verify_cdf (username, dbname, flow_num, g)
+    # plot_verify_cdf2 (username, dbname, flow_num)
+
+    # plot_vn_synthesize (username, dbname, rounds, g)
+    # plot_vn_synthesize2 (username, dbname, rounds)
+
+    # dbname = "as7018ribd"
+    # dbname = "as6461ribd"
+    plot_obs_synthesize2 (username, dbname, rounds)
+
+    ############################################################
+    # outdated
+    # plot_verify (username, dbname_list[2], flow_num)
+    # plot_verification (dbname_list)
+
+
+
+def plot_fg_all (username, dbname_list, xsize, g):
+
+    fg_cdf_list = []
+    for i in range (len(dbname_list)):
+        fg_cdf_list.append (fg_cdf (username, dbname_list[i], xsize))
+
+    print fg_cdf_list[0]
+
+    outputfile = './dat/fg_cdf_' + str (xsize) + '.pdf'
+
+    g ('set xlabel "Number of forwarding graphs (for a total of ' + str (xsize) + ' randomly picked flows)')
+    g ('set ylabel "Cumulative Distribution, Time (millisecond)"')
+
+    xvals = fg_cdf_list[0][0]
+    yvals = fg_cdf_list[0][1]
+    p=g.plot(xvals,yvals,style = 'lp ls 1', title="AS " + str (dbname_list[0][2:6]))
+
+    for i in range (len (fg_cdf_list))[1:]:
+        xvals = fg_cdf_list[i][0]
+        yvals = fg_cdf_list[i][1]
+        p.add (yvals,xvals,style = 'lp ls ' + str (i+1),title="AS " + str (dbname_list[i][2:6]))
+
+    p.title ("Forwarding graph generation")    
+
+    g.hardcopy(p,file=outputfile,truecolor=True) 
+    print g.readlines()  
+    print "plot_init: finish"
+
 def plot_verification (dbname_list):
 
     for dbname in dbname_list:
@@ -938,49 +951,3 @@ def plot_verification (dbname_list):
 
         # os.system ("cd ./dat")
         os.system ("gnuplot " + gnuplot_script)
-
-if __name__ == '__main__':
-
-    rounds = 1000
-    flow_num = 1000
-    dbname_list = ["as4755ribd", "as6461ribd", "as7018ribd"]
-    username = "anduo"
-
-    g = gp.gnuplot(persist = True)
-    g ('set term pdfcairo')
-    g ("set logscale y")
-    # g ("set key top left")
-    g ('set key bottom right')
-
-    g ('set terminal pdfcairo font "Gill Sans,9" linewidth 4 rounded fontscale 1.0')
-    g ('set style line 80 lt rgb "#808080"')
-    g ('set style line 81 lt 0  # dashed')
-    g ('set style line 81 lt rgb "#808080"')
-    g ('set grid back linestyle 81')
-    g ('set border 3 back linestyle 80')
-    g ('set style line 1 lt rgb "#A00000" lw 2 pt 1')
-    g ('set style line 2 lt rgb "#00A000" lw 2 pt 6')
-    g ('set style line 3 lt rgb "#5060D0" lw 2 pt 2')
-    g ('set style line 4 lt rgb "#F25900" lw 2 pt 9')
-
-    # plot_all_init (username, dbname_list)
-
-    # plot_fg_all (username, dbname_list, flow_num, g)
-    # plot_fg_all2 (username, dbname_list, flow_num)
-    
-    # plot_verify_cdf (username, dbname, flow_num, g)
-    # plot_verify_cdf2 (username, dbname, flow_num)
-
-    # plot_vn_synthesize (username, dbname, rounds, g)
-    # plot_vn_synthesize2 (username, dbname, rounds)
-
-    # dbname = "as7018ribd"
-    dbname = "as6461ribd"
-    plot_obs_synthesize2 (username, dbname, rounds)
-
-    ############################################################
-    # outdated
-    # plot_verify (username, dbname_list[2], flow_num)
-    # plot_verification (dbname_list)
-
-

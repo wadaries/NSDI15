@@ -17,14 +17,14 @@ set style line 4 lt rgb "#F25900" lw 1 pt 9 ps 1
 
 set xtics nomirror
 set ytics nomirror
-set key top left
+set key bottom right
 
 set ylabel "Cumulative distribution of time (ms)"
 set xlabel "Total of 1000 randomly picked flows"
 set title "Verification time for AS 4755"
-set output "./dat/verify_cdf1000.pdf"
+set output "/Users/anduo/Documents/NSDI15/codes/prototype/dat/verify_cdf1000.pdf"
 
-plot "./dat/verify_cdf1000.dat" using 2 title "forwarding graph" with lp ls 1,\
- '' using 3 title "disjoint path" with lp ls 2,\
- '' using 4 title "loop free" with lp ls 3,\
- '' using 5 title "black hole" with lp ls 4
+plot "./dat/verify_cdf1000.dat" using 2:1 title "forwarding graph" with lp ls 1,\
+ '' using 3:1 title "disjoint path" with lp ls 2,\
+ '' using 4:1 title "loop free" with lp ls 3,\
+ '' using 5:1 title "black hole" with lp ls 4
