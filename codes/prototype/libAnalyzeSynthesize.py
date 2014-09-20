@@ -53,7 +53,6 @@ def pick_flow (cursor, num):
 
     tmp = random.sample (flow_id_list, num)
     random_flow_id = [t[0] for t in tmp]
-    # print "pick_flow: " + str (random_flow_id)
     
     return random_flow_id
 
@@ -67,7 +66,6 @@ def get_forwarding_graph (cursor, flow_id):
         print 'Error %s' % e
 
     forwarding_graph = [(f['switch_id'], f['next_id']) for f in fg]
-    # print "get_forwarding_graph: for flow " + str (flow_id) # + " : " + str (forwarding_graph)
 
     return forwarding_graph
 
@@ -933,10 +931,10 @@ def createViews (username, dbname):
         if conn:
             conn.close()
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
 
-    username = "anduo"
-    dbname = "as4755ribd"
+#     username = "anduo"
+#     dbname = "as4755ribd"
     # dbname = "as7018ribd"
     # dbname = "as6461ribd"
 
@@ -946,7 +944,7 @@ if __name__ == '__main__':
 #     updates = update_all + str (size) + ".txt"
 #     os.system ("head -n " + str(size) + " " + update_all + " > " + updates)
     
-    createViews (username, dbname)
+    # createViews (username, dbname)
 
 
 
