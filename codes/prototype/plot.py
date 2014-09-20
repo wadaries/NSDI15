@@ -3,7 +3,6 @@ import AnalyzeSynthesize
 
 gnuplot_script = '''
 reset
-set terminal pdfcairo font "Gill Sans,9" linewidth 2 rounded fontscale 1
 
 set style line 80 lt -1 lc rgb "#808080"
 set style line 81 lt 0  # dashed
@@ -77,13 +76,14 @@ def db_configlist ():
             db_config_dic[db] = dict_cur.fetchall ()[0][0]
 
         return db_config_dic
-
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
 
 def plot_data_set (dbs):
     print "start plot_data_set"
     datfile = os.getcwd () + '/dat/datset.dat'
+    rounds = 200
+    datfile2 = os.getcwd () + '/dat/fg_size_count'+ str (rounds) + '.dat'
     pdffigfile = os.getcwd () + '/dat/pdf_figures/datset.pdf'
     plotfile = os.getcwd () + '/dat/datset.plt'
 
@@ -94,46 +94,70 @@ def plot_data_set (dbs):
                 conn = psycopg2.connect (database = db, user = username)
                 conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
                 dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-
                 num_AS = 'AS' + str (db[2:6])
-
                 dict_cur.execute ("SELECT count(*) FROM switches;")
                 num_switch = dict_cur.fetchall ()[0][0]
-
                 dict_cur.execute ("SELECT count (*) FROM configuration;")
                 num_configuration = dict_cur.fetchall ()[0][0]
-
                 dict_cur.execute ("SELECT count (*) FROM topology;")
                 num_link = dict_cur.fetchall ()[0][0]
-
                 if conn: conn.close ()
                 if num_AS != 'AS6461':
-                    df.write (num_AS + '\t' + str (num_switch) + '\t' + str (num_configuration) + '\t' + str (num_link) + '\n')
+                    df.write ('"' + num_AS + '"' + '\t' + str (num_switch) + '\t' + str (num_configuration) + '\t' + str (num_link) + '\n')
             
         except psycopg2.DatabaseError, e:
             print 'Error %s' % e
         df.close ()
 
+    as_dic = {'as4755ribd':1, 'as7018ribd':4, 'as3356ribd':2, 'as2914ribd':3}
+    if os.path.isfile (datfile2) == False:
+        df2 = open (datfile2, "w")
+        try:
+            for db in dbs:
+                fsc = fg_cdf ('anduo', db, rounds)[1]
+                index = as_dic[db]
+                for i in range (len (fsc)):
+                    df2.write (str (index) + '\t' + '"'+db[0:6].upper ()+ '"' + '\t' + str (fsc[i][0]) + '\t'+str (float (fsc[i][1])/5) + '\n')
+            df2.close ()
+        except psycopg2.DatabaseError, e: print 'Error %s' % e
+
     pf = open(plotfile, "w")
     pf.write (gnuplot_script)
     pf.write ('''
 set output "''' + pdffigfile + '''"
-set key top left
-set ylabel "Configuration size (# entries)"
-set xlabel "Network size (# switches)"
-set xrange [0:13000]
-set yrange [5000000:]
+set terminal pdfcairo size 8,3 font "Gill Sans,9" linewidth 2 rounded fontscale 1
+# default 5 by 3 (inches)
 
-plot "'''+ datfile +'''" using 2:3 pt 7 notitle,\
-'' using 2:3:1:xtic(2):ytic(3) with labels offset 4,0 notitle''')
+set multiplot layout 1,3
+set lmargin -2
+set rmargin -3
+
+set xtics rotate
+set key top left
+set ylabel "Configuration (# entries)" offset .5,0
+set xlabel "Network size (# switches)"
+
+set xrange [-1000:14000]
+set yrange [5000000:14000000]
+
+plot "'''+ datfile +'''" using 2:3 pt 7 notitle,\\
+'' using 2:3:1:xtic(2):ytic(3) with labels offset 0,.8 notitle
+
+set xrange [0:5]
+set yrange [0:150]
+set ylabel "Forwarding graph (# nodes)" offset 2,0
+set xlabel "AS number"
+plot "'''+ datfile2 +'''" using 1:3 pt 3 ps .3 notitle,\\
+''using 1:3:4:xtic(2) with points pointsize variable lt 1 pt 19 notitle
+unset multiplot''')
 
     pf.close ()
+
     os.system ("gnuplot " + plotfile)
 
     print "finish plot_data_set"
 
 def plot_aslist (rounds, gen_dat, dbname_list):
-    print gen_dat.__name__
     print "start plot_aslist " + gen_dat.__name__
     datfile = os.getcwd () + '/dat/'+ gen_dat.__name__ +'_ases_' + str (rounds) + '.dat'
     pdffigfile = os.getcwd () + '/dat/pdf_figures/' +gen_dat.__name__+ '_ases_' + str (rounds)+'.pdf'
@@ -143,7 +167,10 @@ def plot_aslist (rounds, gen_dat, dbname_list):
         df = open(datfile, "w")
         ys = []
         for db in dbname_list:
-            dat = gen_dat ('anduo', db, rounds)
+            if gen_dat.__name__ == 'fg_cdf':
+                dat = gen_dat ('anduo', db, rounds)[0]
+            else:
+                dat = gen_dat ('anduo', db, rounds)
             ys.append (dat)
         x = gen_cdf_x (ys[0])
 
@@ -158,6 +185,8 @@ def plot_aslist (rounds, gen_dat, dbname_list):
     pf.write (gnuplot_script)
     pf.write ('''
 set output "''' +pdffigfile+ '''"
+set terminal pdfcairo font "Gill Sans,9" linewidth 2 rounded fontscale 1
+
 set key top left
 set xlabel "Time (millisecond)"
 set ylabel "CDF"
@@ -176,7 +205,8 @@ if __name__ == '__main__':
 
     rounds = 30
 
-    db_aslist = db_aslist ()
+    # db_aslist = db_aslist ()
+    db_aslist = ['as4755ribd', 'as7018ribd', 'as3356ribd', 'as2914ribd']
 
     plot_data_set (db_aslist)
 

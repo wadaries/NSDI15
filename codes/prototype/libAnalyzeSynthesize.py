@@ -175,32 +175,11 @@ def check_blackhole (cursor, flow_id):
 
         c = cursor.fetchall ()
         blackholes = [i[0] for i in c]
-        # print "check_blackhole: blackholes are " + str (blackholes)
         return blackholes
 
     except psycopg2.DatabaseError, e:
         print "Unable to get blackholes"
         print 'Error %s' % e
-
-# def check_config_e2e (cursor):
-#     try:
-#         cursor.execute("SELECT * FROM (SELECT flow_id FROM flow_constraints) as foo;")
-#         flow_id_list = cursor.fetchall()
-
-#         cursor.execute("SELECT * FROM borders;")
-#         borders = cursor.fetchall ()
-
-#     except:
-#         print "Unable to get flow_id list and border list"
-
-#     flow_id = flow_id_list[0][0]
-
-#                         # print "Unable to run pgr_dijkstra"
-#                         # print 'Error %s' % e
-
-#     for flow_id in flow_id_list:
-#         print "Analyze flow_id:" + str(flow_id[0])
-#         flow_e2e (flow_id[0], borders)
 
 def preprocess_feeds (dict_cur):
     try:
