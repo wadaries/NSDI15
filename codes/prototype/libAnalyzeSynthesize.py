@@ -874,7 +874,7 @@ def generate_obs_forwarding_graph (cursor, flow_id, obs):
         print "Unable to create fg_view table for flow " + str (flow_id)
         print 'Error %s' % e
 
-def createViews (username, dbname):
+def prepare_vn_obs_views (username, dbname):
     try:
         conn = psycopg2.connect(database= dbname, user= username)
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
@@ -882,13 +882,10 @@ def createViews (username, dbname):
         print "Connect to database " + dbname + ", as user " + username
 
         # f1 = pick_flow (dict_cur, 1)[0]
-
         # print f1
-
         # generate_forwarding_graph (dict_cur, f1)
         # generate_reachability_perflow (dict_cur, f1)
         # r = get_reachability_perflow (dict_cur, f1)
-
         add_reachability_perflow_fun (dict_cur)
         add_reachability_table (dict_cur)
         add_configuration_view (dict_cur)
@@ -903,7 +900,6 @@ def createViews (username, dbname):
         # print c
 
     except psycopg2.DatabaseError, e:
-        print "Unable to connect to database " + dbname + ", as user " + username
         print 'Error %s' % e    
 
     finally:

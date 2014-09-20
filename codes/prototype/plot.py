@@ -16,10 +16,10 @@ set style line 3 lt rgb "#5060D0" lw 1 pt 2 ps 1
 set style line 4 lt rgb "#F25900" lw 1 pt 9 ps 1
 
 set termoption dashed
-set style line 11 lt -1 lw 3
-set style line 12 lt 7 lw 3
-set style line 13 lt 9 lw 3
-set style line 14 lt 0 lw 3
+set style line 11 lt rgb "#A00000" lw 3 
+set style line 12 lt rgb "#00A000" lw 3
+set style line 13 lt rgb "#5060D0" lw 3
+set style line 14 lt rgb "#F25900" lw 3
 
 set xtics nomirror
 set ytics nomirror'''
@@ -84,6 +84,7 @@ def plot_data_set (dbs):
     datfile = os.getcwd () + '/dat/datset.dat'
     rounds = 200
     datfile2 = os.getcwd () + '/dat/fg_size_count'+ str (rounds) + '.dat'
+    datfile3 = os.getcwd () + '/dat/path_len'+ str (rounds) + '.dat'
     pdffigfile = os.getcwd () + '/dat/pdf_figures/datset.pdf'
     plotfile = os.getcwd () + '/dat/datset.plt'
 
@@ -121,6 +122,17 @@ def plot_data_set (dbs):
             df2.close ()
         except psycopg2.DatabaseError, e: print 'Error %s' % e
 
+    if os.path.isfile (datfile3) == False:
+        df3 = open (datfile3, "w")
+        try:
+            for db in dbs:
+                path_hops = get_path_len ('anduo', db, rounds)
+                index = as_dic[db]
+                for i in range (len (path_hops)):
+                    df3.write (str (index) + '\t' + '"'+db[0:6].upper ()+ '"' + '\t' + str (path_hops[i][0]) + '\t'+str (float (path_hops[i][1])/5) + '\n')
+            df3.close ()
+        except psycopg2.DatabaseError, e: print 'Error %s' % e
+
     pf = open(plotfile, "w")
     pf.write (gnuplot_script)
     pf.write ('''
@@ -137,7 +149,7 @@ set key top left
 set ylabel "Configuration (# entries)" offset .5,0
 set xlabel "Network size (# switches)"
 
-set xrange [-1000:14000]
+set xrange [-2000:14000]
 set yrange [5000000:14000000]
 
 plot "'''+ datfile +'''" using 2:3 pt 7 notitle,\\
@@ -145,16 +157,19 @@ plot "'''+ datfile +'''" using 2:3 pt 7 notitle,\\
 
 set xrange [0:5]
 set yrange [0:150]
-set ylabel "Forwarding graph (# nodes)" offset 2,0
+set ylabel "Forwarding graph (# nodes)" offset 1,0
 set xlabel "AS number"
 plot "'''+ datfile2 +'''" using 1:3 pt 3 ps .3 notitle,\\
+''using 1:3:4:xtic(2) with points pointsize variable lt 1 pt 19 notitle
+
+set ylabel "Path length (# hops)" offset 1,0
+set yrange [0:50]
+plot "'''+ datfile3 +'''" using 1:3 pt 3 ps .3 notitle,\\
 ''using 1:3:4:xtic(2) with points pointsize variable lt 1 pt 19 notitle
 unset multiplot''')
 
     pf.close ()
-
     os.system ("gnuplot " + plotfile)
-
     print "finish plot_data_set"
 
 def plot_aslist (rounds, gen_dat, dbname_list):
@@ -201,18 +216,81 @@ plot "'''+ datfile +'''" using 2:1 with lines ls 11 title "AS4755",\\
     os.system ("gnuplot " + plotfile)
     print "finish plot_aslist" + gen_dat.__name__
 
+def plot_aslist_verify (rounds, gen_dat_list, dbname_list):
+
+    datfile = []
+    for g in gen_dat_list:
+        datfile.append (os.getcwd () + '/dat/dat/'+ g.__name__ +'_ases_' + str (rounds) + '.dat')
+    pdffigfile = os.getcwd () + '/dat/pdf_figures/verify_ases_' + str (rounds)+'.pdf'
+    plotfile = os.getcwd () + '/dat/verify_ases_' +str (rounds) + '.plt'
+
+    plot_script = ''
+    print dbname_list
+
+    for i in range (len (gen_dat_list)):
+        if os.path.isfile (datfile[i]) == False:
+            df = open(datfile[i], "w")
+            ys = []
+            for db in dbname_list:
+                print db
+                if gen_dat_list[i].__name__ == 'fg_cdf':
+                    dat = gen_dat_list[i] ('anduo', db, rounds)[0]
+                else:
+                    dat = gen_dat_list[i] ('anduo', db, rounds)
+                ys.append (dat)
+                print dat
+            x = gen_cdf_x (ys[0])
+
+            for j in range (len (x)):
+                y_string = ''
+                for k in range (len (ys)):
+                    y_string = y_string + '\t' + str (ys[k][j])
+                df.write (str (x[j]) + y_string + '\n')
+            df.close ()
+
+        plot_script = plot_script + '''
+plot "'''+ datfile[i] +'''" using 2:1 with lines ls 11 title "AS4755",\\
+'' using 4:1 with lines ls 13 title "AS3356",\\
+'' using 5:1 with lines ls 14 title "AS2914",\\
+'' using 3:1 with lines ls 12 title "AS7018"''' + '\n'
+        
+    pf = open (plotfile, "w")
+    pf.write (gnuplot_script)
+    pf.write ('''
+set output "''' +pdffigfile+ '''"
+set terminal pdfcairo size 9,3 font "Gill Sans,9" linewidth 2 rounded fontscale 1
+set multiplot layout 1,3
+set lmargin -2
+set rmargin -3
+
+set key top left
+set xlabel "Time (millisecond)"
+set ylabel "CDF"
+set logscale x
+''' + plot_script)
+    pf.close ()
+    os.system ("gnuplot " + plotfile)
+
+    print "finish plot_aslist_verify"
+
 if __name__ == '__main__':
 
-    rounds = 30
-
-    # db_aslist = db_aslist ()
+    rounds = 99
     db_aslist = ['as4755ribd', 'as7018ribd', 'as3356ribd', 'as2914ribd']
+
+    for db in db_aslist:
+        prepare_vn_obs_views ('anduo', db)
 
     plot_data_set (db_aslist)
 
-    plot_aslist (rounds, fg_cdf, db_aslist)
-    plot_aslist (rounds, black_hole, db_aslist)
-    plot_aslist (rounds, loop_free, db_aslist)
+    # plot_aslist (rounds, fg_cdf, db_aslist)
+    # plot_aslist (rounds, black_hole, db_aslist)
+    # plot_aslist (rounds, loop_free, db_aslist)
+
+    plot_aslist_verify (rounds, [fg_cdf, black_hole, loop_free], db_aslist)
+
+    ############################################################
+    # db_aslist = db_aslist ()
 
     ############################################################
     # plot_all_init (username, dbname_list)
