@@ -31,16 +31,19 @@ set xlabel "Time (millisecond)"
 set ylabel "CDF"
 set logscale x
 
+set title "fg_cdf"        
 plot "/Users/anduo/Documents/NSDI15/codes/prototype/dat/dat/fg_cdf_ases_99.dat" using 2:1 with lines ls 11 title "AS4755",\
 '' using 4:1 with lines ls 13 title "AS3356",\
 '' using 5:1 with lines ls 14 title "AS2914",\
 '' using 3:1 with lines ls 12 title "AS7018"
 
+set title "black_hole"        
 plot "/Users/anduo/Documents/NSDI15/codes/prototype/dat/dat/black_hole_ases_99.dat" using 2:1 with lines ls 11 title "AS4755",\
 '' using 4:1 with lines ls 13 title "AS3356",\
 '' using 5:1 with lines ls 14 title "AS2914",\
 '' using 3:1 with lines ls 12 title "AS7018"
 
+set title "loop_free"        
 plot "/Users/anduo/Documents/NSDI15/codes/prototype/dat/dat/loop_free_ases_99.dat" using 2:1 with lines ls 11 title "AS4755",\
 '' using 4:1 with lines ls 13 title "AS3356",\
 '' using 5:1 with lines ls 14 title "AS2914",\

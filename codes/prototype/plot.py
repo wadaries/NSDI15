@@ -217,7 +217,6 @@ plot "'''+ datfile +'''" using 2:1 with lines ls 11 title "AS4755",\\
     print "finish plot_aslist" + gen_dat.__name__
 
 def plot_aslist_verify (rounds, gen_dat_list, dbname_list):
-
     datfile = []
     for g in gen_dat_list:
         datfile.append (os.getcwd () + '/dat/dat/'+ g.__name__ +'_ases_' + str (rounds) + '.dat')
@@ -225,8 +224,6 @@ def plot_aslist_verify (rounds, gen_dat_list, dbname_list):
     plotfile = os.getcwd () + '/dat/verify_ases_' +str (rounds) + '.plt'
 
     plot_script = ''
-    print dbname_list
-
     for i in range (len (gen_dat_list)):
         if os.path.isfile (datfile[i]) == False:
             df = open(datfile[i], "w")
@@ -249,6 +246,7 @@ def plot_aslist_verify (rounds, gen_dat_list, dbname_list):
             df.close ()
 
         plot_script = plot_script + '''
+set title "''' + gen_dat_list[i].__name__ + '''"        
 plot "'''+ datfile[i] +'''" using 2:1 with lines ls 11 title "AS4755",\\
 '' using 4:1 with lines ls 13 title "AS3356",\\
 '' using 5:1 with lines ls 14 title "AS2914",\\
@@ -269,28 +267,70 @@ set ylabel "CDF"
 set logscale x
 ''' + plot_script)
     pf.close ()
-    os.system ("gnuplot " + plotfile)
 
-    print "finish plot_aslist_verify"
+    os.system ("gnuplot " + plotfile)
+    print "finish plot_aslist_vs"
+
+def trans_syn_time (rounds, syn_time, dbname_list):
+
+    def add_list_item (lt, it):
+        size = len (lt)
+        for i in range (size):
+            lt[i] = lt[i] + [it[i]]
+        return lt
+
+    def trans_matrix (lt):
+        size = len (lt[0])
+        tdlt = []
+        for s in range (size):
+            dlt = []
+            for i in range (len (lt)):
+                dlt.append (lt[i][s])
+            tdlt.append (dlt)
+        return tdlt
+            
+    try:
+        dys = []
+        for d in range (len (dbname_list)):
+            conn = psycopg2.connect (database = dbname_list[d], user = 'anduo')
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+            dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+            topo_size = 10
+            flow_size = 100
+            if syn_time.__name__ == 'time_obs':
+                obs_new_init (dict_cur, topo_size, flow_size)
+                ys = [[]] * 2
+            elif syn_time.__name__ == 'time_e2e_vn':
+                vn_init (dict_cur, topo_size, flow_size)
+                ys = [[]] * 3
+
+            for i in range (rounds):
+                y = syn_time (dict_cur)
+                ys = add_list_item (ys, y)
+
+            dys.append (ys)
+            print dys
+
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
 
 if __name__ == '__main__':
-
-    rounds = 99
+    rounds = 999
     db_aslist = ['as4755ribd', 'as7018ribd', 'as3356ribd', 'as2914ribd']
-
     for db in db_aslist:
         prepare_vn_obs_views ('anduo', db)
 
     plot_data_set (db_aslist)
+    plot_aslist_verify(rounds, [fg_cdf, black_hole, loop_free], db_aslist)
 
-    # plot_aslist (rounds, fg_cdf, db_aslist)
-    # plot_aslist (rounds, black_hole, db_aslist)
-    # plot_aslist (rounds, loop_free, db_aslist)
-
-    plot_aslist_verify (rounds, [fg_cdf, black_hole, loop_free], db_aslist)
+    trans_syn_time (3, time_e2e_vn, db_aslist)
 
     ############################################################
     # db_aslist = db_aslist ()
+    # plot_aslist (rounds, fg_cdf, db_aslist)
+    # plot_aslist (rounds, black_hole, db_aslist)
+    # plot_aslist (rounds, loop_free, db_aslist)
 
     ############################################################
     # plot_all_init (username, dbname_list)

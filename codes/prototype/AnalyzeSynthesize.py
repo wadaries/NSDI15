@@ -6,50 +6,33 @@ import pyGnuplot as gp
 def time_obs (dict_cur):
     dict_cur.execute ("SELECT switch_id FROM borders;")
     borders = [n[0] for n in dict_cur.fetchall ()]
-    # print borders
 
     dict_cur.execute ("SELECT * FROM obs_nodes;")
     obs_nodes = [n[0] for n in dict_cur.fetchall ()]
-    # print "nodes: "
-    # print obs_nodes
-    
+
     dict_cur.execute ("SELECT flow_id FROM obs_reachability_internal;")
     obs_reach = dict_cur.fetchall ()
     if obs_reach != []:
         flow_id = random.sample (obs_reach, 1)[0][0]
-        # print "random picked flow appeared in obs_reachability_internal:"
-        # print flow_id
 
         dict_cur.execute ("SELECT source FROM obs_reachability_internal where flow_id = %s", ([flow_id]))
         ingress_nodes = [n[0] for n in dict_cur.fetchall ()]
 
         if len (ingress_nodes) != 0:
             ingress_node = random.sample (ingress_nodes, 1)[0]
-            # print "ingress_node for the flow: "
-            # print ingress_node
 
             exit_node = random.sample ([n for n in obs_nodes if n not in [ingress_node]], 1)[0]
-            # print "exit_node:"
-            # print exit_node
 
             dict_cur.execute ("ALTER VIEW obs_reachability_out ALTER COLUMN source SET DEFAULT %s ;", ([exit_node]))
 
     else:
         dict_cur.execute ("SELECT * FROM obs_flows;")
         obs_flows = [f[0] for f in dict_cur.fetchall ()]
-        # print "flows: "
-        # print obs_flows
         flow_id = random.sample (obs_flows, 1)[0]
-        # print flow_id
         ingress_node = random.sample (obs_nodes, 1)[0]
-        # print ingress_node
         exit_node = random.sample ([n for n in obs_nodes if n not in [ingress_node]], 1)[0]
-        # print exit_node
 
     external_node = random.sample ([n for n in borders if n not in obs_nodes],1)[0]
-    # print "randomly-pick external_node to add for flow: "
-    # print external_node
-
     s_i = time.time ()
     dict_cur.execute ("INSERT INTO obs_reachability_external values (%s, %s);", ([flow_id, external_node]))
 
@@ -68,8 +51,6 @@ def time_obs (dict_cur):
 
     external_node2 = random.sample ([n for n in borders if n not in [external_node] + obs_nodes], 1)[0]
 
-    # raw_input ("pause, enter to continue")
-
     s_u = time.time ()
     dict_cur.execute ("UPDATE obs_reachability_external SET target = %s Where flow_id = %s AND target = %s;", ([external_node2, flow_id, external_node]))
     e_u = time.time ()
@@ -82,7 +63,6 @@ def time_e2e_vn (dict_cur):
     dict_cur.execute ("SELECT * FROM vn_reachability;")
     vns = random.sample (dict_cur.fetchall (), 1)[0]
     flow_id = vns[0]
-    # print flow_id
 
     switchb_start = time.time ()
     dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
@@ -102,27 +82,11 @@ def time_e2e_vn (dict_cur):
     switch_delta_time = tfsf (switchb_start, switchb_end) + tfsf (switcha_start, switcha_end)
 
     switch_delta = [s for s in switchb if s not in switcha]
-    # print "switch delta after del of " + str (flow_id) + " between " + str (vns[1]) + " and "+ str (vns[2])
-    # print switch_delta
-
-    # switchb_start2 = time.time ()
-    # dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
-    # switchb2 = dict_cur.fetchall ()
-    # switchb_end2 = time.time ()
 
     ins_start = time.time ()
     dict_cur.execute ("INSERT INTO vn_reachability VALUES (%s, %s, %s);", ([vns[0], vns[1], vns[2]]))
     ins_end = time.time ()
     ins_time = tfsf (ins_start, ins_end)
-
-    # switcha_start2 = time.time ()
-    # dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
-    # switcha2 = dict_cur.fetchall ()
-    # switcha_end2 = time.time ()
-    
-    # switch_delta2 = [s for s in switcha2 if s not in switchb2]
-    # print "switch delta after ins of " + str (flow_id) + " between " + str (vns[1]) + " and "+ str (vns[2])
-    # print switch_delta2
 
     dict_cur.execute ("SELECT * FROM vn_nodes ;")
     nodes = dict_cur.fetchall ()
@@ -140,29 +104,18 @@ def time_e2e_vn (dict_cur):
             newe = random.sample (new_nodes.remove (olde), 1)[0][0]
         else:
             newe = random.sample (new_nodes, 1)[0][0]
-        # print newe
-
-        # print "update for flow_id " + str (flow_id) + " from ingress " + str (newi) + " to egress " + str (olde)
-        # raw_input ("pause, enter to continue")
 
         up_start = time.time ()
         dict_cur.execute ("UPDATE vn_reachability SET egress = %s where flow_id = %s and ingress = %s;", ([newe, flow_id, newi]))
         up_end = time.time ()
-
-        # print "update egress to " + str (newe)
-        # raw_input ("pause, enter to continue")
         
         up_time = tfsf (up_start, up_end)
         dict_cur.execute ("UPDATE vn_reachability SET egress = %s where flow_id = %s and ingress = %s;", ([olde, flow_id, newi]))
     else:
         up_time = 0
 
-        # dict_cur.execute ("UPDATE vn_reachability SET egress = %s where flow_id = %s and ingress = %s;", ([newe, flow_id, newi]))
-    # switch_delta_time2 = tfsf (switchb_start2, switchb_end2) + tfsf (switcha_start2, switcha_end2)
-
     return [del_time, switch_delta_time, ins_time, up_time]
-# def plot_synthesize (username, dbname, rounds):
-#     pass
+
 
 def verify (username, dbname, rounds):
     try:
@@ -237,7 +190,6 @@ def black_hole (username, dbname, rounds):
 
     finally:
         if conn: conn.close()
-
     return dat
 
 def loop_free (username, dbname, rounds):
@@ -261,7 +213,6 @@ def loop_free (username, dbname, rounds):
 
     finally:
         if conn: conn.close()
-
     return dat
 
 def get_path_len (username, dbname, xsize):

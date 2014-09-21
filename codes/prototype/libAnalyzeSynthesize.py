@@ -344,19 +344,6 @@ def obs_new_init (dict_cur, topo_size, flow_size):
         for n in obs_nodes:
             dict_cur.execute ("INSERT INTO obs_nodes VALUES (%s);", ([n]))
 
-        # dict_cur.execute ("""
-        # DROP TABLE IF EXISTS obs_mapping CASCADE;
-        # CREATE UNLOGGED TABLE obs_mapping (
-        # switch_id      integer,
-        # mapped_id      integer);
-        # """)
-
-        # for n in borders:
-        #     if n in obs_nodes:
-        #         dict_cur.execute ("INSERT INTO obs_mapping VALUES (%s, %s);", ([n, 1]))
-        #     else:
-        #         dict_cur.execute ("INSERT INTO obs_mapping VALUES (%s, %s);", ([n, n]))
-
         dict_cur.execute ("""
         DROP TABLE IF EXISTS obs_flows CASCADE;
         CREATE UNLOGGED TABLE obs_flows (
@@ -370,13 +357,11 @@ def obs_new_init (dict_cur, topo_size, flow_size):
         for n in obs_nodes[1:]:
             obs_nodes_sql = obs_nodes_sql + ("  AND source != " + str (n))
         obs_nodes_sql = obs_nodes_sql + " )"
-        # print obs_nodes_sql
 
         obs_flows_sql = "NOT (flow_id != " + str (obs_flows[0]) 
         for f in obs_flows[1:]:
             obs_flows_sql = obs_flows_sql + (" AND flow_id != " + str (f))
         obs_flows_sql = obs_flows_sql + ")"
-        # print obs_flows_sql
             
         dict_cur.execute ("""
         DROP VIEW IF EXISTS obs_reachability_out CASCADE;
