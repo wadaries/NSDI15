@@ -1212,3 +1212,114 @@ def plot_verification (dbname_list):
 
         # os.system ("cd ./dat")
         os.system ("gnuplot " + gnuplot_script)
+
+
+def get_reachability_perflow (cursor, flow_id):
+
+    fg_view_name = "fg_" + str (flow_id)
+    reach_view_name = "reachability_" + str (flow_id)
+
+    try:
+        cursor.execute ("SELECT * FROM " + reach_view_name + ";")
+        reach = cursor.fetchall ()
+
+        print "get_reachability_perflow for flow: " + str (flow_id)
+        return reach
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to get_reachability_perflow for flow " + str (flow_id)
+        print 'Error %s' % e    
+
+def add_reachability_perflow_view (cursor, flow_id):
+
+    fg_view_name = "fg_" + str (flow_id)
+    reach_view_name = "reachability_" + str (flow_id)
+
+    try:
+        cursor.execute("""
+        CREATE OR REPLACE view """ + reach_view_name + """ AS (
+                   WITH ingress_egress AS (
+                      SELECT DISTINCT f1.source, f2.target
+                      FROM """ + fg_view_name + """ f1, """ + fg_view_name + """ f2
+                      WHERE f1.source != f2.target AND
+                            f1.source NOT IN (SELECT DISTINCT target FROM """ + fg_view_name +""") AND
+                            f2.target NOT IN (SELECT DISTINCT source FROM """ + fg_view_name +""" )
+                      ORDER by f1.source, f2.target),
+                   ingress_egress_reachability AS (
+                      SELECT source, target,
+                             (SELECT count(*)
+                              FROM pgr_dijkstra('SELECT * FROM """ + fg_view_name + """',
+                                   source, target, TRUE, FALSE)) AS hops
+                      FROM ingress_egress)
+               SELECT * FROM ingress_egress_reachability WHERE hops != 0
+        );""")
+
+        print "generate_reachability_perflow VIEW for flow: " + str (flow_id)
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to create reachability table for flow " + str (flow_id)
+        print 'Error %s' % e    
+
+def synthesize (username, dbname,
+               update_edges):
+    try:
+        conn = psycopg2.connect(database= dbname, user= username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        print "Connect to database " + dbname + ", as user " + username
+
+        uf = open (update_edges, "r").readlines ()
+        updates = uf[1:20]
+
+        # preprocess_feeds (dict_cur, updates)
+
+        borders = get_borders (dict_cur)
+        topology = get_topo (dict_cur)
+        isp_peerip = get_isp_peerip (dict_cur)
+        nodes = get_nodes (dict_cur)
+
+        [f1, f2] = pick_flow (dict_cur, 2)
+        [n1, n2] = random.sample (nodes, 2)
+        print "nodes: " + str (n1) + ", " + str (n2)
+        
+        # e2e_add (dict_cur, f1, n1, n2)
+        # e2e_del_src (dict_cur, f1, n1)
+        # e2e_del_dst (dict_cur, f1, n2)
+        # obs_init (dict_cur, 20)
+        # e2e_obs_create_fg (dict_cur, 1, f1)
+
+        f1 = 36093
+        # r1 = e2e_obs_check (dict_cur, 1, f1, 113, 230)
+        # print "for obs 1, flow " + str (f1) + ", can go from 113 to 230: " + str (r1)
+
+        # r2 = e2e_obs_check (dict_cur, 1, f1, 113, 456)
+        # print "for obs 1, flow " + str (f1) + ", can go from 113 to 456: " + str (r2)
+
+        # e2e_obs_add (dict_cur, obs_id, flow_id, , )
+
+        e2e_obs_add (dict_cur, 1, f1, 108, 553)
+        e2e_obs_create_fg (dict_cur, 1, f1)
+
+        # obs_del (dict_cur, 11)
+        # obs_del (dict_cur, 13)
+        # obs_del (dict_cur, 14)
+        # obs_del (dict_cur, 15)
+        # for update in updates:
+        #     peerIP = update.split ()[0]
+        #     prefix = update.split ()[1]
+        #     flag = update.split ()[3]
+        #     destIP = int (random.choice (borders.keys ()))
+        #     if flag == 'A':
+        #         e2e_add (dict_cur, prefix, peerIP, destIP)
+        
+        # e2e_add (dict_cur, [uf[1], uf[2]])
+        # e2e_del (dict_cur, update)
+        # update_configuration (cur, update_edges)
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to connect to database " + dbname + ", as user " + username
+        print 'Error %s' % e    
+
+    finally:
+        if conn:
+            conn.close()

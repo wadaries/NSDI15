@@ -1,5 +1,6 @@
 execfile ("libUtility.py")
 import libUtility
+import pyGnuplot as gp
 
 def get_borders (cursor):
     try:
@@ -170,8 +171,8 @@ def check_blackhole (cursor, flow_id):
         select next_id AS blackhole
         FROM fg
         WHERE (NOT (next_id IN (SELECT switch_id FROM borders))) AND
-                (NOT (next_id IN (SELECT switch_id FROM fg)))
-        ORDER BY blackhole;""")
+                (NOT (next_id IN (SELECT switch_id FROM fg))) 
+       ORDER BY blackhole;""")
 
         c = cursor.fetchall ()
         blackholes = [i[0] for i in c]
@@ -321,8 +322,7 @@ def e2e_del_dst (dict_cur, flow_id, dst):
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
 
-
-def obs_new_init (dict_cur, topo_size, flow_size):
+def select_nodes_flows (dict_cur, node_size, flow_size):
     try:
         dict_cur.execute ("SELECT * FROM borders ;")
         borders = [b['switch_id'] for b in dict_cur.fetchall ()]
@@ -330,9 +330,24 @@ def obs_new_init (dict_cur, topo_size, flow_size):
         dict_cur.execute ("SELECT * FROM flow_constraints ;")
         flows = [f['flow_id'] for f in dict_cur.fetchall ()]
 
-        obs_nodes = random.sample (borders, topo_size)
-        obs_flows = random.sample (flows, flow_size)
+        sel_nodes = random.sample (borders, node_size)
+        sel_flows = random.sample (flows, flow_size)
 
+        return [sel_nodes, sel_flows]
+
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
+        
+def obs_new_init (dict_cur, obs_nodes, obs_flows):
+    try:
+        # dict_cur.execute ("SELECT * FROM borders ;")
+        # borders = [b['switch_id'] for b in dict_cur.fetchall ()]
+
+        # dict_cur.execute ("SELECT * FROM flow_constraints ;")
+        # flows = [f['flow_id'] for f in dict_cur.fetchall ()]
+
+        # obs_nodes = random.sample (borders, topo_size)
+        # obs_flows = random.sample (flows, flow_size)
         print "obs_new_init"
 
         dict_cur.execute ("""
@@ -353,7 +368,7 @@ def obs_new_init (dict_cur, topo_size, flow_size):
         for f in obs_flows:
             dict_cur.execute ("INSERT INTO obs_flows VALUES (%s);", ([f]))
 
-        obs_nodes_sql = "NOT (source != " + str (obs_nodes[0]) 
+        obs_nodes_sql = "NOT (source != " + str (obs_nodes[0])
         for n in obs_nodes[1:]:
             obs_nodes_sql = obs_nodes_sql + ("  AND source != " + str (n))
         obs_nodes_sql = obs_nodes_sql + " )"
@@ -405,16 +420,16 @@ def obs_new_init (dict_cur, topo_size, flow_size):
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
 
-def vn_init (dict_cur, topo_size, flow_size):
+def vn_init (dict_cur, vn_nodes, vn_flows):
     try: 
-        dict_cur.execute ("SELECT * FROM borders ;")
-        borders = [b['switch_id'] for b in dict_cur.fetchall ()]
+        # dict_cur.execute ("SELECT * FROM borders ;")
+        # borders = [b['switch_id'] for b in dict_cur.fetchall ()]
 
-        dict_cur.execute ("SELECT * FROM flow_constraints ;")
-        flows = [f['flow_id'] for f in dict_cur.fetchall ()]
+        # dict_cur.execute ("SELECT * FROM flow_constraints ;")
+        # flows = [f['flow_id'] for f in dict_cur.fetchall ()]
 
-        vn_nodes = random.sample (borders, topo_size)
-        vn_flows = random.sample (flows, flow_size)
+        # vn_nodes = random.sample (borders, topo_size)
+        # vn_flows = random.sample (flows, flow_size)
 
         # print vn_nodes
 
@@ -597,135 +612,31 @@ def obs_del (dict_cur, obs_id):
         dict_cur.execute ("DROP VIEW obs_" + str (obs_id) + "_config ;")
     except: pass
 
-def synthesize (username, dbname,
-               update_edges):
-    try:
-        conn = psycopg2.connect(database= dbname, user= username)
-        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
-        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        print "Connect to database " + dbname + ", as user " + username
 
-        uf = open (update_edges, "r").readlines ()
-        updates = uf[1:20]
-
-        # preprocess_feeds (dict_cur, updates)
-
-        borders = get_borders (dict_cur)
-        topology = get_topo (dict_cur)
-        isp_peerip = get_isp_peerip (dict_cur)
-        nodes = get_nodes (dict_cur)
-
-        [f1, f2] = pick_flow (dict_cur, 2)
-        [n1, n2] = random.sample (nodes, 2)
-        print "nodes: " + str (n1) + ", " + str (n2)
-        
-        # e2e_add (dict_cur, f1, n1, n2)
-        # e2e_del_src (dict_cur, f1, n1)
-        # e2e_del_dst (dict_cur, f1, n2)
-        # obs_init (dict_cur, 20)
-        # e2e_obs_create_fg (dict_cur, 1, f1)
-
-        f1 = 36093
-        # r1 = e2e_obs_check (dict_cur, 1, f1, 113, 230)
-        # print "for obs 1, flow " + str (f1) + ", can go from 113 to 230: " + str (r1)
-
-        # r2 = e2e_obs_check (dict_cur, 1, f1, 113, 456)
-        # print "for obs 1, flow " + str (f1) + ", can go from 113 to 456: " + str (r2)
-
-        # e2e_obs_add (dict_cur, obs_id, flow_id, , )
-
-        e2e_obs_add (dict_cur, 1, f1, 108, 553)
-        e2e_obs_create_fg (dict_cur, 1, f1)
-
-        # obs_del (dict_cur, 11)
-        # obs_del (dict_cur, 13)
-        # obs_del (dict_cur, 14)
-        # obs_del (dict_cur, 15)
-        # for update in updates:
-        #     peerIP = update.split ()[0]
-        #     prefix = update.split ()[1]
-        #     flag = update.split ()[3]
-        #     destIP = int (random.choice (borders.keys ()))
-        #     if flag == 'A':
-        #         e2e_add (dict_cur, prefix, peerIP, destIP)
-        
-        # e2e_add (dict_cur, [uf[1], uf[2]])
-        # e2e_del (dict_cur, update)
-        # update_configuration (cur, update_edges)
-
-    except psycopg2.DatabaseError, e:
-        print "Unable to connect to database " + dbname + ", as user " + username
-        print 'Error %s' % e    
-
-    finally:
-        if conn:
-            conn.close()
-
-def get_reachability_perflow (cursor, flow_id):
-
-    fg_view_name = "fg_" + str (flow_id)
-    reach_view_name = "reachability_" + str (flow_id)
+def add_reachability_table (cursor, flow_size):
+    if flow_size == 0:
+        reach_table = 'reachability'
+    else:
+        reach_table = 'reachability' + str (flow_size)
 
     try:
-        cursor.execute ("SELECT * FROM " + reach_view_name + ";")
-        reach = cursor.fetchall ()
+        cursor.execute ("select * from information_schema.tables where table_name = %s;", ([reach_table]))
 
-        print "get_reachability_perflow for flow: " + str (flow_id)
-        return reach
-
-    except psycopg2.DatabaseError, e:
-        print "Unable to get_reachability_perflow for flow " + str (flow_id)
-        print 'Error %s' % e    
-
-def add_reachability_perflow (cursor, flow_id):
-
-    fg_view_name = "fg_" + str (flow_id)
-    reach_view_name = "reachability_" + str (flow_id)
-
-    try:
-        cursor.execute("""
-        CREATE OR REPLACE view """ + reach_view_name + """ AS (
-                   WITH ingress_egress AS (
-                      SELECT DISTINCT f1.source, f2.target
-                      FROM """ + fg_view_name + """ f1, """ + fg_view_name + """ f2
-                      WHERE f1.source != f2.target AND
-                            f1.source NOT IN (SELECT DISTINCT target FROM """ + fg_view_name +""") AND
-                            f2.target NOT IN (SELECT DISTINCT source FROM """ + fg_view_name +""" )
-                      ORDER by f1.source, f2.target),
-                   ingress_egress_reachability AS (
-                      SELECT source, target,
-                             (SELECT count(*)
-                              FROM pgr_dijkstra('SELECT * FROM """ + fg_view_name + """',
-                                   source, target, TRUE, FALSE)) AS hops
-                      FROM ingress_egress)
-               SELECT * FROM ingress_egress_reachability WHERE hops != 0
-        );""")
-
-        print "generate_reachability_perflow VIEW for flow: " + str (flow_id)
-
-    except psycopg2.DatabaseError, e:
-        print "Unable to create reachability table for flow " + str (flow_id)
-        print 'Error %s' % e    
-
-def add_reachability_table (cursor):
-
-    try:
-        cursor.execute ("select * from information_schema.tables where table_name = %s;", (['reachability']))
         if (len (cursor.fetchall ()) == 0):
-        
             cursor.execute("SELECT flow_id FROM flow_constraints;")
             flows = cursor.fetchall()
+            if flow_size != 0:
+                flows = flows[:flow_size]
 
             cursor.execute ("""
-            CREATE TABLE reachability AS (
+            CREATE TABLE """ +reach_table+ """ AS (
              SELECT * FROM reachability_perflow (""" + str (flows[0][0]) + """) );
-            """)
+             """)
 
             for f in flows[1:]:
                 cursor.execute ("""
-                INSERT INTO reachability (flow_id, source, target, hops)
-                SELECT flow_id, source, target, hops FROM reachability_perflow (""" + str (f[0]) + """);
-                """)
+                INSERT INTO """ +reach_table+""" (flow_id, source, target, hops)
+                SELECT flow_id, source, target, hops FROM reachability_perflow (""" + str (f[0]) + """);""")
 
     except psycopg2.DatabaseError, e:
         print "Unable to generate_reachability"
@@ -777,7 +688,7 @@ CREATE OR REPLACE VIEW configuration_pv AS (
 DROP VIEW IF EXISTS configuration_edge CASCADE;
 CREATE OR REPLACE VIEW configuration_edge AS (
        WITH num_list AS (
-       SELECT UNNEST (ARRAY[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]) AS num
+        SELECT UNNEST (ARRAY[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50]) AS num
        )
        SELECT DISTINCT flow_id, num, ARRAY[pv[num], pv[num+1]] as edge
        FROM configuration_pv, num_list
@@ -802,40 +713,45 @@ CREATE OR REPLACE VIEW configuration_switch AS (
 def add_reachability_perflow_fun (cursor):
     try:
         cursor.execute ("""
-CREATE OR REPLACE FUNCTION reachability_perflow(f integer) RETURNS TABLE (flow_id int, source int, target int, hops bigint) AS 
+DROP FUNCTION reachability_perflow(integer);
+        
+CREATE OR REPLACE FUNCTION reachability_perflow(f integer)
+RETURNS TABLE (flow_id int, source int, target int, hops bigint, pv int[]) AS 
 $$
 BEGIN
 	DROP TABLE IF EXISTS tmpone;
 	CREATE TABLE tmpone AS (
-	SELECT * FROM configuration c WHERE c.flow_id = f
-	) ;
+	SELECT * FROM configuration c WHERE c.flow_id = f) ;
 
 	RETURN query 
-           WITH ingress_egress AS (
-              SELECT DISTINCT f1.switch_id as source, f2.next_id as target
-       	      FROM tmpone f1, tmpone f2
-	      WHERE f1.switch_id != f2.next_id AND
-       	            f1.switch_id NOT IN (SELECT DISTINCT next_id FROM tmpone) AND
-	            f2.next_id NOT IN (SELECT DISTINCT switch_id FROM tmpone)
-              ORDER by source, target),
-	      reach_can AS(
-	      SELECT i.source, i.target,
-	      	      (SELECT count(*) FROM pgr_dijkstra('SELECT 1 as id,
-		      	      	       	    			 switch_id as source,
-								 next_id as target,
-								 1.0::float8 as cost FROM tmpone',
-  	       			     i.source, i.target, 
-  	       			    TRUE, FALSE)) as hops
-	      FROM ingress_egress i)
-	      SELECT f as flow_id, r.source, r.target, r.hops FROM reach_can r where r.hops != 0;
+        WITH ingress_egress AS (
+		SELECT DISTINCT b1.switch_id as source, b2.switch_id as target
+       	      	FROM borders b1, borders b2, tmpone
+	      	WHERE b1.switch_id != b2.switch_id AND
+		      b1.switch_id IN (SELECT DISTINCT switch_id FROM tmpone) AND
+	              b2.switch_id IN (SELECT DISTINCT next_id FROM tmpone)
+                ORDER by source, target),
+	     reach_can AS(
+                SELECT i.source, i.target,
+	      	       (SELECT count(*)
+                        FROM pgr_dijkstra('SELECT 1 as id,
+			     	           switch_id as source,
+					   next_id as target,
+					   1.0::float8 as cost FROM tmpone',
+			     i.source, i.target,TRUE, FALSE)) as hops,
+	      	       (SELECT array(SELECT id1 FROM pgr_dijkstra('SELECT 1 as id,
+			     	           switch_id as source,
+					   next_id as target,
+					   1.0::float8 as cost FROM tmpone',
+			     i.source, i.target,TRUE, FALSE))) as pv
+	        FROM ingress_egress i)
+	SELECT DISTINCT f as flow_id, r.source, r.target, r.hops, r.pv FROM reach_can r where r.hops != 0;
 END
 $$ LANGUAGE plpgsql;
         """)
     except psycopg2.DatabaseError, e:
         print "Unable to add reachability_perflow fun"
         print 'Error %s' % e
-
-
 
 def generate_obs_forwarding_graph (cursor, flow_id, obs):
 
@@ -864,25 +780,13 @@ def prepare_vn_obs_views (username, dbname):
         conn = psycopg2.connect(database= dbname, user= username)
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
         dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
-        print "Connect to database " + dbname + ", as user " + username
 
-        # f1 = pick_flow (dict_cur, 1)[0]
-        # print f1
-        # generate_forwarding_graph (dict_cur, f1)
-        # generate_reachability_perflow (dict_cur, f1)
-        # r = get_reachability_perflow (dict_cur, f1)
         add_reachability_perflow_fun (dict_cur)
-        add_reachability_table (dict_cur)
+        add_reachability_table (dict_cur, 100)
         add_configuration_view (dict_cur)
-
-        # flow_size = 1000
-        # topo_size = 10
-        # # vn_init (dict_cur, topo_size, flow_size)
-        # obs_new_init (dict_cur, topo_size, flow_size)
 
         dict_cur.execute ("select * from information_schema.tables where table_name = %s;", (['reachability']))
         c = dict_cur.fetchall ()
-        # print c
 
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e    
@@ -908,3 +812,335 @@ def prepare_vn_obs_views (username, dbname):
 
 
 
+
+
+
+def time_obs (dict_cur):
+    dict_cur.execute ("SELECT switch_id FROM borders;")
+    borders = [n[0] for n in dict_cur.fetchall ()]
+
+    dict_cur.execute ("SELECT * FROM obs_nodes;")
+    obs_nodes = [n[0] for n in dict_cur.fetchall ()]
+
+    dict_cur.execute ("SELECT flow_id FROM obs_reachability_internal;")
+    obs_reach = dict_cur.fetchall ()
+    if obs_reach != []:
+        flow_id = random.sample (obs_reach, 1)[0][0]
+
+        dict_cur.execute ("SELECT source FROM obs_reachability_internal where flow_id = %s", ([flow_id]))
+        ingress_nodes = [n[0] for n in dict_cur.fetchall ()]
+
+        if len (ingress_nodes) != 0:
+            ingress_node = random.sample (ingress_nodes, 1)[0]
+
+            exit_node = random.sample ([n for n in obs_nodes if n not in [ingress_node]], 1)[0]
+
+            dict_cur.execute ("ALTER VIEW obs_reachability_out ALTER COLUMN source SET DEFAULT %s ;", ([exit_node]))
+
+    else:
+        dict_cur.execute ("SELECT * FROM obs_flows;")
+        obs_flows = [f[0] for f in dict_cur.fetchall ()]
+        flow_id = random.sample (obs_flows, 1)[0]
+        ingress_node = random.sample (obs_nodes, 1)[0]
+        exit_node = random.sample ([n for n in obs_nodes if n not in [ingress_node]], 1)[0]
+
+    external_node = random.sample ([n for n in borders if n not in obs_nodes],1)[0]
+    s_i = time.time ()
+    dict_cur.execute ("INSERT INTO obs_reachability_external values (%s, %s);", ([flow_id, external_node]))
+
+    dict_cur.execute ("INSERT INTO obs_reachability_internal values (%s, %s, %s);", ([flow_id, ingress_node, exit_node]))
+    e_i = time.time ()
+    delta_i = tfsf (s_i, e_i)
+
+    s_d = time.time ()
+    dict_cur.execute ("DELETE FROM obs_reachability_external where flow_id = %s AND target = %s;", ([flow_id, external_node]))
+    dict_cur.execute ("DELETE FROM obs_reachability_internal where flow_id = %s AND source = %s AND target = %s;", ([flow_id, ingress_node, exit_node]))
+    e_d = time.time ()
+    delta_d = tfsf (s_d, e_d)
+
+    dict_cur.execute ("INSERT INTO obs_reachability_external values (%s, %s);", ([flow_id, external_node]))
+    dict_cur.execute ("INSERT INTO obs_reachability_internal values (%s, %s, %s);", ([flow_id, ingress_node, exit_node]))
+
+    external_node2 = random.sample ([n for n in borders if n not in [external_node] + obs_nodes], 1)[0]
+
+    s_u = time.time ()
+    dict_cur.execute ("UPDATE obs_reachability_external SET target = %s Where flow_id = %s AND target = %s;", ([external_node2, flow_id, external_node]))
+    e_u = time.time ()
+    delta_u = tfsf (s_u, e_u)
+
+    return [delta_i, delta_d, delta_u]
+
+def time_e2e_vn (dict_cur):
+
+    dict_cur.execute ("SELECT * FROM vn_reachability;")
+    vns = random.sample (dict_cur.fetchall (), 1)[0]
+    flow_id = vns[0]
+
+    switchb_start = time.time ()
+    dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
+    switchb = dict_cur.fetchall ()
+    switchb_end = time.time ()
+
+    del_start = time.time ()
+    dict_cur.execute ("DELETE FROM vn_reachability WHERE flow_id = %s and ingress = %s and egress = %s ;", ([vns[0], vns[1], vns[2]]))
+    del_end = time.time ()
+
+    switcha_start = time.time ()
+    dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
+    switcha = dict_cur.fetchall ()
+    switcha_end = time.time ()
+
+    del_time = tfsf (del_start, del_end)
+    switch_delta_time = tfsf (switchb_start, switchb_end) + tfsf (switcha_start, switcha_end)
+
+    switch_delta = [s for s in switchb if s not in switcha]
+
+    ins_start = time.time ()
+    dict_cur.execute ("INSERT INTO vn_reachability VALUES (%s, %s, %s);", ([vns[0], vns[1], vns[2]]))
+    ins_end = time.time ()
+    ins_time = tfsf (ins_start, ins_end)
+
+    dict_cur.execute ("SELECT * FROM vn_nodes ;")
+    nodes = dict_cur.fetchall ()
+    dict_cur.execute ("SELECT egress FROM vn_reachability WHERE flow_id = %s;", ([flow_id]))
+    egress = dict_cur.fetchall ()
+    dict_cur.execute ("SELECT ingress FROM vn_reachability WHERE flow_id = %s;", ([flow_id]))
+    ingress = dict_cur.fetchall ()
+    newi = random.sample (ingress, 1)[0][0]
+
+    new_nodes = [n for n in nodes if n not in egress]
+    if new_nodes != []:
+        dict_cur.execute ("SELECT egress from vn_reachability where flow_id = %s and ingress = %s", ([flow_id, newi]))
+        olde = dict_cur.fetchall ()[0][0]
+        if olde in new_nodes:
+            newe = random.sample (new_nodes.remove (olde), 1)[0][0]
+        else:
+            newe = random.sample (new_nodes, 1)[0][0]
+
+        up_start = time.time ()
+        dict_cur.execute ("UPDATE vn_reachability SET egress = %s where flow_id = %s and ingress = %s;", ([newe, flow_id, newi]))
+        up_end = time.time ()
+        
+        up_time = tfsf (up_start, up_end)
+        dict_cur.execute ("UPDATE vn_reachability SET egress = %s where flow_id = %s and ingress = %s;", ([olde, flow_id, newi]))
+    else:
+        up_time = 0
+
+    return [del_time, switch_delta_time, ins_time, up_time]
+
+
+def verify (username, dbname, rounds):
+    try:
+        conn = psycopg2.connect(database= dbname, user= username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        print "Connect to database " + dbname + ", as user " + username
+
+        dat = []
+        for i in range( rounds):
+
+            [f1, f2] = pick_flow (dict_cur, 2)
+
+            start = time.time ()
+            fg = get_forwarding_graph (dict_cur, f1)
+            end = time.time ()
+            fg_t = tfsf (start, end)
+
+            start = time.time ()
+            ed = check_disjoint_edge (dict_cur, f1, f2)
+            end = time.time ()
+            cde_t = tfsf (start, end)
+
+            start = time.time ()
+            lp = check_dag (dict_cur, f1)
+            end = time.time ()
+            cd_t = tfsf (start, end)
+
+            start = time.time ()
+            t = check_blackhole (dict_cur, f1)
+            end = time.time ()
+            cb_t = tfsf (start, end)
+
+            dat.append ([fg_t, cde_t, cd_t, cb_t])
+            
+    except psycopg2.DatabaseError, e:
+        print "Unable to connect to database " + dbname + ", as user " + username
+        print 'Error %s' % e
+
+    finally:
+        if conn:
+            conn.close()
+
+    dat_b = [d[0] for d in dat]
+    dat_y1 = [d[1] for d in dat]
+    dat_y2 = [d[2] for d in dat]
+    dat_y3 = [d[3] for d in dat]
+
+    return [dat_b, dat_y1, dat_y2, dat_y3]
+
+def black_hole (username, dbname, rounds):
+    try:
+        conn = psycopg2.connect(database= dbname, user= username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        dat = []
+        for i in range( rounds):
+
+            [f1, f2] = pick_flow (dict_cur, 2)
+
+            start = time.time ()
+            t = check_blackhole (dict_cur, f1)
+            end = time.time ()
+            cb_t = tfsf (start, end)
+
+            dat.append (cb_t)
+        dat.sort ()
+            
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
+
+    finally:
+        if conn: conn.close()
+    return dat
+
+def loop_free (username, dbname, rounds):
+    try:
+        conn = psycopg2.connect(database= dbname, user= username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        dat = []
+        for i in range( rounds):
+            [f1, f2] = pick_flow (dict_cur, 2)
+            start = time.time ()
+            lp = check_dag (dict_cur, f1)
+            end = time.time ()
+            cd_t = tfsf (start, end)
+            dat.append (cd_t)
+        dat.sort ()
+            
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
+
+    finally:
+        if conn: conn.close()
+    return dat
+
+def get_path_len (username, dbname, xsize):
+    try:
+        conn = psycopg2.connect(database= dbname, user= username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        dict_cur.execute ("SELECT hops FROM reachability limit %s;", ([xsize]))
+        ph = [int (p[0]) for p in dict_cur.fetchall ()]
+
+        path_hops = []
+        for i in set (ph):
+            path_hops.append ([i, ph.count (i)])
+            
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
+
+    finally:
+        if conn: conn.close()
+    return path_hops
+
+def fg_cdf (username, dbname, xsize):
+
+    try:
+        conn = psycopg2.connect(database= dbname, user= username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        fg_time = [dbname]
+        fg_size = []
+        for i in range (0, xsize):
+            f1 = pick_flow (dict_cur, 1)[0]
+
+            start = time.time ()
+            fg = get_forwarding_graph (dict_cur, f1)
+            end = time.time ()
+
+            fgs = len (fg)
+            fgt = tfsf (start, end)
+            fg_time.append (fgt)
+            fg_size.append (fgs)
+        fg_time.sort ()
+
+        fg_count = []
+        for i in set (fg_size):
+            fg_count.append ([i, fg_size.count (i)])
+
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
+
+    finally:
+        if conn: conn.close()
+
+    return [fg_time, fg_count]
+
+def analyze (username, dbname, log):
+    setlogdata (log)
+    # logging.info ("------------------------------------------------------------")
+    # logging.info ("Start analyze network configuration")
+    # logging.info ("------------------------------------------------------------")
+    # logging.info ("Successfully set log file\n")
+
+    try:
+        conn = psycopg2.connect(database= dbname, user= username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        print "Connect to database " + dbname + ", as user " + username
+        
+        [f1, f2] = pick_flow (dict_cur, 2)
+
+        for x in range(0, rounds):
+            logging.info ('"Round ' + str (x) + '"                      ' + '"Time (ms)"')
+
+            start = time.time ()
+            fg = get_forwarding_graph (dict_cur, f1)
+            end = time.time ()
+            logging.info ('"forwarding graph"       ' + tfs (start, end))
+
+            start = time.time ()
+            ed = check_disjoint_edge (dict_cur, f1, f2)
+            end = time.time ()
+            logging.info ('"disjoint edge"            ' + tfs (start, end))
+
+            start = time.time ()
+            lp = check_dag (dict_cur, f1)
+            end = time.time ()
+            logging.info ('"loop free"                     ' + tfs (start, end))
+
+            start = time.time ()
+            t = check_blackhole (dict_cur, f1)
+            end = time.time ()
+            logging.info ('"blackhole"                ' + tfs (start, end))
+            logging.info ("\n")
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to connect to database " + dbname + ", as user " + username
+        print 'Error %s' % e
+    finally:
+        if conn:
+            conn.close()
+        print "Finish analyze_config"
+
+    # g = gp.gnuplot(persist = True)
+    # g ('set term pdfcairo')
+    # g ("set logscale y")
+    # # g ("set key top left")
+    # g ('set key bottom right')
+
+    # g ('set terminal pdfcairo font "Gill Sans,9" linewidth 4 rounded fontscale 1.0')
+    # g ('set style line 80 lt rgb "#808080"')
+    # g ('set style line 81 lt 0  # dashed')
+    # g ('set style line 81 lt rgb "#808080"')
+    # g ('set grid back linestyle 81')
+    # g ('set border 3 back linestyle 80')
+    # g ('set style line 1 lt rgb "#A00000" lw 2 pt 1')
+    # g ('set style line 2 lt rgb "#00A000" lw 2 pt 6')
+    # g ('set style line 3 lt rgb "#5060D0" lw 2 pt 2')
+    # g ('set style line 4 lt rgb "#F25900" lw 2 pt 9')

@@ -1,5 +1,5 @@
-execfile ("./AnalyzeSynthesize.py")
-import AnalyzeSynthesize
+execfile ("./libAnalyzeSynthesize.py")
+import libAnalyzeSynthesize
 
 gnuplot_script = '''
 reset
@@ -272,7 +272,6 @@ set logscale x
     print "finish plot_aslist_vs"
 
 def trans_syn_time (rounds, syn_time, dbname_list):
-
     def add_list_item (lt, it):
         size = len (lt)
         for i in range (size):
@@ -291,40 +290,125 @@ def trans_syn_time (rounds, syn_time, dbname_list):
             
     try:
         dys = []
+        dbs = []
+
+        conn = psycopg2.connect (database = dbname_list[0], user = 'anduo')
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        node_size = 10
+        flow_size = 100
+        [nodes, flows] = select_nodes_flows (dict_cur, node_size, flow_size)
+        conn.close ()
+
         for d in range (len (dbname_list)):
+            print d
             conn = psycopg2.connect (database = dbname_list[d], user = 'anduo')
             conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
             dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-            topo_size = 10
-            flow_size = 100
             if syn_time.__name__ == 'time_obs':
-                obs_new_init (dict_cur, topo_size, flow_size)
+                obs_new_init (dict_cur, nodes, flows)
                 ys = [[]] * 2
             elif syn_time.__name__ == 'time_e2e_vn':
-                vn_init (dict_cur, topo_size, flow_size)
+                vn_init (dict_cur, nodes, flows)
                 ys = [[]] * 3
 
             for i in range (rounds):
                 y = syn_time (dict_cur)
                 ys = add_list_item (ys, y)
 
+            print ys
+
+            for i in range (len (ys)):
+                ys[i].sort ()
+            print ys
+
             dys.append (ys)
-            print dys
+            dbs.append (dbname_list[d])
+    
+        new_dys = trans_matrix (dys)
+        print dbs
+        return new_dys
 
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
 
+def plot_aslist_synthesize (rounds, dbname_list, syn_time):
+    print "start plot_aslist_synthesize " 
+    if syn_time.__name__ == 'time_e2e_vn':
+        tasks = ['vn_policy_deletion', 'vn_switch_delta', 'vn_policy_insert']
+        pdffigfile = os.getcwd () + '/dat/pdf_figures/obs_synthesize_ases_' + str (rounds)+'.pdf'
+        plotfile = os.getcwd () + '/dat/obs_synthesize_ases_' +str (rounds) + '.plt'
+    elif syn_time.__name__ == 'time_obs':
+        tasks = ['obs_policy_insert', 'obs_policy_deletion']
+        pdffigfile = os.getcwd () + '/dat/pdf_figures/vn_synthesize_ases_' + str (rounds)+'.pdf'
+        plotfile = os.getcwd () + '/dat/vn_synthesize_ases_' +str (rounds) + '.plt'
+
+    datfile = []
+    for i in range (len (tasks)):
+        datfile.append (os.getcwd () + '/dat/dat/'+ tasks[i] +'_ases_' + str (rounds) + '.dat')
+
+    if os.path.isfile (datfile[0]) == False:
+        dat = trans_syn_time (rounds, syn_time, dbname_list)
+        print "dat"
+        print dat
+        x = gen_cdf_x (dat[0][0])
+        
+        for i in range (len (tasks)):
+            df = open(datfile[i], "w")
+            for k in range (len (x)):
+                df.write (str (x[k]))
+                for j in range (len (dbname_list)):
+                    df.write ('\t' + str(dat[i][j][k]))
+                df.write ('\n')
+            df.close ()
+
+    pdffigfile = os.getcwd () + '/dat/pdf_figures/synthesize_ases_' + str (rounds)+'.pdf'
+    plotfile = os.getcwd () + '/dat/synthesize_ases_' +str (rounds) + '.plt'
+
+    plot_script = ''
+    for i in range (len(tasks)) :
+        plot_script = plot_script + '''
+set title "''' + tasks[i] + '''"        
+plot "'''+ datfile[i] +'''" using 2:1 with lines ls 11 title "AS4755",\\
+'' using 4:1 with lines ls 13 title "AS3356",\\
+'' using 5:1 with lines ls 14 title "AS2914",\\
+'' using 3:1 with lines ls 12 title "AS7018"''' + '\n'
+        
+    pf = open (plotfile, "w")
+    pf.write (gnuplot_script)
+    pf.write ('''
+set output "''' +pdffigfile+ '''"
+set terminal pdfcairo size 9,3 font "Gill Sans,9" linewidth 2 rounded fontscale 1
+set multiplot layout 1,''' + str (len (tasks)) + '''
+set lmargin -2
+set rmargin -3
+
+set key top left
+set xlabel "Time (millisecond)"
+set ylabel "CDF"
+set logscale x
+''' + plot_script)
+    pf.close ()
+
+    os.system ("gnuplot " + plotfile)
+
+    print "finish plot_aslist_synthesize"
+
 if __name__ == '__main__':
     rounds = 999
     db_aslist = ['as4755ribd', 'as7018ribd', 'as3356ribd', 'as2914ribd']
+
     for db in db_aslist:
+        print "prepare_vn_obs_views for " + db
         prepare_vn_obs_views ('anduo', db)
 
     plot_data_set (db_aslist)
     plot_aslist_verify(rounds, [fg_cdf, black_hole, loop_free], db_aslist)
 
-    trans_syn_time (3, time_e2e_vn, db_aslist)
+    plot_aslist_synthesize (7, db_aslist, time_obs)
+    # trans_syn_time (3, time_obs, db_aslist)
+    # trans_syn_time (3, time_e2e_vn, db_aslist)
 
     ############################################################
     # db_aslist = db_aslist ()

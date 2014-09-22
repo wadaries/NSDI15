@@ -1,3 +1,38 @@
+CREATE OR REPLACE FUNCTION reachability_perflow3(f integer)
+RETURNS TABLE (flow_id int, source int, target int, hops bigint, pv int[]) AS 
+$$
+BEGIN
+	DROP TABLE IF EXISTS tmpone;
+	CREATE TABLE tmpone AS (
+	SELECT * FROM configuration c WHERE c.flow_id = f) ;
+
+	RETURN query 
+        WITH ingress_egress AS (
+		SELECT DISTINCT b1.switch_id as source, b2.switch_id as target
+       	      	FROM borders b1, borders b2, tmpone
+	      	WHERE b1.switch_id != b2.switch_id AND
+		      b1.switch_id IN (SELECT DISTINCT switch_id FROM tmpone) AND
+	              b2.switch_id IN (SELECT DISTINCT next_id FROM tmpone)
+                ORDER by source, target),
+	     reach_can AS(
+                SELECT i.source, i.target,
+	      	       (SELECT count(*)
+                        FROM pgr_dijkstra('SELECT 1 as id,
+			     	           switch_id as source,
+					   next_id as target,
+					   1.0::float8 as cost FROM tmpone',
+			     i.source, i.target,TRUE, FALSE)) as hops,
+	      	       (SELECT array(SELECT id1 FROM pgr_dijkstra('SELECT 1 as id,
+			     	           switch_id as source,
+					   next_id as target,
+					   1.0::float8 as cost FROM tmpone',
+			     i.source, i.target,TRUE, FALSE))) as pv
+	        FROM ingress_egress i)
+	SELECT DISTINCT f as flow_id, r.source, r.target, r.hops, r.pv FROM reach_can r where r.hops != 0;
+END
+$$ LANGUAGE plpgsql;
+
+
 CREATE OR REPLACE FUNCTION reachability_perflow2(f integer)
 RETURNS TABLE (flow_id int, source int, target int, hops bigint, pv int[]) AS 
 $$
