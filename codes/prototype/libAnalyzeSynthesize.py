@@ -331,7 +331,8 @@ def select_nodes_flows (dict_cur, node_size, flow_size):
         flows = [f['flow_id'] for f in dict_cur.fetchall ()]
 
         sel_nodes = random.sample (borders, node_size)
-        sel_flows = random.sample (flows, flow_size)
+        # sel_flows = random.sample (flows, flow_size)
+        sel_flows = flows[:flow_size]
 
         return [sel_nodes, sel_flows]
 
@@ -617,7 +618,8 @@ def add_reachability_table (cursor, flow_size):
     if flow_size == 0:
         reach_table = 'reachability'
     else:
-        reach_table = 'reachability' + str (flow_size)
+        # reach_table = 'reachability' + str (flow_size)
+        reach_table = 'reachability'
 
     try:
         cursor.execute ("select * from information_schema.tables where table_name = %s;", ([reach_table]))
@@ -781,8 +783,10 @@ def prepare_vn_obs_views (username, dbname):
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
         dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
+        # dict_cur.execute ("DROP TABLE reachability CASCADE;")
+
         add_reachability_perflow_fun (dict_cur)
-        add_reachability_table (dict_cur, 100)
+        add_reachability_table (dict_cur, 10000)
         add_configuration_view (dict_cur)
 
         dict_cur.execute ("select * from information_schema.tables where table_name = %s;", (['reachability']))

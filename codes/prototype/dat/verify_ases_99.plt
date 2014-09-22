@@ -26,25 +26,38 @@ set multiplot layout 1,3
 set lmargin -2
 set rmargin -3
 
-set key top left
-set xlabel "Time (millisecond)"
 set ylabel "CDF"
 set logscale x
 
-set title "fg_cdf"        
+unset key
+set xlabel "   " 
+set title "forwarding graph"        
 plot "/Users/anduo/Documents/NSDI15/codes/prototype/dat/dat/fg_cdf_ases_99.dat" using 2:1 with lines ls 11 title "AS4755",\
 '' using 4:1 with lines ls 13 title "AS3356",\
 '' using 5:1 with lines ls 14 title "AS2914",\
 '' using 3:1 with lines ls 12 title "AS7018"
+unset key
+unset ylabel
+set lmargin 0
 
-set title "black_hole"        
+set key bottom right box opaque
+set xlabel "Time (millisecond)" 
+set title "black hole"        
 plot "/Users/anduo/Documents/NSDI15/codes/prototype/dat/dat/black_hole_ases_99.dat" using 2:1 with lines ls 11 title "AS4755",\
 '' using 4:1 with lines ls 13 title "AS3356",\
 '' using 5:1 with lines ls 14 title "AS2914",\
 '' using 3:1 with lines ls 12 title "AS7018"
+unset key
+unset ylabel
+set lmargin 0
 
-set title "loop_free"        
+unset key
+set xlabel "   " 
+set title "loop free"        
 plot "/Users/anduo/Documents/NSDI15/codes/prototype/dat/dat/loop_free_ases_99.dat" using 2:1 with lines ls 11 title "AS4755",\
 '' using 4:1 with lines ls 13 title "AS3356",\
 '' using 5:1 with lines ls 14 title "AS2914",\
 '' using 3:1 with lines ls 12 title "AS7018"
+unset key
+unset ylabel
+set lmargin 0

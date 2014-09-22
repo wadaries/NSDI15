@@ -223,7 +223,6 @@ def plot_aslist_verify (rounds, gen_dat_list, dbname_list):
     pdffigfile = os.getcwd () + '/dat/pdf_figures/verify_ases_' + str (rounds)+'.pdf'
     plotfile = os.getcwd () + '/dat/verify_ases_' +str (rounds) + '.plt'
 
-    plot_script = ''
     for i in range (len (gen_dat_list)):
         if os.path.isfile (datfile[i]) == False:
             df = open(datfile[i], "w")
@@ -245,12 +244,28 @@ def plot_aslist_verify (rounds, gen_dat_list, dbname_list):
                 df.write (str (x[j]) + y_string + '\n')
             df.close ()
 
+    title_dict = {gen_dat_list[0].__name__: 'forwarding graph', gen_dat_list[1].__name__: 'black hole', gen_dat_list[2].__name__: 'loop free'}
+
+    plot_script = ''
+    for i in range (len (gen_dat_list)):
+        if i == 1:
+            plot_script = plot_script + '''
+set key bottom right box opaque
+set xlabel "Time (millisecond)" '''
+        else:
+            plot_script = plot_script + '''
+unset key
+set xlabel "   " '''
+
         plot_script = plot_script + '''
-set title "''' + gen_dat_list[i].__name__ + '''"        
+set title "''' + title_dict[gen_dat_list[i].__name__] + '''"        
 plot "'''+ datfile[i] +'''" using 2:1 with lines ls 11 title "AS4755",\\
 '' using 4:1 with lines ls 13 title "AS3356",\\
 '' using 5:1 with lines ls 14 title "AS2914",\\
-'' using 3:1 with lines ls 12 title "AS7018"''' + '\n'
+'' using 3:1 with lines ls 12 title "AS7018"
+unset key
+unset ylabel
+set lmargin 0''' + '\n'
         
     pf = open (plotfile, "w")
     pf.write (gnuplot_script)
@@ -261,8 +276,6 @@ set multiplot layout 1,3
 set lmargin -2
 set rmargin -3
 
-set key top left
-set xlabel "Time (millisecond)"
 set ylabel "CDF"
 set logscale x
 ''' + plot_script)
@@ -334,6 +347,7 @@ def trans_syn_time (rounds, syn_time, dbname_list):
         print 'Error %s' % e
 
 def plot_aslist_synthesize (rounds, dbname_list, syn_time):
+
     print "start plot_aslist_synthesize " 
     if syn_time.__name__ == 'time_e2e_vn':
         tasks = ['vn_policy_deletion', 'vn_switch_delta', 'vn_policy_insert']
@@ -396,7 +410,8 @@ set logscale x
     print "finish plot_aslist_synthesize"
 
 if __name__ == '__main__':
-    rounds = 999
+
+    rounds = 99
     db_aslist = ['as4755ribd', 'as7018ribd', 'as3356ribd', 'as2914ribd']
 
     for db in db_aslist:
@@ -404,11 +419,11 @@ if __name__ == '__main__':
         prepare_vn_obs_views ('anduo', db)
 
     plot_data_set (db_aslist)
+
     plot_aslist_verify(rounds, [fg_cdf, black_hole, loop_free], db_aslist)
 
     plot_aslist_synthesize (7, db_aslist, time_obs)
-    # trans_syn_time (3, time_obs, db_aslist)
-    # trans_syn_time (3, time_e2e_vn, db_aslist)
+
 
     ############################################################
     # db_aslist = db_aslist ()
