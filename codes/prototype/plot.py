@@ -320,12 +320,15 @@ def trans_syn_time (rounds, syn_time, dbname_list):
             dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
             if syn_time.__name__ == 'time_obs':
+                print "obs_new_init for " + dbname_list[d]
                 obs_new_init (dict_cur, nodes, flows)
                 ys = [[]] * 2
             elif syn_time.__name__ == 'time_e2e_vn':
+                print "vn_init for " + dbname_list[d]
                 vn_init (dict_cur, nodes, flows)
                 ys = [[]] * 3
 
+            print "get syntheis time for " + dbname_list[d]
             for i in range (rounds):
                 y = syn_time (dict_cur)
                 ys = add_list_item (ys, y)
@@ -337,10 +340,8 @@ def trans_syn_time (rounds, syn_time, dbname_list):
             print ys
 
             dys.append (ys)
-            dbs.append (dbname_list[d])
     
         new_dys = trans_matrix (dys)
-        print dbs
         return new_dys
 
     except psycopg2.DatabaseError, e:
@@ -422,7 +423,8 @@ if __name__ == '__main__':
 
     plot_aslist_verify(rounds, [fg_cdf, black_hole, loop_free], db_aslist)
 
-    plot_aslist_synthesize (7, db_aslist, time_obs)
+    plot_aslist_synthesize (99, db_aslist, time_obs)
+    plot_aslist_synthesize (30, db_aslist, time_e2e_vn)
 
 
     ############################################################

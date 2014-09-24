@@ -1323,3 +1323,135 @@ def synthesize (username, dbname,
     finally:
         if conn:
             conn.close()
+
+
+    
+def obs_init (dict_cur, size):
+
+    topology = get_topo (dict_cur)    
+    topo = [(c[0], c[1]) for c in topology if c[2] == None]
+    if len (topo) > size:
+        obs_top = random.sample (topo, size)
+        print obs_top
+
+        dict_cur.execute ("""
+        SELECT max(subnet_id) from subnet ;
+        """)
+        c = dict_cur.fetchall ()
+        if c[0][0] == None:
+            subnet_id = 1
+        else:
+            subnet_id = c[0][0] + 1
+
+        dict_cur.execute ("""
+        INSERT INTO subnet VALUES (%s, %s) ;  
+        """, (subnet_id, "obs"))
+
+        for edge in obs_top :
+            dict_cur.execute ("""
+            UPDATE topology SET subnet_id = %s WHERE switch_id = %s AND next_id = %s
+            """, (subnet_id, edge[0], edge[1]))
+
+        where_sql = "(switch_id = " + str(obs_top[0][0]) + " AND next_id = " + str (obs_top[0][1]) + ")"
+        for edge in obs_top[1:]:
+            where_sql = where_sql + " OR (switch_id = " + str(edge[0]) + " AND next_id = " + str (edge[1]) + ")"
+
+        try:
+            dict_cur.execute ("""
+            CREATE OR REPLACE VIEW obs_""" + str (subnet_id) + """_config AS (
+            SELECT *
+            FROM configuration
+            WHERE """ + where_sql + ");")
+
+        except psycopg2.DatabaseError, e:
+            print "Unable to create obs view" 
+            print 'Error %s' % e
+
+def e2e_obs_create_fg (dict_cur, obs_id, flow_id):
+    try:
+        dict_cur.execute("""
+        CREATE OR REPLACE VIEW obs_""" + str (obs_id) + "_fg_" + str (flow_id) + """ AS (
+        SELECT * FROM obs_""" + str(obs_id) + """_config
+        WHERE flow_id = """ + str (flow_id) + ");")
+    except psycopg2.DatabaseError, e:
+        print "Unable to generate e2e_obs_view"
+        print 'Error %s' % e
+
+def e2e_obs_drop_fg (dict_cur, obs_id, flow_id):
+    try:
+        dict_cur.execute ("DROP VIEW obs_" + str (obs_id) + "_fg_" + str (flow_id) + ";")
+    except: pass
+
+def e2e_obs_check (dict_cur, obs_id, flow_id, src, dst):
+    pgr_dijk_sql = """
+    SELECT 1 as id, switch_id as source, next_id as target, 1.0::float8 as cost
+    FROM obs_""" + str (obs_id) + "_fg_" + str (flow_id) + ";"
+
+    reach = False
+    try:
+        dict_cur.execute ("SELECT id1 as switch_id FROM pgr_dijkstra ('"
+                          + pgr_dijk_sql + "'," + str (src) + "," + str (dst) +
+                          ", True, False" + ");")
+        path = dict_cur.fetchall ()
+        if path != []:
+            reach = True
+        else:
+            reach = False
+
+    except psycopg2.DatabaseError, e:
+        print "Cannot e2e_obs_check"
+        print "Error %s" % e
+
+    return reach
+        
+def e2e_obs_add (dict_cur, obs_id, flow_id, src, dst):
+    pgr_dijk_sql = """
+    SELECT 1 as id, switch_id as source, next_id as target, 1.0::float8 as cost
+    FROM topology WHERE subnet_id = """ + str (obs_id) + ";"
+
+    try:
+        e2e_obs_create_fg (dict_cur, obs_id, flow_id)
+        fg_view_name = "obs_" + str (obs_id) + "_fg_" + str (flow_id)
+
+        reach = e2e_obs_check (dict_cur, obs_id, flow_id, src, dst)
+        if reach == False:
+            dict_cur.execute ("SELECT id1 as switch_id FROM pgr_dijkstra ('"
+                              + pgr_dijk_sql + "'," + str (src) + "," + str (dst) +
+                              ", True, False" + ");")
+            path = dict_cur.fetchall ()
+            if path != []:
+                print "find new path: " + str (path)
+                path_edges = path_to_edge (path)
+                for ed in path_edges:
+                    print ed
+                    try: 
+                        dict_cur.execute ("""
+                        INSERT INTO obs_""" + str (obs_id) + "_fg_" + str (flow_id) +
+                                          """ (flow_id, switch_id, next_id)
+                        VALUES (%s,%s,%s);""", (flow_id, ed[0][0], ed[1][0]))
+                    except: pass
+                    # psycopg2.DatabaseError, e:
+                    # print "Cannot insert into fg_view:"
+                    # print 'Error %s' % e
+            else: print "no available path in the obs topology"
+        else: print "e2e_obs_add: path already exits"
+
+        e2e_obs_drop_fg (dict_cur, obs_id, flow_id)
+
+    except psycopg2.DatabaseError, e:
+        print "Cannot e2e_obs_add"
+        print "Error %s" % e
+
+def obs_del (dict_cur, obs_id):
+    try:
+        dict_cur.execute ("UPDATE topology SET subnet_id = Null WHERE subnet_id = "+ str (obs_id) + ";")
+    except: pass
+
+    try:
+        dict_cur.execute ("DELETE FROM subnet WHERE subnet_id = %s;", ([obs_id]))
+    except: pass
+
+    try:
+        dict_cur.execute ("DROP VIEW obs_" + str (obs_id) + "_config ;")
+    except: pass
+
