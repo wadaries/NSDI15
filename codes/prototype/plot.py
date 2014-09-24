@@ -51,6 +51,25 @@ def db_aslist ():
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
 
+def db_conflist (asn):
+    username = "anduo"
+    dbname = 'postgres'
+    try:
+        conn = psycopg2.connect(database=dbname, user=username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+        print "db_aslist"
+
+        dict_cur.execute ('''SELECT datname FROM pg_database
+        WHERE datname LIKE %s;''', (['%'+ str(asn) + '%']))  
+        dbs = [d[0] for d in dict_cur.fetchall ()]
+        # dbs = [dbs[0]] + dbs[2:]
+        return dbs
+            
+    except psycopg2.DatabaseError, e:
+        print 'Error %s' % e
+
+
 def db_configlist ():
     username = "anduo"
     dbname = 'postgres'
@@ -216,7 +235,7 @@ plot "'''+ datfile +'''" using 2:1 with lines ls 11 title "AS4755",\\
     os.system ("gnuplot " + plotfile)
     print "finish plot_aslist" + gen_dat.__name__
 
-def plot_aslist_verify (rounds, gen_dat_list, dbname_list):
+def plot_verify (rounds, gen_dat_list, dbname_list):
     datfile = []
     for g in gen_dat_list:
         datfile.append (os.getcwd () + '/dat/dat/'+ g.__name__ +'_ases_' + str (rounds) + '.dat')
@@ -282,7 +301,7 @@ set logscale x
     pf.close ()
 
     os.system ("gnuplot " + plotfile)
-    print "finish plot_aslist_vs"
+    print "finish plot_vs"
 
 def trans_syn_time (rounds, syn_time, dbname_list):
     def add_list_item (lt, it):
@@ -320,8 +339,8 @@ def trans_syn_time (rounds, syn_time, dbname_list):
             dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
             if syn_time.__name__ == 'time_obs':
-                print "obs_new_init for " + dbname_list[d]
-                obs_new_init (dict_cur, nodes, flows)
+                print "obs_init for " + dbname_list[d]
+                obs_init (dict_cur, nodes, flows)
                 ys = [[]] * 2
             elif syn_time.__name__ == 'time_e2e_vn':
                 print "vn_init for " + dbname_list[d]
@@ -330,6 +349,7 @@ def trans_syn_time (rounds, syn_time, dbname_list):
 
             print "get syntheis time for " + dbname_list[d]
             for i in range (rounds):
+                print "round " + str (i)
                 y = syn_time (dict_cur)
                 ys = add_list_item (ys, y)
 
@@ -347,17 +367,21 @@ def trans_syn_time (rounds, syn_time, dbname_list):
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
 
-def plot_aslist_synthesize (rounds, dbname_list, syn_time):
+def plot_synthesize (rounds, dbname_list, syn_time):
 
-    print "start plot_aslist_synthesize " 
+    print "start plot_synthesize " 
     if syn_time.__name__ == 'time_e2e_vn':
         tasks = ['vn_policy_deletion', 'vn_switch_delta', 'vn_policy_insert']
         pdffigfile = os.getcwd () + '/dat/pdf_figures/obs_synthesize_ases_' + str (rounds)+'.pdf'
         plotfile = os.getcwd () + '/dat/obs_synthesize_ases_' +str (rounds) + '.plt'
+        pdfwidth = 8
+        pdftitle = 'synthesize virtual network policy'
     elif syn_time.__name__ == 'time_obs':
         tasks = ['obs_policy_insert', 'obs_policy_deletion']
         pdffigfile = os.getcwd () + '/dat/pdf_figures/vn_synthesize_ases_' + str (rounds)+'.pdf'
         plotfile = os.getcwd () + '/dat/vn_synthesize_ases_' +str (rounds) + '.plt'
+        pdfwidth = 5
+        pdftitle = 'synthesize one big switch policy'
 
     datfile = []
     for i in range (len (tasks)):
@@ -378,24 +402,26 @@ def plot_aslist_synthesize (rounds, dbname_list, syn_time):
                 df.write ('\n')
             df.close ()
 
-    pdffigfile = os.getcwd () + '/dat/pdf_figures/synthesize_ases_' + str (rounds)+'.pdf'
-    plotfile = os.getcwd () + '/dat/synthesize_ases_' +str (rounds) + '.plt'
+    # pdffigfile = os.getcwd () + '/dat/pdf_figures/synthesize_ases_' + str (rounds)+'.pdf'
+    # plotfile = os.getcwd () + '/dat/synthesize_ases_' +str (rounds) + '.plt'
 
+    title_dict = {'obs_policy_insert': 'add new policy', 'obs_policy_deletion': 'remove old policy'}
     plot_script = ''
     for i in range (len(tasks)) :
         plot_script = plot_script + '''
 set title "''' + tasks[i] + '''"        
-plot "'''+ datfile[i] +'''" using 2:1 with lines ls 11 title "AS4755",\\
-'' using 4:1 with lines ls 13 title "AS3356",\\
-'' using 5:1 with lines ls 14 title "AS2914",\\
-'' using 3:1 with lines ls 12 title "AS7018"''' + '\n'
-        
+plot "'''+ datfile[i] +'''" using 2:1 with lines ls 11 title "10000",\\
+'' using 3:1 with lines ls 13 title "100000",\\
+'' using 4:1 with lines ls 14 title "300000"\n''' 
+# ,\\
+# '' using 2:1 with lines ls 12 title "AS3356d"''' + '\n'
+    
     pf = open (plotfile, "w")
     pf.write (gnuplot_script)
     pf.write ('''
 set output "''' +pdffigfile+ '''"
-set terminal pdfcairo size 9,3 font "Gill Sans,9" linewidth 2 rounded fontscale 1
-set multiplot layout 1,''' + str (len (tasks)) + '''
+set terminal pdfcairo size '''+str (pdfwidth)+ ''',3 font "Gill Sans,9" linewidth 2 rounded fontscale 1
+set multiplot layout 1,''' + str (len (tasks)) + '''title "''' + pdftitle + '''" 
 set lmargin -2
 set rmargin -3
 
@@ -408,26 +434,32 @@ set logscale x
 
     os.system ("gnuplot " + plotfile)
 
-    print "finish plot_aslist_synthesize"
+    print "finish plot_synthesize"
 
 if __name__ == '__main__':
 
     rounds = 99
     db_aslist = ['as4755ribd', 'as7018ribd', 'as3356ribd', 'as2914ribd']
+    db_conflist = ['as3356rib10000', 'as3356rib100000', 'as3356rib300000']
 
-    for db in db_aslist:
+    # for db in db_aslist:
+    #     print "prepare_vn_obs_views for " + db
+    #     prepare_vn_obs_views ('anduo', db)
+
+    for db in db_conflist:
         print "prepare_vn_obs_views for " + db
         prepare_vn_obs_views ('anduo', db)
 
     plot_data_set (db_aslist)
 
-    plot_aslist_verify(rounds, [fg_cdf, black_hole, loop_free], db_aslist)
+    # plot_verify(rounds, [fg_cdf, black_hole, loop_free], db_aslist)
 
-    plot_aslist_synthesize (99, db_aslist, time_obs)
-    plot_aslist_synthesize (30, db_aslist, time_e2e_vn)
+    plot_synthesize (100, db_conflist, time_obs)
+    plot_synthesize (5, db_conflist, time_e2e_vn)
 
 
     ############################################################
+    # db_conflist = db_conflist (3356)
     # db_aslist = db_aslist ()
     # plot_aslist (rounds, fg_cdf, db_aslist)
     # plot_aslist (rounds, black_hole, db_aslist)

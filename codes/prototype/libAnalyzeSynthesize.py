@@ -339,7 +339,7 @@ def select_nodes_flows (dict_cur, node_size, flow_size):
     except psycopg2.DatabaseError, e:
         print 'Error %s' % e
         
-def obs_new_init (dict_cur, obs_nodes, obs_flows):
+def obs_init (dict_cur, obs_nodes, obs_flows):
     try:
         # dict_cur.execute ("SELECT * FROM borders ;")
         # borders = [b['switch_id'] for b in dict_cur.fetchall ()]
@@ -504,8 +504,8 @@ def add_reachability_table (cursor, flow_size):
 
             for f in flows[1:]:
                 cursor.execute ("""
-                INSERT INTO """ +reach_table+""" (flow_id, source, target, hops)
-                SELECT flow_id, source, target, hops FROM reachability_perflow (""" + str (f[0]) + """);""")
+                INSERT INTO """ +reach_table+""" (flow_id, source, target, hops, pv)
+                SELECT flow_id, source, target, hops, pv FROM reachability_perflow (""" + str (f[0]) + """);""")
 
     except psycopg2.DatabaseError, e:
         print "Unable to generate_reachability"
@@ -582,7 +582,7 @@ CREATE OR REPLACE VIEW configuration_switch AS (
 def add_reachability_perflow_fun (cursor):
     try:
         cursor.execute ("""
-DROP FUNCTION reachability_perflow(integer);
+DROP FUNCTION IF EXISTS reachability_perflow(integer);
         
 CREATE OR REPLACE FUNCTION reachability_perflow(f integer)
 RETURNS TABLE (flow_id int, source int, target int, hops bigint, pv int[]) AS 
@@ -650,10 +650,10 @@ def prepare_vn_obs_views (username, dbname):
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
         dict_cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
-        # dict_cur.execute ("DROP TABLE reachability CASCADE;")
+        # dict_cur.execute ("DROP TABLE IF EXISTS reachability CASCADE;")
 
         add_reachability_perflow_fun (dict_cur)
-        add_reachability_table (dict_cur, 10000)
+        add_reachability_table (dict_cur, 1000)
         add_configuration_view (dict_cur)
 
         dict_cur.execute ("select * from information_schema.tables where table_name = %s;", (['reachability']))
@@ -748,16 +748,17 @@ def time_e2e_vn (dict_cur):
     flow_id = vns[0]
 
     switchb_start = time.time ()
-    dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
+    dict_cur.execute ("SELECT * FROM configuration_pv WHERE flow_id = %s;", ([flow_id]))
     switchb = dict_cur.fetchall ()
     switchb_end = time.time ()
 
+    print "vn delete"
     del_start = time.time ()
     dict_cur.execute ("DELETE FROM vn_reachability WHERE flow_id = %s and ingress = %s and egress = %s ;", ([vns[0], vns[1], vns[2]]))
     del_end = time.time ()
 
     switcha_start = time.time ()
-    dict_cur.execute ("SELECT * FROM configuration_switch WHERE flow_id = %s;", ([flow_id]))
+    dict_cur.execute ("SELECT * FROM configuration_pv WHERE flow_id = %s;", ([flow_id]))
     switcha = dict_cur.fetchall ()
     switcha_end = time.time ()
 
@@ -766,6 +767,7 @@ def time_e2e_vn (dict_cur):
 
     switch_delta = [s for s in switchb if s not in switcha]
 
+    print "vn insert"
     ins_start = time.time ()
     dict_cur.execute ("INSERT INTO vn_reachability VALUES (%s, %s, %s);", ([vns[0], vns[1], vns[2]]))
     ins_end = time.time ()
@@ -788,6 +790,7 @@ def time_e2e_vn (dict_cur):
         else:
             newe = random.sample (new_nodes, 1)[0][0]
 
+        print "update"
         up_start = time.time ()
         dict_cur.execute ("UPDATE vn_reachability SET egress = %s where flow_id = %s and ingress = %s;", ([newe, flow_id, newi]))
         up_end = time.time ()
