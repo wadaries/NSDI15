@@ -42,6 +42,8 @@ CREATE UNLOGGED TABLE flow_constraints (
        -- PRIMARY KEY (flow_id)
 );
 
+-- toy network data
+
 TRUNCATE TABLE switches cascade;
 TRUNCATE TABLE topology cascade;
 TRUNCATE TABLE flow_constraints cascade;
