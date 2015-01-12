@@ -1,5 +1,13 @@
 /* Base tables */
-/* edges in both directions */
+
+DROP TABLE IF EXISTS smp CASCADE;
+CREATE UNLOGGED TABLE smp (
+       counts  	integer,
+       priority	integer,
+       setby 	text,
+       PRIMARY key (counts)
+);
+
 DROP TABLE IF EXISTS tp CASCADE;
 CREATE UNLOGGED TABLE tp (
        sid	integer,
@@ -31,6 +39,11 @@ CREATE UNLOGGED TABLE tm (
        PRIMARY KEY (fid)
 );
 
+-- CREATE OR REPLACE RULE tm_in AS
+--        ON INSERT TO tm
+--        WHERE NEW.fid > 10
+--        DO INSTEAD NOTHING ;
+
 CREATE OR REPLACE VIEW obs AS (
        SELECT DISTINCT fid, dst as nid
        FROM tm
@@ -51,17 +64,35 @@ CREATE OR REPLACE RULE acl_in AS
        DO INSTEAD
        	  INSERT INTO tm VALUES ((SELECT max (fid) FROM tm) + 1 , NEW.src, NEW.dst, 2);
 
-CREATE OR REPLACE RULE acl_in_3 AS
-       ON INSERT TO acl
-       WHERE NEW.src = 5 AND NEW.dst = 10
-       DO INSTEAD
-       DELETE from tm WHERE src = 5 AND dst = 10;
+-- CREATE OR REPLACE RULE acl_in_3 AS
+--        ON INSERT TO acl
+--        WHERE NEW.src = 5 AND NEW.dst = 10
+--        DO INSTEAD
+--        DELETE from tm WHERE src = 5 AND dst = 10;
 
-CREATE OR REPLACE RULE acl_in_4 AS
-       ON INSERT TO acl
-       WHERE NEW.src = 7 AND NEW.dst = 8
+-- CREATE OR REPLACE RULE acl_in_4 AS
+--        ON INSERT TO acl
+--        WHERE NEW.src = 7 AND NEW.dst = 8
+--        DO INSTEAD
+--        DELETE from tm WHERE src = 7 AND dst = 8;
+
+CREATE OR REPLACE RULE acl_del AS
+       ON DELETE TO acl
        DO INSTEAD
-       DELETE from tm WHERE src = 7 AND dst = 8;
+       	  DELETE from tm WHERE src = OLD.src AND dst = OLD.dst;
+
+CREATE OR REPLACE RULE acl_constaint AS
+       ON INSERT TO sm
+       WHERE NEW.priority = 2
+       DO ALSO
+           (DELETE FROM tm WHERE (src = 5 AND dst = 10);
+	    DELETE FROM tm WHERE (src = 7 AND dst = 8););
+
+CREATE RULE obs_constaint AS
+       ON INSERT TO sm
+       WHERE NEW.priority = 1
+       DO ALSO
+           NOTHING;
 
 -- CREATE OR REPLACE VIEW lb AS (
 --        SELECT DISTINCT fid, dst as nid
