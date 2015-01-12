@@ -1,5 +1,3 @@
-/* Base tables */
-
 DROP TABLE IF EXISTS smp CASCADE;
 CREATE UNLOGGED TABLE smp (
        counts  	integer,
@@ -7,14 +5,27 @@ CREATE UNLOGGED TABLE smp (
        setby 	text,
        PRIMARY key (counts)
 );
+INSERT into smp (counts) values (0) ;
+
+DROP TABLE IF EXISTS smp2 CASCADE;
+CREATE UNLOGGED TABLE smp2 (
+       counts  	integer,
+       priority	integer,
+       setby 	text,
+       PRIMARY key (counts)
+);
+INSERT into smp2 (counts) values (0) ;
+
+CREATE OR REPLACE RULE smp_tick AS
+       ON INSERT TO smp2
+       WHERE (NEW.setby = 'base' AND NEW.priority = 1)
+       DO INSTEAD
+           INSERT INTO smp values (NEW.counts, NEW.priority + 1, 'view');
 
 DROP TABLE IF EXISTS tp CASCADE;
 CREATE UNLOGGED TABLE tp (
        sid	integer,
        nid	integer,
-       -- available_bw integer DEFAULT 1000,
-       -- available_bw integer DEFAULT 1000 CHECK (available_bw>=0),
-       -- utilized_bw  integer DEFAULT    0 CHECK (utilized_bw>=0),
        PRIMARY KEY (sid, nid)
 );
 CREATE INDEX ON tp(sid);
@@ -28,14 +39,12 @@ CREATE UNLOGGED TABLE cf (
 );
 CREATE INDEX ON cf(fid,sid);
 
--- todo: rename flow_constraints to flows
 DROP TABLE IF EXISTS tm CASCADE;
 CREATE UNLOGGED TABLE tm (
        fid      integer,
        src	integer,
        dst	integer,
        vol	integer,
-       -- rate        integer  NOT NULL DEFAULT 1
        PRIMARY KEY (fid)
 );
 
@@ -52,7 +61,19 @@ CREATE OR REPLACE VIEW obs AS (
 CREATE OR REPLACE RULE obs_in AS 
        ON INSERT TO obs
        DO INSTEAD
-       INSERT INTO tm VALUES (NEW.fid,5,NEW.nid,1);
+       	  INSERT INTO tm VALUES (NEW.fid,5,NEW.nid,1);
+
+CREATE OR REPLACE RULE obs_del AS 
+       ON DELETE TO obs
+       DO INSTEAD
+          DELETE from tm WHERE fid = OLD.fid ;
+
+CREATE RULE obs_constaint AS
+       ON INSERT TO smp
+       WHERE NEW.priority = 1 AND NEW.setby = 'view'
+       DO INSTEAD
+           INSERT INTO smp values (NEW.counts, NEW.priority, 'base');
+
 
 CREATE OR REPLACE VIEW acl AS (
        SELECT DISTINCT src, dst
@@ -64,35 +85,20 @@ CREATE OR REPLACE RULE acl_in AS
        DO INSTEAD
        	  INSERT INTO tm VALUES ((SELECT max (fid) FROM tm) + 1 , NEW.src, NEW.dst, 2);
 
--- CREATE OR REPLACE RULE acl_in_3 AS
---        ON INSERT TO acl
---        WHERE NEW.src = 5 AND NEW.dst = 10
---        DO INSTEAD
---        DELETE from tm WHERE src = 5 AND dst = 10;
-
--- CREATE OR REPLACE RULE acl_in_4 AS
---        ON INSERT TO acl
---        WHERE NEW.src = 7 AND NEW.dst = 8
---        DO INSTEAD
---        DELETE from tm WHERE src = 7 AND dst = 8;
-
 CREATE OR REPLACE RULE acl_del AS
        ON DELETE TO acl
        DO INSTEAD
        	  DELETE from tm WHERE src = OLD.src AND dst = OLD.dst;
 
-CREATE OR REPLACE RULE acl_constaint AS
-       ON INSERT TO sm
-       WHERE NEW.priority = 2
-       DO ALSO
-           (DELETE FROM tm WHERE (src = 5 AND dst = 10);
-	    DELETE FROM tm WHERE (src = 7 AND dst = 8););
 
-CREATE RULE obs_constaint AS
-       ON INSERT TO sm
-       WHERE NEW.priority = 1
-       DO ALSO
-           NOTHING;
+CREATE OR REPLACE RULE acl_constaint AS
+       ON INSERT TO smp
+       WHERE NEW.priority = 2 AND NEW.setby = 'view'
+       DO INSTEAD
+           (DELETE FROM tm WHERE (src = 5 AND dst = 10);
+	    DELETE FROM tm WHERE (src = 7 AND dst = 8);
+            INSERT INTO smp2 values (NEW.counts, NEW.priority, 'base');
+	    );
 
 -- CREATE OR REPLACE VIEW lb AS (
 --        SELECT DISTINCT fid, dst as nid
@@ -127,3 +133,17 @@ $$ LANGUAGE plpythonu;
 -- print 'hello world\n'
 -- $$
 -- LANGUAGE 'plpythonu' VOLATILE SECURITY DEFINER;
+
+
+
+-- CREATE OR REPLACE RULE acl_in_3 AS
+--        ON INSERT TO acl
+--        WHERE NEW.src = 5 AND NEW.dst = 10
+--        DO INSTEAD
+--        DELETE from tm WHERE src = 5 AND dst = 10;
+
+-- CREATE OR REPLACE RULE acl_in_4 AS
+--        ON INSERT TO acl
+--        WHERE NEW.src = 7 AND NEW.dst = 8
+--        DO INSTEAD
+--        DELETE from tm WHERE src = 7 AND dst = 8;
