@@ -1,26 +1,40 @@
-DROP TABLE IF EXISTS smp CASCADE;
-CREATE UNLOGGED TABLE smp (
+DROP TABLE IF EXISTS p1 CASCADE;
+CREATE UNLOGGED TABLE p1 (
        counts  	integer,
-       priority	integer,
-       setby 	text,
+       -- priority	integer,
+       status 	text,
        PRIMARY key (counts)
 );
-INSERT into smp (counts) values (0) ;
+INSERT into p1 (counts) values (0) ;
 
-DROP TABLE IF EXISTS smp2 CASCADE;
-CREATE UNLOGGED TABLE smp2 (
+DROP TABLE IF EXISTS p2 CASCADE;
+CREATE UNLOGGED TABLE p2 (
        counts  	integer,
-       priority	integer,
-       setby 	text,
+       -- priority	integer,
+       status 	text,
        PRIMARY key (counts)
 );
-INSERT into smp2 (counts) values (0) ;
+INSERT into p2 (counts) values (0) ;
 
-CREATE OR REPLACE RULE smp_tick AS
-       ON INSERT TO smp2
-       WHERE (NEW.setby = 'base' AND NEW.priority = 1)
-       DO INSTEAD
-           INSERT INTO smp values (NEW.counts, NEW.priority + 1, 'view');
+DROP TABLE IF EXISTS p3 CASCADE;
+CREATE UNLOGGED TABLE p3 (
+       counts  	integer,
+       status 	text,
+       PRIMARY key (counts)
+);
+INSERT into p3 (counts) values (0) ;
+
+CREATE OR REPLACE RULE tick1 AS
+       ON UPDATE TO p1
+       WHERE (NEW.status = 'off')
+       DO ALSO
+           INSERT INTO p2 values (NEW.counts, 'on');
+
+CREATE OR REPLACE RULE tick2 AS
+       ON UPDATE TO p2
+       WHERE (NEW.status = 'off')
+       DO ALSO
+           INSERT INTO p3 values (NEW.counts, 'on');
 
 DROP TABLE IF EXISTS tp CASCADE;
 CREATE UNLOGGED TABLE tp (
@@ -48,10 +62,7 @@ CREATE UNLOGGED TABLE tm (
        PRIMARY KEY (fid)
 );
 
--- CREATE OR REPLACE RULE tm_in AS
---        ON INSERT TO tm
---        WHERE NEW.fid > 10
---        DO INSTEAD NOTHING ;
+-- obs application, view and rules
 
 CREATE OR REPLACE VIEW obs AS (
        SELECT DISTINCT fid, dst as nid
@@ -69,11 +80,12 @@ CREATE OR REPLACE RULE obs_del AS
           DELETE from tm WHERE fid = OLD.fid ;
 
 CREATE RULE obs_constaint AS
-       ON INSERT TO smp
-       WHERE NEW.priority = 1 AND NEW.setby = 'view'
-       DO INSTEAD
-           INSERT INTO smp values (NEW.counts, NEW.priority, 'base');
+       ON INSERT TO p1
+       WHERE NEW.status = 'on'
+       DO ALSO
+           UPDATE p1 SET status = 'off' WHERE counts = NEW.counts;
 
+-- acl, view and rules
 
 CREATE OR REPLACE VIEW acl AS (
        SELECT DISTINCT src, dst
@@ -92,14 +104,15 @@ CREATE OR REPLACE RULE acl_del AS
 
 
 CREATE OR REPLACE RULE acl_constaint AS
-       ON INSERT TO smp
-       WHERE NEW.priority = 2 AND NEW.setby = 'view'
-       DO INSTEAD
+       ON INSERT TO p2
+       WHERE NEW.status = 'on'
+       DO ALSO
            (DELETE FROM tm WHERE (src = 5 AND dst = 10);
 	    DELETE FROM tm WHERE (src = 7 AND dst = 8);
-            INSERT INTO smp2 values (NEW.counts, NEW.priority, 'base');
+            UPDATE p2 SET status = 'off' WHERE counts = NEW.counts;
 	    );
 
+-- load balancer, view and rules
 -- CREATE OR REPLACE VIEW lb AS (
 --        SELECT DISTINCT fid, dst as nid
 --        FROM tm
