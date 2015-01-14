@@ -118,6 +118,88 @@ CREATE OR REPLACE RULE acl_constaint AS
 --        FROM tm
 -- );
 
+DROP VIEW IF EXISTS spv CASCADE;
+CREATE OR REPLACE VIEW spv AS (
+       SELECT fid,
+       	      src,
+	      dst,
+	      (SELECT array(SELECT id1 FROM pgr_dijkstra('SELECT 1 as id,
+	      	      	     	       	             sid as source,
+						     nid as target,
+						     1.0::float8 as cost
+			                             FROM tp', src, dst,TRUE, FALSE))) as pv
+       FROM tm
+);
+
+DROP VIEW IF EXISTS spv2 CASCADE;
+CREATE OR REPLACE VIEW spv2 AS (
+       SELECT fid,
+       	      src,
+	      dst,
+	      (SELECT array(SELECT id1 FROM pgr_dijkstra('SELECT 1 as id,
+	      	      	     	       	             sid as source,
+						     nid as target,
+						     1.0::float8 as cost
+			                             FROM cf c
+						     WHERE fid = c.fid', src, dst,TRUE, FALSE))) as pv
+       FROM tm
+);
+
+DROP VIEW IF EXISTS spv_edge CASCADE;
+CREATE OR REPLACE VIEW spv_edge AS (
+       WITH num_list AS (
+       SELECT UNNEST (ARRAY[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]) AS num
+       )
+       SELECT DISTINCT fid, num, ARRAY[pv[num], pv[num+1]] as edge
+       FROM spv, num_list
+       WHERE pv != '{}' AND num < array_length (pv, 1) 
+       ORDER BY fid, num
+);
+
+DROP VIEW IF EXISTS spv_switch CASCADE;
+CREATE OR REPLACE VIEW spv_switch AS (
+       SELECT DISTINCT fid,
+       	      edge[1] as sid,
+	      edge[2] as nid
+       FROM spv_edge
+       ORDER BY fid
+);
+
+DROP VIEW IF EXISTS spv_delta CASCADE;
+CREATE OR REPLACE VIEW spv_delta AS (
+       (SELECT *, 'ins' as flag FROM 
+       (SELECT * FROM spv_switch
+	EXCEPT (SELECT * FROM cf)
+	ORDER BY fid) AS foo1)
+	UNION	
+       (SELECT *, 'del' as flag FROM 
+       (SELECT * FROM cf
+	EXCEPT (SELECT * FROM spv_switch)
+	ORDER BY fid) AS foo2)
+);
+
+DROP VIEW IF EXISTS spv_ins CASCADE;
+CREATE OR REPLACE VIEW spv_ins AS (
+       SELECT * FROM spv_switch
+       EXCEPT (SELECT * FROM cf)
+       ORDER BY fid
+);
+
+DROP VIEW IF EXISTS spv_del CASCADE;
+CREATE OR REPLACE VIEW spv_del AS (
+       SELECT * FROM cf
+       EXCEPT (SELECT * FROM spv_switch)
+       ORDER BY fid
+);
+
+CREATE OR REPLACE RULE spv_constaint AS
+       ON INSERT TO p3
+       WHERE NEW.status = 'on'
+       DO ALSO
+           (INSERT INTO cf (fid,sid,nid) (SELECT * FROM spv_ins);
+	    DELETE FROM cf WHERE (fid,sid,nid) IN (SELECT * FROM spv_del);
+            UPDATE p3 SET status = 'off' WHERE counts = NEW.counts;
+	    );
 
 TRUNCATE TABLE tp cascade;
 TRUNCATE TABLE cf cascade;
