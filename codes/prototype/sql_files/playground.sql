@@ -165,18 +165,18 @@ CREATE OR REPLACE VIEW spv_switch AS (
        ORDER BY fid
 );
 
-DROP VIEW IF EXISTS spv_delta CASCADE;
-CREATE OR REPLACE VIEW spv_delta AS (
-       (SELECT *, 'ins' as flag FROM 
-       (SELECT * FROM spv_switch
-	EXCEPT (SELECT * FROM cf)
-	ORDER BY fid) AS foo1)
-	UNION	
-       (SELECT *, 'del' as flag FROM 
-       (SELECT * FROM cf
-	EXCEPT (SELECT * FROM spv_switch)
-	ORDER BY fid) AS foo2)
-);
+-- DROP VIEW IF EXISTS spv_delta CASCADE;
+-- CREATE OR REPLACE VIEW spv_delta AS (
+--        (SELECT *, 'ins' as flag FROM 
+--        (SELECT * FROM spv_switch
+-- 	EXCEPT (SELECT * FROM cf)
+-- 	ORDER BY fid) AS foo1)
+-- 	UNION	
+--        (SELECT *, 'del' as flag FROM 
+--        (SELECT * FROM cf
+-- 	EXCEPT (SELECT * FROM spv_switch)
+-- 	ORDER BY fid) AS foo2)
+-- );
 
 DROP VIEW IF EXISTS spv_ins CASCADE;
 CREATE OR REPLACE VIEW spv_ins AS (
