@@ -1,3 +1,18 @@
+DROP TABLE IF EXISTS clock CASCADE;
+CREATE UNLOGGED TABLE clock (
+       counts  	integer,
+       PRIMARY key (counts)
+);
+INSERT into clock (counts) values (0) ; -- initialize clock
+
+-- CREATE OR REPLACE RULE clock_ins (
+--        ON INSERT TO clock
+--        DO ALSO
+--        	  INSERT INTO p1 VALUES (NEW.counts, on'clock');
+--        	  INSERT INTO p2 VALUES (NEW.counts, 'clock');
+--        	  INSERT INTO p3 VALUES (NEW.counts, 'clock');
+-- );
+
 DROP TABLE IF EXISTS p1 CASCADE;
 CREATE UNLOGGED TABLE p1 (
        counts  	integer,
@@ -36,6 +51,12 @@ CREATE OR REPLACE RULE tick2 AS
        DO ALSO
            INSERT INTO p3 values (NEW.counts, 'on');
 
+CREATE OR REPLACE RULE tick3 AS
+       ON UPDATE TO p3
+       WHERE (NEW.status = 'off')
+       DO ALSO
+           INSERT INTO clock values (NEW.counts);
+
 DROP TABLE IF EXISTS tp CASCADE;
 CREATE UNLOGGED TABLE tp (
        sid	integer,
@@ -62,7 +83,9 @@ CREATE UNLOGGED TABLE tm (
        PRIMARY KEY (fid)
 );
 
--- obs application, view and rules
+----------------------------------------------------------------------
+-- obs application
+----------------------------------------------------------------------
 
 CREATE OR REPLACE VIEW obs AS (
        SELECT DISTINCT fid, dst as nid
@@ -85,7 +108,9 @@ CREATE RULE obs_constaint AS
        DO ALSO
            UPDATE p1 SET status = 'off' WHERE counts = NEW.counts;
 
+----------------------------------------------------------------------
 -- acl, view and rules
+----------------------------------------------------------------------
 
 CREATE OR REPLACE VIEW acl AS (
        SELECT DISTINCT src, dst
@@ -96,7 +121,7 @@ CREATE OR REPLACE RULE acl_in AS
        ON INSERT TO acl
        DO INSTEAD
        	  INSERT INTO tm VALUES ((SELECT max (fid) FROM tm) + 1 , NEW.src, NEW.dst, 2);
-
+	  	 
 CREATE OR REPLACE RULE acl_del AS
        ON DELETE TO acl
        DO INSTEAD
@@ -117,6 +142,9 @@ CREATE OR REPLACE RULE acl_constaint AS
 --        SELECT DISTINCT fid, dst as nid
 --        FROM tm
 -- );
+----------------------------------------------------------------------
+-- routing application
+----------------------------------------------------------------------
 
 DROP VIEW IF EXISTS spv CASCADE;
 CREATE OR REPLACE VIEW spv AS (
@@ -201,6 +229,10 @@ CREATE OR REPLACE RULE spv_constaint AS
             UPDATE p3 SET status = 'off' WHERE counts = NEW.counts;
 	    );
 
+----------------------------------------------------------------------
+-- load toy data
+----------------------------------------------------------------------
+
 TRUNCATE TABLE tp cascade;
 TRUNCATE TABLE cf cascade;
 TRUNCATE TABLE tm cascade;
@@ -213,13 +245,13 @@ INSERT INTO tm(fid,src,dst,vol) VALUES (1,5,8,5);
 INSERT INTO tm(fid,src,dst,vol) VALUES (2,7,10,9);
 INSERT INTO tm(fid,src,dst,vol) VALUES (3,6,10,2);
 
-CREATE OR REPLACE FUNCTION pystrip(x text)
-  RETURNS text
-AS $$
-  global x
-  x = x.strip()  # ok now
-  return x
-$$ LANGUAGE plpythonu;
+-- CREATE OR REPLACE FUNCTION pystrip(x text)
+--   RETURNS text
+-- AS $$
+--   global x
+--   x = x.strip()  # ok now
+--   return x
+-- $$ LANGUAGE plpythonu;
 
 -- CREATE OR REPLACE FUNCTION list_incoming_files() RETURNS SETOF text AS
 -- $$
@@ -228,8 +260,6 @@ $$ LANGUAGE plpythonu;
 -- print 'hello world\n'
 -- $$
 -- LANGUAGE 'plpythonu' VOLATILE SECURITY DEFINER;
-
-
 
 -- CREATE OR REPLACE RULE acl_in_3 AS
 --        ON INSERT TO acl
