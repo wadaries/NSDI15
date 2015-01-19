@@ -88,7 +88,7 @@ CREATE UNLOGGED TABLE tm (
 ----------------------------------------------------------------------
 
 CREATE OR REPLACE VIEW obs AS (
-       SELECT  fid, dst as nid
+       SELECT  fid, dst as nid, vol as rate
        FROM tm
        WHERE src < 20
 );
@@ -108,6 +108,80 @@ CREATE RULE obs_constaint AS
        WHERE NEW.status = 'on'
        DO ALSO
            UPDATE p1 SET status = 'off' WHERE counts = NEW.counts;
+
+----------------------------------------------------------------------
+-- recursive views on top of obs	   
+----------------------------------------------------------------------
+
+DROP TABLE IF EXISTS o1 CASCADE;
+CREATE UNLOGGED TABLE o1 (
+       counts  	integer,
+       status 	text,
+       PRIMARY key (counts)
+);
+INSERT into o1 (counts) values (0) ;
+
+DROP TABLE IF EXISTS o2 CASCADE;
+CREATE UNLOGGED TABLE o2 (
+       counts  	integer,
+       status 	text,
+       PRIMARY key (counts)
+);
+INSERT into o2 (counts) values (0) ;
+
+CREATE OR REPLACE RULE otick1 AS
+       ON UPDATE TO o1
+       WHERE (NEW.status = 'off')
+       DO ALSO
+           INSERT INTO o2 values (NEW.counts, 'on');
+
+CREATE OR REPLACE RULE otick2 AS
+       ON UPDATE TO o2
+       WHERE (NEW.status = 'off')
+       DO ALSO
+           INSERT INTO p1 values (NEW.counts, 'on');
+
+CREATE OR REPLACE VIEW obs_acl AS (
+       SELECT DISTINCT nid as dst
+       FROM obs
+);
+
+CREATE OR REPLACE RULE obs_acl_del AS
+       ON DELETE TO obs_acl
+       DO INSTEAD
+	  DELETE from obs WHERE nid = OLD.dst;
+
+CREATE OR REPLACE RULE obs_acl_constraint AS
+       ON INSERT TO o1
+       WHERE NEW.status = 'on'
+       DO ALSO
+       	  (DELETE FROM obs_acl WHERE (dst = 30 OR dst = 50 OR dst = 100) ;
+	   UPDATE o1 SET status = 'off' WHERE counts = NEW.counts;
+	  );
+
+CREATE OR REPLACE VIEW obs_lb AS (
+       SELECT nid, sum (rate) as sum_rate
+       FROM obs
+       GROUP BY nid
+);
+
+CREATE OR REPLACE RULE obs_lb_del AS
+       ON DELETE TO obs_lb
+       DO INSTEAD
+	  DELETE from obs WHERE fid IN
+	  	 (SELECT fid FROM obs
+		  WHERE nid = OLD.nid
+		  ORDER BY rate	  
+		  LIMIT 1
+		 );
+
+CREATE OR REPLACE RULE obs_constaint AS
+       ON INSERT TO o2
+       WHERE NEW.status = 'on'
+       DO ALSO
+       	  (DELETE from obs_lb WHERE sum_rate >= 10;
+	   UPDATE o2 SET status = 'off' WHERE counts = NEW.counts;
+	  );
 
 ----------------------------------------------------------------------
 -- acl, view and rules
@@ -245,6 +319,7 @@ INSERT INTO tp(sid, nid) VALUES (3,8), (8,3), (3,9), (9,3), (4,9), (9,4), (4,10)
 INSERT INTO tm(fid,src,dst,vol) VALUES (1,5,8,5);
 INSERT INTO tm(fid,src,dst,vol) VALUES (2,7,10,9);
 INSERT INTO tm(fid,src,dst,vol) VALUES (3,6,10,2);
+
 INSERT INTO tm VALUES (4,23, 33, 1);
 INSERT INTO tm VALUES (5,100, 50, 1);
 
