@@ -152,11 +152,11 @@ CREATE OR REPLACE RULE obs_acl_del AS
 	  DELETE from obs WHERE nid = OLD.dst;
 
 CREATE OR REPLACE RULE obs_acl_constraint AS
-       ON INSERT TO o1
+       ON INSERT TO o2
        WHERE NEW.status = 'on'
        DO ALSO
        	  (DELETE FROM obs_acl WHERE (dst = 30 OR dst = 50 OR dst = 100) ;
-	   UPDATE o1 SET status = 'off' WHERE counts = NEW.counts;
+	   UPDATE o2 SET status = 'off' WHERE counts = NEW.counts;
 	  );
 
 CREATE OR REPLACE VIEW obs_lb AS (
@@ -175,12 +175,12 @@ CREATE OR REPLACE RULE obs_lb_del AS
 		  LIMIT 1
 		 );
 
-CREATE OR REPLACE RULE obs_constaint AS
-       ON INSERT TO o2
+CREATE OR REPLACE RULE obs_lb_constaint AS
+       ON INSERT TO o1
        WHERE NEW.status = 'on'
        DO ALSO
        	  (DELETE from obs_lb WHERE sum_rate >= 10;
-	   UPDATE o2 SET status = 'off' WHERE counts = NEW.counts;
+	   UPDATE o1 SET status = 'off' WHERE counts = NEW.counts;
 	  );
 
 ----------------------------------------------------------------------
@@ -320,10 +320,10 @@ INSERT INTO tm(fid,src,dst,vol) VALUES (1,5,8,5);
 INSERT INTO tm(fid,src,dst,vol) VALUES (2,7,10,9);
 INSERT INTO tm(fid,src,dst,vol) VALUES (3,6,10,2);
 
-INSERT INTO tm VALUES (4,23, 33, 1);
-INSERT INTO tm VALUES (5,100, 50, 1);
+-- INSERT INTO tm VALUES (4,23, 33, 1);
+-- INSERT INTO tm VALUES (5,100, 50, 1);
 
-INSERT INTO p1 VALUES (1,'on');
+-- INSERT INTO p1 VALUES (1,'on');
 
 -- CREATE OR REPLACE FUNCTION pystrip(x text)
 --   RETURNS text
