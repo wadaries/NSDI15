@@ -32,7 +32,8 @@ def create_db (dbname):
 
         cur.execute ("SELECT datname FROM pg_database WHERE datistemplate = false;")
         c = cur.fetchall ()
-        if dbname not in c:
+        dblist = [c[i][0] for i in range (len (c))]
+        if dbname not in dblist:
             try:
                 cur.execute ("CREATE DATABASE " + dbname + ";")
                 print "Create database " + dbname
@@ -40,6 +41,8 @@ def create_db (dbname):
             except psycopg2.DatabaseError, e:
                 print "Unable to create database " + dbname
                 print 'Warning %s' % e
+        else:
+            print "database " + dbname + " exists, skip"
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database postgres, as user postgres"

@@ -67,3 +67,18 @@ def path_to_edge (path):
     return edges
 
 
+def clean_db (dbname):
+    try:
+        conn = psycopg2.connect(database= "postgres", user= "postgres")
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        cur = conn.cursor()
+
+        cur.execute ("drop database " + dbname)
+        print 'Successfully drop database ' + dbname + '\n'
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to connect to database " + dbname 
+        print 'Error %s' % e    
+
+    finally:
+        if conn: conn.close()

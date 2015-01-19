@@ -64,7 +64,6 @@ def initialize_playground (sql_script, username, dbname):
     finally:
         if conn: conn.close()
 
-
 def add_pl_extension (dbname):
     try:
         conn = psycopg2.connect(database= dbname, user= "postgres")
@@ -84,24 +83,6 @@ def add_pl_extension (dbname):
     finally:
         if conn: conn.close()
 
-
-def clean_db (dbname):
-    try:
-        conn = psycopg2.connect(database= "postgres", user= "postgres")
-        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
-        cur = conn.cursor()
-
-        cur.execute ("drop database " + dbname)
-        print 'Successfully drop database ' + dbname + '\n'
-
-    except psycopg2.DatabaseError, e:
-        print "Unable to connect to database " + dbname 
-        print 'Error %s' % e    
-
-    finally:
-        if conn: conn.close()
-
-
 if __name__ == '__main__':
 
     sql_script = os.getcwd() + '/sql_files/' + "playground.sql"
@@ -112,7 +93,7 @@ if __name__ == '__main__':
 
     # this function provided by libRouteviewReplay
     create_db (dbname)
-    add_pl_extension (dbname)
+    # add_pl_extension (dbname)
 
     initialize_playground (sql_script, username, dbname)
 

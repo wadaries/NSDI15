@@ -88,8 +88,9 @@ CREATE UNLOGGED TABLE tm (
 ----------------------------------------------------------------------
 
 CREATE OR REPLACE VIEW obs AS (
-       SELECT DISTINCT fid, dst as nid
+       SELECT  fid, dst as nid
        FROM tm
+       WHERE src < 20
 );
 
 CREATE OR REPLACE RULE obs_in AS 
@@ -244,6 +245,10 @@ INSERT INTO tp(sid, nid) VALUES (3,8), (8,3), (3,9), (9,3), (4,9), (9,4), (4,10)
 INSERT INTO tm(fid,src,dst,vol) VALUES (1,5,8,5);
 INSERT INTO tm(fid,src,dst,vol) VALUES (2,7,10,9);
 INSERT INTO tm(fid,src,dst,vol) VALUES (3,6,10,2);
+INSERT INTO tm VALUES (4,23, 33, 1);
+INSERT INTO tm VALUES (5,100, 50, 1);
+
+INSERT INTO p1 VALUES (1,'on');
 
 -- CREATE OR REPLACE FUNCTION pystrip(x text)
 --   RETURNS text
