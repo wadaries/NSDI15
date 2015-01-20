@@ -1018,3 +1018,11 @@ def analyze (username, dbname, log):
     # g ('set style line 2 lt rgb "#00A000" lw 2 pt 6')
     # g ('set style line 3 lt rgb "#5060D0" lw 2 pt 2')
     # g ('set style line 4 lt rgb "#F25900" lw 2 pt 9')
+
+def gen_cdf_x (y_list):
+    x = []
+    xlen = len (y_list)
+    for i in range (xlen):
+        xt = float(i+1)/ xlen
+        x.append (xt)
+    return x

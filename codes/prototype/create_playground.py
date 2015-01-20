@@ -24,9 +24,18 @@ def init_topology (cursor, ISP_edges_file):
     for edge in f:
         ed = edge[:-1].split()
         try:
-            cursor.execute("""INSERT INTO tp(sid, nid) VALUES (%s, %s)""", (int(ed[0]), int(ed[1])))
+            cursor.execute("""INSERT INTO tp(sid, nid) VALUES (%s, %s);""", (int(ed[0]), int(ed[1])))
         except psycopg2.DatabaseError, e:
             print "Unable to insert into topology table: %s" % str(e)
+
+    try:
+        cursor.execute ("""
+        INSERT INTO tm VALUES (4,23, 33, 1);
+        INSERT INTO tm VALUES (5,100, 50, 1);
+        INSERT INTO p1 VALUES (1,'on');
+        """)
+    except psycopg2.DatabaseError, e:
+        print "Unable to add post-mortem tuples: %s" % str(e)
 
     print "Initialize topology table with edges in " + ISP_edges_file + "\n"
 

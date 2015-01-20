@@ -25,14 +25,6 @@ set xtics nomirror
 set ytics nomirror'''
 # '''set output "''' + outputfile + '''"
 
-def gen_cdf_x (y_list):
-    x = []
-    xlen = len (y_list)
-    for i in range (xlen):
-        xt = float(i+1)/ xlen
-        x.append (xt)
-    return x
-
 def db_aslist ():
     username = "anduo"
     dbname = 'postgres'

@@ -320,11 +320,6 @@ INSERT INTO tm(fid,src,dst,vol) VALUES (1,5,8,5);
 INSERT INTO tm(fid,src,dst,vol) VALUES (2,7,10,9);
 INSERT INTO tm(fid,src,dst,vol) VALUES (3,6,10,2);
 
--- INSERT INTO tm VALUES (4,23, 33, 1);
--- INSERT INTO tm VALUES (5,100, 50, 1);
-
--- INSERT INTO p1 VALUES (1,'on');
-
 -- CREATE OR REPLACE FUNCTION pystrip(x text)
 --   RETURNS text
 -- AS $$
