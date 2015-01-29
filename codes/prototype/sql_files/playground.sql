@@ -175,14 +175,6 @@ CREATE OR REPLACE RULE obs_lb_del AS
 		  LIMIT 1
 		 );
 
-CREATE OR REPLACE RULE obs_lb_constaint AS
-       ON INSERT TO o1
-       WHERE NEW.status = 'on'
-       DO ALSO
-       	  (DELETE from obs_lb WHERE sum_rate >= 10;
-	   UPDATE o1 SET status = 'off' WHERE counts = NEW.counts;
-	  );
-
 ----------------------------------------------------------------------
 -- acl, view and rules
 ----------------------------------------------------------------------
@@ -210,6 +202,13 @@ CREATE OR REPLACE RULE acl_constaint AS
            (DELETE FROM tm WHERE (src = 5 AND dst = 10);
 	    DELETE FROM tm WHERE (src = 7 AND dst = 8);
             UPDATE p2 SET status = 'off' WHERE counts = NEW.counts;
+	    );
+
+CREATE OR REPLACE RULE acl_constaint2 AS
+       ON INSERT TO acl
+       DO ALSO
+           (DELETE FROM acl WHERE (src = 5 AND dst = 10);
+	    DELETE FROM acl WHERE (src = 7 AND dst = 8);
 	    );
 
 -- load balancer, view and rules
