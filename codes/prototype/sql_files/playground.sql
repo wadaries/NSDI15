@@ -319,22 +319,6 @@ INSERT INTO tm(fid,src,dst,vol) VALUES (1,5,8,5);
 INSERT INTO tm(fid,src,dst,vol) VALUES (2,7,10,9);
 INSERT INTO tm(fid,src,dst,vol) VALUES (3,6,10,2);
 
--- CREATE OR REPLACE FUNCTION pystrip(x text)
---   RETURNS text
--- AS $$
---   global x
---   x = x.strip()  # ok now
---   return x
--- $$ LANGUAGE plpythonu;
-
--- CREATE OR REPLACE FUNCTION list_incoming_files() RETURNS SETOF text AS
--- $$
--- import os
--- -- return os.listdir('/Users/anduo/Documents')
--- print 'hello world\n'
--- $$
--- LANGUAGE 'plpythonu' VOLATILE SECURITY DEFINER;
-
 -- CREATE OR REPLACE RULE acl_in_3 AS
 --        ON INSERT TO acl
 --        WHERE NEW.src = 5 AND NEW.dst = 10
@@ -346,3 +330,128 @@ INSERT INTO tm(fid,src,dst,vol) VALUES (3,6,10,2);
 --        WHERE NEW.src = 7 AND NEW.dst = 8
 --        DO INSTEAD
 --        DELETE from tm WHERE src = 7 AND dst = 8;
+
+-- CREATE EXTENSION plpythonu;
+-- update pg_language SET lanpltrusted = true WHERE lanname = 'plpythonu';
+
+CREATE OR REPLACE FUNCTION notify_trigger()
+     RETURNS TRIGGER AS $$
+   BEGIN
+       RAISE NOTICE 'Hi, I got % invoked FOR % % % on %',
+                                  TG_NAME,
+                                  TG_LEVEL,
+                                  TG_WHEN,
+                                  TG_OP,
+                                  TG_TABLE_NAME;
+       RETURN NEW;					
+   END;
+   $$ LANGUAGE plpgsql;
+
+CREATE OR REPLACE FUNCTION dummy() 
+  RETURNS TRIGGER
+AS $$
+import os
+import sys
+sys.path.append('/usr/local/lib/python2.7/site-packages/')
+import pxssh
+mn = 'mininet-vm'
+mnu = 'mininet'
+mnp = 'mininet'
+s = pxssh.pxssh()
+s.login (mn, mnu, mnp)
+s.sendline ('sudo ovs-ofctl add-flow s1 in_port=1,actions=output:2')
+s.sendline ('sudo ovs-ofctl add-flow s1 in_port=2,actions=output:1')
+s.logout ()
+return None;
+$$ LANGUAGE plpythonu;
+
+
+CREATE OR REPLACE FUNCTION delflow_trigger() 
+  RETURNS TRIGGER
+AS $$
+import os
+import sys
+sys.path.append('/usr/local/lib/python2.7/site-packages/')
+import pxssh
+mn = 'mininet-vm'
+mnu = 'mininet'
+mnp = 'mininet'
+s = pxssh.pxssh()
+s.login (mn, mnu, mnp)
+s.sendline ('sudo ovs-ofctl del-flows s1')
+s.logout ()
+return None;
+$$ LANGUAGE plpythonu;
+
+
+CREATE TRIGGER notify_insert_trigger
+     AFTER INSERT ON cf
+     FOR EACH ROW
+   EXECUTE PROCEDURE notify_trigger();
+
+CREATE TRIGGER trig1
+  AFTER INSERT ON cf
+  FOR EACH ROW
+  EXECUTE PROCEDURE dummy();
+
+CREATE TRIGGER trig3
+  AFTER DELETE ON cf
+  FOR EACH ROW
+  EXECUTE PROCEDURE delflow_trigger();
+
+CREATE OR REPLACE FUNCTION addflow_trigger(inport integer, outport integer) RETURNS TRIGGER AS
+$$
+import os
+import sys
+sys.path.append('/usr/local/lib/python2.7/site-packages/')
+import pxssh
+mn = 'mininet-vm'
+mnu = 'mininet'
+mnp = 'mininet'
+s = pxssh.pxssh()
+s.login (mn, mnu, mnp)
+s.sendline ('sudo ovs-ofctl add-flow s1 in_port=' + str(inport) +',actions=output:'+ str(outport))
+s.sendline ('sudo ovs-ofctl add-flow s1 in_port=2,actions=output:1')
+s.logout ()
+return None;
+$$
+LANGUAGE 'plpythonu' VOLATILE SECURITY DEFINER;
+
+
+CREATE OR REPLACE FUNCTION addflow(inport integer, outport integer) RETURNS integer AS
+$$
+import os
+import sys
+sys.path.append('/usr/local/lib/python2.7/site-packages/')
+import pxssh
+mn = 'mininet-vm'
+mnu = 'mininet'
+mnp = 'mininet'
+s = pxssh.pxssh()
+s.login (mn, mnu, mnp)
+s.sendline ('sudo ovs-ofctl add-flow s1 in_port=' + str(inport) +',actions=output:'+ str(outport))
+s.sendline ('sudo ovs-ofctl add-flow s1 in_port=2,actions=output:1')
+s.logout ()
+return inport;
+$$
+LANGUAGE 'plpythonu' VOLATILE SECURITY DEFINER;
+
+
+CREATE OR REPLACE FUNCTION delflow(sid integer) RETURNS integer AS
+$$
+import os
+import sys
+sys.path.append('/usr/local/lib/python2.7/site-packages/')
+import pxssh
+mn = 'mininet-vm'
+mnu = 'mininet'
+mnp = 'mininet'
+s = pxssh.pxssh()
+s.login (mn, mnu, mnp)
+s.sendline ('sudo ovs-ofctl del-flows s' + str(sid))
+s.logout ()
+return sid
+$$
+LANGUAGE 'plpythonu' VOLATILE SECURITY DEFINER;
+
+

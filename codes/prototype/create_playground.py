@@ -55,16 +55,11 @@ def initialize_playground (sql_script, username, dbname):
         cur.execute(dbscript)
 
         # initialize topology
-        asl = sort_as ()
-        as_n = int (raw_input ('Input the x-th largest AS: '))
-        as_picked = asl[int(as_n)][0]
-        ISP_edges = os.getcwd() + '/ISP_topo/' + str(as_picked) + "_edges.txt"
-        init_topology (cur, ISP_edges)
-
-        # the following three functions provided by libRouteviewReplay
-        # add_reachability_perflow_fun (cur)
-        # add_reachability_table (cur, 1000)
-        # add_configuration_view (cur)
+        # asl = sort_as ()
+        # as_n = int (raw_input ('Input the x-th largest AS: '))
+        # as_picked = asl[int(as_n)][0]
+        # ISP_edges = os.getcwd() + '/ISP_topo/' + str(as_picked) + "_edges.txt"
+        # init_topology (cur, ISP_edges)
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
@@ -81,12 +76,14 @@ def add_pl_extension (dbname):
 
         # add plpython extension by superuser
         cur.execute ("CREATE EXTENSION plpythonu;")
+        print "CREATE EXTENSION plpythonu; OK"
 
         # add permission for everyone
         cur.execute ("update pg_language SET lanpltrusted = true WHERE lanname = 'plpythonu';")
+        print "update pg_language SET lanpltrusted = true WHERE lanname = 'plpythonu'; OK"
 
     except psycopg2.DatabaseError, e:
-        print "Unable to connect to database " + dbname 
+        print "Unable to add_pl_extension to database " + dbname 
         print 'Error %s' % e    
 
     finally:
@@ -103,6 +100,8 @@ if __name__ == '__main__':
     # this function provided by libRouteviewReplay
     create_db (dbname)
     # add_pl_extension (dbname)
+
+    add_pl_extension (dbname)
 
     initialize_playground (sql_script, username, dbname)
 
