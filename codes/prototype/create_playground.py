@@ -5,6 +5,88 @@ execfile ("libAnalyzeSynthesize.py")
 import libRouteviewReplay
 import libAnalyzeSynthesize
 import subprocess
+import datetime
+
+def create_mininet_topo (dbname):
+    try:
+        conn = psycopg2.connect(database= dbname, user= "postgres")
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        cur = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
+
+        cur.execute ("SELECT * FROM switches;")
+        cs = cur.fetchall ()
+        switches = [s['sid'] for s in cs]
+        print switches
+
+        cur.execute ("SELECT * FROM hosts;")
+        cs = cur.fetchall ()
+        hosts = [h['hid'] for h in cs]
+        print hosts
+
+        cur.execute ("SELECT * FROM tp;")
+        cs = cur.fetchall ()
+        links = [[l['sid'],l['nid']] for l in cs]
+        print links
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to add_pl_extension to database " + dbname 
+        print 'Error %s' % e    
+    finally:
+        if conn: conn.close()
+
+    def nid_name (nid, s, h):
+        if nid in s:
+            outid = 's' + str (nid)
+        if nid in h:
+            outid = 'h' + str (nid)
+        return outid
+
+    filename = os.getcwd () + '/mininet/dtp.py'
+    fo = open(filename, "w")
+    fo.write ('"""' + str (datetime.datetime.now ()))
+    fo.write ('\n$ sudo mn --custom ~/sdndb/dtp.py --topo mytopo --test pingall')
+    fo.write ('\n$ sudo mn --custom ~/sdndb/dtp.py --topo mytopo --mac --switch ovsk --controller remote')
+    fo.write ('"""')
+
+    fo.write ('\n')
+    fo.write ("""
+from mininet.topo import Topo
+
+class MyTopo( Topo ):
+    "Simple topology example."
+
+    def __init__( self ):
+        "Create custom topo."
+
+        # Initialize topology
+        Topo.__init__( self )
+    """)
+
+    for hid in hosts:
+        h = 'h' + str (hid)
+        fo.write ("""
+        """ + h + """ = self.addHost('""" + h + """')""")
+    fo.write ('\n')
+
+    for sid in switches:
+        s = 's' + str (sid)
+        fo.write ("""
+        """ + s + """ = self.addSwitch('""" + s + """')""")
+    fo.write ('\n')
+
+        
+    for [nid1, nid2] in links:
+        nname1 = nid_name (nid1, switches, hosts)
+        nname2 = nid_name (nid2, switches, hosts)
+        fo.write ("""
+        self.addLink(""" + nname1 + "," + nname2+ """)""")
+
+    fo.write ("""\n
+topos = { 'mytopo': ( lambda: MyTopo() ) }
+    """)
+    fo.write ('\n')
+    fo.close ()
+    os.system ("scp " + filename + " mininet@mininet-vm:~/sdndb")
 
 def sort_as ():
     asfile = open (os.getcwd() + '/ISP_topo/' + "stat", "r")
@@ -64,6 +146,30 @@ def load_data (dbname, username):
     finally:
         if conn: conn.close()
 
+def load_data2 (dbname, username):
+    try:
+        conn = psycopg2.connect(database= dbname, user= username)
+        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+        cur = conn.cursor()
+        print "Connect to database " + dbname + ", as user " + username
+
+        cur.execute ("""
+        TRUNCATE TABLE tp cascade;
+        TRUNCATE TABLE cf cascade;
+        TRUNCATE TABLE tm cascade;
+        INSERT INTO switches(sid) VALUES (4),(5),(6);
+        INSERT INTO hosts(hid) VALUES (1),(2),(3);
+        INSERT INTO tp(sid, nid) VALUES (1,4), (2,5), (3,6);
+        INSERT INTO tp(sid, nid) VALUES (4,5), (5,6), (6,4);
+        INSERT INTO tm(fid,src,dst,vol) VALUES (1,1,2,1), (2,1,3,2);""")
+
+    except psycopg2.DatabaseError, e:
+        print "Unable to connect to database " + dbname + ", as user " + username
+        print 'Error %s' % e    
+
+    finally:
+        if conn: conn.close()
+
 def create_init_db_schema (dbname, username):
 
     def init_schema (sql_script, username, dbname):
@@ -108,19 +214,19 @@ def create_init_db_schema (dbname, username):
     sql_script = os.getcwd() + '/sql_files/' + "playground.sql"
     init_schema (sql_script, username, dbname)
 
-# if __name__ == '__main__':
+if __name__ == '__main__':
 
-#     dbname = raw_input ('Input database name: ')
-#     username = 'anduo'
+    dbname = raw_input ('Input database name: ')
+    username = 'anduo'
 
-#     create_init_db_schema (dbname, username)
+    create_init_db_schema (dbname, username)
 
-#     load_data (dbname, username)
+    load_data2 (dbname, username)
 
-#     create_mininet_topo (dbname)
+    create_mininet_topo (dbname)
 
-#     del_flag = raw_input ('Clean the added database (y/n): ')
-#     if del_flag == 'y':
-#         clean_db (dbname)
+    del_flag = raw_input ('Clean the added database (y/n): ')
+    if del_flag == 'y':
+        clean_db (dbname)
 
 
