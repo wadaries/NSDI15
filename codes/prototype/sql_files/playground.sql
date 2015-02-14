@@ -3,15 +3,7 @@ CREATE UNLOGGED TABLE clock (
        counts  	integer,
        PRIMARY key (counts)
 );
-INSERT into clock (counts) values (0) ; -- initialize clock
-
--- CREATE OR REPLACE RULE clock_ins (
---        ON INSERT TO clock
---        DO ALSO
---        	  INSERT INTO p1 VALUES (NEW.counts, on'clock');
---        	  INSERT INTO p2 VALUES (NEW.counts, 'clock');
---        	  INSERT INTO p3 VALUES (NEW.counts, 'clock');
--- );
+-- INSERT into clock (counts) values (0) ; -- initialize clock
 
 DROP TABLE IF EXISTS p1 CASCADE;
 CREATE UNLOGGED TABLE p1 (
@@ -20,7 +12,7 @@ CREATE UNLOGGED TABLE p1 (
        status 	text,
        PRIMARY key (counts)
 );
-INSERT into p1 (counts) values (0) ;
+-- INSERT into p1 (counts) values (0) ;
 
 DROP TABLE IF EXISTS p2 CASCADE;
 CREATE UNLOGGED TABLE p2 (
@@ -29,7 +21,7 @@ CREATE UNLOGGED TABLE p2 (
        status 	text,
        PRIMARY key (counts)
 );
-INSERT into p2 (counts) values (0) ;
+-- INSERT into p2 (counts) values (0) ;
 
 DROP TABLE IF EXISTS p3 CASCADE;
 CREATE UNLOGGED TABLE p3 (
@@ -37,7 +29,16 @@ CREATE UNLOGGED TABLE p3 (
        status 	text,
        PRIMARY key (counts)
 );
-INSERT into p3 (counts) values (0) ;
+-- INSERT into p3 (counts) values (0) ;
+
+-- CREATE OR REPLACE RULE clock_ins AS 
+--        ON INSERT TO clock
+--        WHERE NEW.counts = 0
+--        DO ALSO
+--        (
+--        	  INSERT INTO p1 VALUES (NEW.counts, 'clock');
+--        	  INSERT INTO p2 VALUES (NEW.counts, 'clock');
+--        	  INSERT INTO p3 VALUES (NEW.counts, 'clock'););
 
 CREATE OR REPLACE RULE tick1 AS
        ON UPDATE TO p1
@@ -64,6 +65,16 @@ CREATE UNLOGGED TABLE tp (
        PRIMARY KEY (sid, nid)
 );
 CREATE INDEX ON tp(sid);
+
+DROP TABLE IF EXISTS switches CASCADE;
+CREATE UNLOGGED TABLE switches (
+       sid	integer
+);
+
+DROP TABLE IF EXISTS hosts CASCADE;
+CREATE UNLOGGED TABLE hosts (
+       hid	integer
+);
 
 DROP TABLE IF EXISTS cf CASCADE;
 CREATE UNLOGGED TABLE cf (
@@ -119,7 +130,7 @@ CREATE UNLOGGED TABLE o1 (
        status 	text,
        PRIMARY key (counts)
 );
-INSERT into o1 (counts) values (0) ;
+-- INSERT into o1 (counts) values (0) ;
 
 DROP TABLE IF EXISTS o2 CASCADE;
 CREATE UNLOGGED TABLE o2 (
@@ -127,7 +138,7 @@ CREATE UNLOGGED TABLE o2 (
        status 	text,
        PRIMARY key (counts)
 );
-INSERT into o2 (counts) values (0) ;
+-- INSERT into o2 (counts) values (0) ;
 
 CREATE OR REPLACE RULE otick1 AS
        ON UPDATE TO o1
@@ -307,32 +318,24 @@ CREATE OR REPLACE RULE spv_constaint AS
 -- load toy data
 ----------------------------------------------------------------------
 
-TRUNCATE TABLE tp cascade;
-TRUNCATE TABLE cf cascade;
-TRUNCATE TABLE tm cascade;
+-- TRUNCATE TABLE tp cascade;
+-- TRUNCATE TABLE cf cascade;
+-- TRUNCATE TABLE tm cascade;
 
-INSERT INTO tp(sid, nid) VALUES (1,2), (2,1), (1,3), (3,1), (2,4), (4,2), (3,4), (4,3);
-INSERT INTO tp(sid, nid) VALUES (1,5), (5,1), (1,6), (6,1), (2,6), (6,2), (7,2), (2,7);
-INSERT INTO tp(sid, nid) VALUES (3,8), (8,3), (3,9), (9,3), (4,9), (9,4), (4,10), (10,4);
+-- INSERT INTO tp(sid, nid) VALUES (1,2), (2,1), (1,3), (3,1), (2,4), (4,2), (3,4), (4,3);
+-- INSERT INTO tp(sid, nid) VALUES (1,5), (5,1), (1,6), (6,1), (2,6), (6,2), (7,2), (2,7);
+-- INSERT INTO tp(sid, nid) VALUES (3,8), (8,3), (3,9), (9,3), (4,9), (9,4), (4,10), (10,4);
 
-INSERT INTO tm(fid,src,dst,vol) VALUES (1,5,8,5);
-INSERT INTO tm(fid,src,dst,vol) VALUES (2,7,10,9);
-INSERT INTO tm(fid,src,dst,vol) VALUES (3,6,10,2);
+-- INSERT INTO switches(sid) VALUES (4),(5),(6),(7);
+-- INSERT INTO hosts(hid) VALUES (1),(2),(3),(8),(9),(10);
 
--- CREATE OR REPLACE RULE acl_in_3 AS
---        ON INSERT TO acl
---        WHERE NEW.src = 5 AND NEW.dst = 10
---        DO INSTEAD
---        DELETE from tm WHERE src = 5 AND dst = 10;
+-- INSERT INTO tm(fid,src,dst,vol) VALUES (1,5,8,5);
+-- INSERT INTO tm(fid,src,dst,vol) VALUES (2,7,10,9);
+-- INSERT INTO tm(fid,src,dst,vol) VALUES (3,6,10,2);
 
--- CREATE OR REPLACE RULE acl_in_4 AS
---        ON INSERT TO acl
---        WHERE NEW.src = 7 AND NEW.dst = 8
---        DO INSTEAD
---        DELETE from tm WHERE src = 7 AND dst = 8;
-
--- CREATE EXTENSION plpythonu;
--- update pg_language SET lanpltrusted = true WHERE lanname = 'plpythonu';
+------------------------------------------------------------
+-- triggers
+------------------------------------------------------------
 
 CREATE OR REPLACE FUNCTION notify_trigger()
      RETURNS TRIGGER AS $$
@@ -364,7 +367,6 @@ s.sendline ('sudo ovs-ofctl add-flow s1 in_port=2,actions=output:1')
 s.logout ()
 return None;
 $$ LANGUAGE plpythonu;
-
 
 CREATE OR REPLACE FUNCTION delflow_trigger() 
   RETURNS TRIGGER
@@ -455,3 +457,88 @@ $$
 LANGUAGE 'plpythonu' VOLATILE SECURITY DEFINER;
 
 
+------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION userinfo(
+                    INOUT username name,
+                    OUT user_id oid,
+                    OUT is_superuser boolean)
+AS $$
+    u = plpy.execute("""\
+            select usename,usesysid,usesuper
+              from pg_user
+             where usename = '%s'""" % username)[0]
+    return (u['usename'], u['usesysid'], u['usesuper'])
+$$ LANGUAGE plpythonu;
+
+CREATE OR REPLACE FUNCTION create_mininet_topo(
+                    -- INOUT username name,
+                    OUT sid integer
+                    -- OUT is_superuser boolean
+		    )
+AS $$
+    import os
+    u = plpy.execute("""\
+            select sid as sid
+            from switches""")
+    return (u[1]['sid']) 
+$$ LANGUAGE plpythonu;
+
+
+    -- filename = '/Users/anduo/Documents/NSDI15/codes/prototype/mininet_topo' + str (datetime.datetime.now ()) + '.py'
+
+CREATE OR REPLACE FUNCTION cmt(
+                    OUT sid integer
+		    )
+AS $$
+    import os
+    import sys
+    import datetime
+
+    sys.path.append('/usr/local/lib/python2.7/site-packages/')	
+    import pxssh							
+
+    filename = '/tmp/mininet_topo_new.py'
+    #filename = '~/mininet_topo_new.py'	
+
+    fo = open(filename, "w")
+    fo.write ('hello world \n')
+    fo.write (str (datetime.datetime.now ()))
+    fo.write ('\n')
+    
+    u = plpy.execute("""\
+            select sid as sid
+            from switches""")
+
+    fo.close()
+    # os.system ("scp " + '/Users/anduo/Documents/NSDI15/codes/prototype/mininet_topo.py' + " mininet@mininet-vm:~/")
+
+    from pexpect import *
+    # filename2 = '/Users/anduo/Documents/NSDI15/codes/prototype/mininet_topo.py'
+    run ('scp ' + filename + ' mininet@192.168.56.101:/home/mininet/sdndb', events={'(?i)password': "mininet"})
+
+    return (u[2]['sid']) 
+
+$$ LANGUAGE plpythonu;
+
+CREATE OR REPLACE FUNCTION cmt2(
+                    OUT sid integer
+		    )
+AS $$
+    import os
+    import sys
+    import datetime
+    sys.path.append('/usr/local/lib/python2.7/site-packages/')	
+    import pxssh
+
+    s = pxssh.pxssh()
+    s.login ('mininet-vm', 'mininet', 'mininet')
+    s.sendline ('echo ' + h + ' > test')
+    s.logout ()
+
+    u = plpy.execute("""\
+            select sid as sid
+            from switches""")
+    return (u[2]['sid']) 
+
+$$ LANGUAGE plpythonu;

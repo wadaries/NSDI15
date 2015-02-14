@@ -4,6 +4,32 @@ sys.path.append (os.getcwd ())
 sys.path.append('/usr/local/lib/python2.7/site-packages/')
 
 import pxssh
+import pexpect
+# import Crypto
+# import Crypto.Util
+# import Crypto.Cipher
+# import paramiko
+
+# from pexpect import *
+# remote_dir = "mininet@mininet-vm"
+# local_dir = '/Users/anduo/Documents/NSDI15/codes/prototype/mininet_topo.py'
+# print('scp %s %s' % (remote_dir, local_dir))
+
+from pexpect import *
+run ('scp /Users/anduo/Documents/NSDI15/codes/prototype/mininet_topo.py mininet@mininet-vm:~/sdndb', events={'(?i)password': "mininet"})
+
+filename = '/tmp/mininet_topo_new.py'
+run ('scp ' + filename + ' mininet@mininet-vm:/home/mininet/sdndb', events={'(?i)password': "mininet"})
+
+# child = spawn('scp /Users/anduo/Documents/NSDI15/codes/prototype/mininet_topo.py mininet@mininet-vm:.')
+# child.expect ('(?i)password')
+# child.sendline ('mininet')
+
+# child = pexpect.spawn('scp %s %s' % (remote_dir, local_dir))
+# # doesn't work, why???
+# # child.expect("mininet@mininet-vm's password:")
+# child.sendline("mininet")
+# child.expect(pexpect.EOF, timeout=10)
 
 mn = 'mininet-vm'
 mnu = 'mininet'

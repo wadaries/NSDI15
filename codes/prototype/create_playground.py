@@ -39,27 +39,23 @@ def init_topology (cursor, ISP_edges_file):
 
     print "Initialize topology table with edges in " + ISP_edges_file + "\n"
 
-
-def initialize_playground (sql_script, username, dbname):
+def load_data (dbname, username):
     try:
         conn = psycopg2.connect(database= dbname, user= username)
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
         cur = conn.cursor()
         print "Connect to database " + dbname + ", as user " + username
 
-        # this function provided by libRouteviewReplay
-        add_pgrouting_extension (cur, dbname)
-
-        # load sql schema and toy network data
-        dbscript  = open (sql_script,'r').read()
-        cur.execute(dbscript)
-
-        # initialize topology
-        # asl = sort_as ()
-        # as_n = int (raw_input ('Input the x-th largest AS: '))
-        # as_picked = asl[int(as_n)][0]
-        # ISP_edges = os.getcwd() + '/ISP_topo/' + str(as_picked) + "_edges.txt"
-        # init_topology (cur, ISP_edges)
+        cur.execute ("""
+        TRUNCATE TABLE tp cascade;
+        TRUNCATE TABLE cf cascade;
+        TRUNCATE TABLE tm cascade;
+        INSERT INTO tp(sid, nid) VALUES (1,2), (2,1), (1,3), (3,1), (2,4), (4,2), (3,4), (4,3);
+        INSERT INTO tp(sid, nid) VALUES (1,5), (5,1), (1,6), (6,1), (2,6), (6,2), (7,2), (2,7);
+        INSERT INTO tp(sid, nid) VALUES (3,8), (8,3), (3,9), (9,3), (4,9), (9,4), (4,10), (10,4);
+        INSERT INTO switches(sid) VALUES (4),(5),(6),(7);
+        INSERT INTO hosts(hid) VALUES (1),(2),(3),(8),(9),(10);
+        INSERT INTO tm(fid,src,dst,vol) VALUES (1,5,8,5), (2,7,10,9), (3,6,10,2);""")
 
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
@@ -68,43 +64,63 @@ def initialize_playground (sql_script, username, dbname):
     finally:
         if conn: conn.close()
 
-def add_pl_extension (dbname):
-    try:
-        conn = psycopg2.connect(database= dbname, user= "postgres")
-        conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
-        cur = conn.cursor()
+def create_init_db_schema (dbname, username):
 
-        # add plpython extension by superuser
-        cur.execute ("CREATE EXTENSION plpythonu;")
-        print "CREATE EXTENSION plpythonu; OK"
+    def init_schema (sql_script, username, dbname):
+        try:
+            conn = psycopg2.connect(database= dbname, user= username)
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+            cur = conn.cursor()
+            print "Connect to database " + dbname + ", as user " + username
 
-        # add permission for everyone
-        cur.execute ("update pg_language SET lanpltrusted = true WHERE lanname = 'plpythonu';")
-        print "update pg_language SET lanpltrusted = true WHERE lanname = 'plpythonu'; OK"
+            add_pgrouting_extension (cur, dbname)             # this function provided by libRouteviewReplay
+            dbscript  = open (sql_script,'r').read()            # load sql schema
+            cur.execute(dbscript)
 
-    except psycopg2.DatabaseError, e:
-        print "Unable to add_pl_extension to database " + dbname 
-        print 'Error %s' % e    
+        except psycopg2.DatabaseError, e:
+            print "Unable to connect to database " + dbname + ", as user " + username
+            print 'Error %s' % e
+        finally:
+            if conn: conn.close()
 
-    finally:
-        if conn: conn.close()
+    def add_pl_extension (dbname):
+        try:
+            conn = psycopg2.connect(database= dbname, user= "postgres")
+            conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
+            cur = conn.cursor()
 
-if __name__ == '__main__':
+            # add plpython extension by superuser
+            cur.execute ("CREATE EXTENSION IF NOT EXISTS plpythonu;")
+            print "CREATE EXTENSION plpythonu; OK"
 
-    sql_script = os.getcwd() + '/sql_files/' + "playground.sql"
-    
-    # username = raw_input ('Input user name: ')
-    username = 'anduo'
-    dbname = raw_input ('Input database name: ')
+            # add permission for everyone
+            cur.execute ("update pg_language SET lanpltrusted = true WHERE lanname = 'plpythonu';")
+            print "update pg_language SET lanpltrusted = true WHERE lanname = 'plpythonu'; OK"
+        except psycopg2.DatabaseError, e:
+            print "Unable to add_pl_extension to database " + dbname 
+            print 'Error %s' % e    
+        finally:
+            if conn: conn.close()
 
-    # this function provided by libRouteviewReplay
     create_db (dbname)
-    # add_pl_extension (dbname)
-
     add_pl_extension (dbname)
 
-    initialize_playground (sql_script, username, dbname)
+    sql_script = os.getcwd() + '/sql_files/' + "playground.sql"
+    init_schema (sql_script, username, dbname)
 
-    del_flag = raw_input ('Clean the added database (y/n): ')
-    if del_flag == 'y':
-        clean_db (dbname)
+# if __name__ == '__main__':
+
+#     dbname = raw_input ('Input database name: ')
+#     username = 'anduo'
+
+#     create_init_db_schema (dbname, username)
+
+#     load_data (dbname, username)
+
+#     create_mininet_topo (dbname)
+
+#     del_flag = raw_input ('Clean the added database (y/n): ')
+#     if del_flag == 'y':
+#         clean_db (dbname)
+
+
