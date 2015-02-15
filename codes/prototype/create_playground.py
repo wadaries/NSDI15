@@ -221,6 +221,7 @@ if __name__ == '__main__':
 
     create_init_db_schema (dbname, username)
 
+    # load_data (dbname, username)
     load_data2 (dbname, username)
 
     create_mininet_topo (dbname)
