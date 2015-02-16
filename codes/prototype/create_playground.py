@@ -229,5 +229,3 @@ if __name__ == '__main__':
     del_flag = raw_input ('Clean the added database (y/n): ')
     if del_flag == 'y':
         clean_db (dbname)
-
-
