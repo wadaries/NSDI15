@@ -79,6 +79,7 @@ CREATE UNLOGGED TABLE hosts (
 DROP TABLE IF EXISTS cf CASCADE;
 CREATE UNLOGGED TABLE cf (
        fid	integer,
+       pid	integer,
        sid	integer,
        nid	integer,
        PRIMARY KEY (fid, sid)
@@ -205,7 +206,6 @@ CREATE OR REPLACE RULE acl_del AS
        DO INSTEAD
        	  DELETE from tm WHERE src = OLD.src AND dst = OLD.dst;
 
-
 CREATE OR REPLACE RULE acl_constaint AS
        ON INSERT TO p2
        WHERE NEW.status = 'on'
@@ -240,7 +240,7 @@ CREATE OR REPLACE VIEW spv AS (
 	      	      	     	       	             sid as source,
 						     nid as target,
 						     1.0::float8 as cost
-			                             FROM tp', src, dst,TRUE, FALSE))) as pv
+			                             FROM tp', src, dst,FALSE, FALSE))) as pv
        FROM tm
 );
 
@@ -254,7 +254,7 @@ CREATE OR REPLACE VIEW spv2 AS (
 						     nid as target,
 						     1.0::float8 as cost
 			                             FROM cf c
-						     WHERE fid = c.fid', src, dst,TRUE, FALSE))) as pv
+						     WHERE fid = c.fid', src, dst,FALSE, FALSE))) as pv
        FROM tm
 );
 
@@ -263,17 +263,18 @@ CREATE OR REPLACE VIEW spv_edge AS (
        WITH num_list AS (
        SELECT UNNEST (ARRAY[1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]) AS num
        )
-       SELECT DISTINCT fid, num, ARRAY[pv[num], pv[num+1]] as edge
+       SELECT DISTINCT fid, num, ARRAY[pv[num], pv[num+1], pv[num+2]] as edge
        FROM spv, num_list
-       WHERE pv != '{}' AND num < array_length (pv, 1) 
+       WHERE pv != '{}' AND num < array_length (pv, 1) - 1
        ORDER BY fid, num
 );
 
 DROP VIEW IF EXISTS spv_switch CASCADE;
 CREATE OR REPLACE VIEW spv_switch AS (
        SELECT DISTINCT fid,
-       	      edge[1] as sid,
-	      edge[2] as nid
+       	      edge[1] as pid,
+	      edge[2] as sid,
+       	      edge[3] as nid
        FROM spv_edge
        ORDER BY fid
 );
@@ -309,29 +310,31 @@ CREATE OR REPLACE RULE spv_constaint AS
        ON INSERT TO p3
        WHERE NEW.status = 'on'
        DO ALSO
-           (INSERT INTO cf (fid,sid,nid) (SELECT * FROM spv_ins);
-	    DELETE FROM cf WHERE (fid,sid,nid) IN (SELECT * FROM spv_del);
+           (INSERT INTO cf (fid,pid,sid,nid) (SELECT * FROM spv_ins);
+	    DELETE FROM cf WHERE (fid,pid,sid,nid) IN (SELECT * FROM spv_del);
             UPDATE p3 SET status = 'off' WHERE counts = NEW.counts;
 	    );
 
-----------------------------------------------------------------------
--- load toy data
-----------------------------------------------------------------------
+------------------------------------------------------------
+-- auxiliary function
+------------------------------------------------------------
 
--- TRUNCATE TABLE tp cascade;
--- TRUNCATE TABLE cf cascade;
--- TRUNCATE TABLE tm cascade;
+CREATE OR REPLACE FUNCTION get_port(s integer)
+RETURNS TABLE (sid integer, nid integer, port bigint) AS 
+$$
 
--- INSERT INTO tp(sid, nid) VALUES (1,2), (2,1), (1,3), (3,1), (2,4), (4,2), (3,4), (4,3);
--- INSERT INTO tp(sid, nid) VALUES (1,5), (5,1), (1,6), (6,1), (2,6), (6,2), (7,2), (2,7);
--- INSERT INTO tp(sid, nid) VALUES (3,8), (8,3), (3,9), (9,3), (4,9), (9,4), (4,10), (10,4);
-
--- INSERT INTO switches(sid) VALUES (4),(5),(6),(7);
--- INSERT INTO hosts(hid) VALUES (1),(2),(3),(8),(9),(10);
-
--- INSERT INTO tm(fid,src,dst,vol) VALUES (1,5,8,5);
--- INSERT INTO tm(fid,src,dst,vol) VALUES (2,7,10,9);
--- INSERT INTO tm(fid,src,dst,vol) VALUES (3,6,10,2);
+WITH TMP AS (
+SELECT *, row_number () OVER () as port FROM tp
+WHERE tp.sid = s OR tp.nid = s
+)
+(SELECT * 
+FROM TMP
+WHERE TMP.sid = s)
+UNION
+(SELECT TMP.nid as sid, TMP.sid as nid, TMP.port as port
+FROM TMP
+WHERE TMP.nid = s);
+$$ LANGUAGE SQL;
 
 ------------------------------------------------------------
 -- triggers
@@ -346,199 +349,96 @@ CREATE OR REPLACE FUNCTION notify_trigger()
                                   TG_WHEN,
                                   TG_OP,
                                   TG_TABLE_NAME;
+       RAISE NOTICE 'contents: fid %, sid %, nid %', NEW.fid, NEW.sid, NEW.nid;
        RETURN NEW;					
    END;
    $$ LANGUAGE plpgsql;
 
-CREATE OR REPLACE FUNCTION dummy() 
-  RETURNS TRIGGER
+CREATE OR REPLACE FUNCTION add_flow_fun ()
+RETURNS TRIGGER
 AS $$
+f = TD["new"]["pid"]
+s = TD["new"]["sid"]
+n = TD["new"]["nid"]
+
+u = plpy.execute("""\
+         select port
+         from get_port (""" +str (s)+""")  
+         where nid = """ +str (n))
+outport = str(u[0]['port'])
+
+v = plpy.execute("""\
+         select port
+         from get_port (""" +str (s)+""")
+         where nid = """ +str (f))
+inport = str (v[0]['port'])
+
+plpy.notice("sid = "+ str (s) + ", nid = " +str (n) + ", out_port =" + outport + ", in_port = "+ inport)
+
+mnstring = 'sudo ovs-ofctl add-flow s' + str (s) + ' in_port=' + inport + ',actions=output:' + outport
+mnstring2 = 'sudo ovs-ofctl add-flow s' + str (s) + ' in_port=' + outport + ',actions=output:' + inport
+
 import os
 import sys
 sys.path.append('/usr/local/lib/python2.7/site-packages/')
 import pxssh
-mn = 'mininet-vm'
-mnu = 'mininet'
-mnp = 'mininet'
-s = pxssh.pxssh()
-s.login (mn, mnu, mnp)
-s.sendline ('sudo ovs-ofctl add-flow s1 in_port=1,actions=output:2')
-s.sendline ('sudo ovs-ofctl add-flow s1 in_port=2,actions=output:1')
-s.logout ()
-return None;
-$$ LANGUAGE plpythonu;
+ssh = pxssh.pxssh()
+ssh.login ('mininet-vm', 'mininet', 'mininet')
+ssh.sendline (mnstring)
+plpy.notice (mnstring)
+ssh.sendline (mnstring2)
+plpy.notice (mnstring2)
+ssh.logout ()
 
-CREATE OR REPLACE FUNCTION delflow_trigger() 
-  RETURNS TRIGGER
-AS $$
-import os
-import sys
-sys.path.append('/usr/local/lib/python2.7/site-packages/')
-import pxssh
-mn = 'mininet-vm'
-mnu = 'mininet'
-mnp = 'mininet'
-s = pxssh.pxssh()
-s.login (mn, mnu, mnp)
-s.sendline ('sudo ovs-ofctl del-flows s1')
-s.logout ()
 return None;
-$$ LANGUAGE plpythonu;
+$$ LANGUAGE 'plpythonu' VOLATILE SECURITY DEFINER;
+-- LANGUAGE plpythonu;
+-- ssh.sendline ('sudo ovs-ofctl add-flow s4 in_port=2,actions=output:1')
+-- plpy.notice("sid is:" + str (s))
+-- plpy.notice("nid is:" + str (n))
 
+CREATE TRIGGER add_flow_trigger
+     AFTER INSERT ON cf
+     FOR EACH ROW
+   EXECUTE PROCEDURE add_flow_fun();
 
 CREATE TRIGGER notify_insert_trigger
      AFTER INSERT ON cf
      FOR EACH ROW
    EXECUTE PROCEDURE notify_trigger();
 
-CREATE TRIGGER trig1
-  AFTER INSERT ON cf
-  FOR EACH ROW
-  EXECUTE PROCEDURE dummy();
+-- CREATE TRIGGER trig1
+--   AFTER INSERT ON cf
+--   FOR EACH ROW
+--   EXECUTE PROCEDURE dummy();
 
-CREATE TRIGGER trig3
-  AFTER DELETE ON cf
-  FOR EACH ROW
-  EXECUTE PROCEDURE delflow_trigger();
+-- CREATE TRIGGER trig3
+--   AFTER DELETE ON cf
+--   FOR EACH ROW
+--   EXECUTE PROCEDURE delflow_trigger();
 
-CREATE OR REPLACE FUNCTION addflow_trigger(inport integer, outport integer) RETURNS TRIGGER AS
-$$
-import os
-import sys
-sys.path.append('/usr/local/lib/python2.7/site-packages/')
-import pxssh
-mn = 'mininet-vm'
-mnu = 'mininet'
-mnp = 'mininet'
-s = pxssh.pxssh()
-s.login (mn, mnu, mnp)
-s.sendline ('sudo ovs-ofctl add-flow s1 in_port=' + str(inport) +',actions=output:'+ str(outport))
-s.sendline ('sudo ovs-ofctl add-flow s1 in_port=2,actions=output:1')
-s.logout ()
-return None;
-$$
-LANGUAGE 'plpythonu' VOLATILE SECURITY DEFINER;
+-- select tp.*, row_number() OVER () as rnum from tp ;
+-- with tmp as (select distinct sid as sid from tp order by sid)
+-- select tmp.sid, tp.sid, tp.nid, row_number () OVER ()
+-- from tp, tmp
+-- where tp.sid = tmp.sid or tp.nid = tmp.sid;
+
+-- with tmp as (select distinct sid as sid from tp order by sid)
+-- select tmp.sid, tp.sid, tp.nid
+-- from tp, tmp
+-- where tp.sid = tmp.sid or tp.nid = tmp.sid;
 
 
-CREATE OR REPLACE FUNCTION addflow(inport integer, outport integer) RETURNS integer AS
-$$
-import os
-import sys
-sys.path.append('/usr/local/lib/python2.7/site-packages/')
-import pxssh
-mn = 'mininet-vm'
-mnu = 'mininet'
-mnp = 'mininet'
-s = pxssh.pxssh()
-s.login (mn, mnu, mnp)
-s.sendline ('sudo ovs-ofctl add-flow s1 in_port=' + str(inport) +',actions=output:'+ str(outport))
-s.sendline ('sudo ovs-ofctl add-flow s1 in_port=2,actions=output:1')
-s.logout ()
-return inport;
-$$
-LANGUAGE 'plpythonu' VOLATILE SECURITY DEFINER;
+-- -- with tmp2 as (select distinct sid as sid from tp order by sid),
 
-
-CREATE OR REPLACE FUNCTION delflow(sid integer) RETURNS integer AS
-$$
-import os
-import sys
-sys.path.append('/usr/local/lib/python2.7/site-packages/')
-import pxssh
-mn = 'mininet-vm'
-mnu = 'mininet'
-mnp = 'mininet'
-s = pxssh.pxssh()
-s.login (mn, mnu, mnp)
-s.sendline ('sudo ovs-ofctl del-flows s' + str(sid))
-s.logout ()
-return sid
-$$
-LANGUAGE 'plpythonu' VOLATILE SECURITY DEFINER;
-
-
-------------------------------------------------------------
-
-CREATE OR REPLACE FUNCTION userinfo(
-                    INOUT username name,
-                    OUT user_id oid,
-                    OUT is_superuser boolean)
-AS $$
-    u = plpy.execute("""\
-            select usename,usesysid,usesuper
-              from pg_user
-             where usename = '%s'""" % username)[0]
-    return (u['usename'], u['usesysid'], u['usesuper'])
-$$ LANGUAGE plpythonu;
-
-CREATE OR REPLACE FUNCTION create_mininet_topo(
-                    -- INOUT username name,
-                    OUT sid integer
-                    -- OUT is_superuser boolean
-		    )
-AS $$
-    import os
-    u = plpy.execute("""\
-            select sid as sid
-            from switches""")
-    return (u[1]['sid']) 
-$$ LANGUAGE plpythonu;
-
-
-    -- filename = '/Users/anduo/Documents/NSDI15/codes/prototype/mininet_topo' + str (datetime.datetime.now ()) + '.py'
-
-CREATE OR REPLACE FUNCTION cmt(
-                    OUT sid integer
-		    )
-AS $$
-    import os
-    import sys
-    import datetime
-
-    sys.path.append('/usr/local/lib/python2.7/site-packages/')	
-    import pxssh							
-
-    filename = '/tmp/mininet_topo_new.py'
-    #filename = '~/mininet_topo_new.py'	
-
-    fo = open(filename, "w")
-    fo.write ('hello world \n')
-    fo.write (str (datetime.datetime.now ()))
-    fo.write ('\n')
-    
-    u = plpy.execute("""\
-            select sid as sid
-            from switches""")
-
-    fo.close()
-    # os.system ("scp " + '/Users/anduo/Documents/NSDI15/codes/prototype/mininet_topo.py' + " mininet@mininet-vm:~/")
-
-    from pexpect import *
-    # filename2 = '/Users/anduo/Documents/NSDI15/codes/prototype/mininet_topo.py'
-    run ('scp ' + filename + ' mininet@192.168.56.101:/home/mininet/sdndb', events={'(?i)password': "mininet"})
-
-    return (u[2]['sid']) 
-
-$$ LANGUAGE plpythonu;
-
-CREATE OR REPLACE FUNCTION cmt2(
-                    OUT sid integer
-		    )
-AS $$
-    import os
-    import sys
-    import datetime
-    sys.path.append('/usr/local/lib/python2.7/site-packages/')	
-    import pxssh
-
-    s = pxssh.pxssh()
-    s.login ('mininet-vm', 'mininet', 'mininet')
-    s.sendline ('echo ' + h + ' > test')
-    s.logout ()
-
-    u = plpy.execute("""\
-            select sid as sid
-            from switches""")
-    return (u[2]['sid']) 
-
-$$ LANGUAGE plpythonu;
+-- WITH TMP AS (
+-- SELECT *, row_number () OVER () as port FROM tp
+-- WHERE tp.sid = 4 OR tp.nid = 4
+-- )
+-- (SELECT * 
+-- FROM TMP
+-- WHERE sid = 4)
+-- UNION
+-- (SELECT TMP.nid as sid, TMP.sid as nid, port
+-- FROM TMP
+-- WHERE TMP.nid = 4);
