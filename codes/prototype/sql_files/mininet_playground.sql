@@ -210,7 +210,7 @@ CREATE OR REPLACE RULE acl_constaint AS
        ON INSERT TO p2
        WHERE NEW.status = 'on'
        DO ALSO
-           (DELETE FROM tm WHERE (src = 5 AND dst = 10);
+           (DELETE FROM tm WHERE (src = 1 AND dst = 2);
 	    DELETE FROM tm WHERE (src = 7 AND dst = 8);
             UPDATE p2 SET status = 'off' WHERE counts = NEW.counts;
 	    );
