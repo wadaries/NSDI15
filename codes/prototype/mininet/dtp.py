@@ -1,6 +1,7 @@
-"""2015-02-15 18:52:11.574813
+"""2015-02-17 12:56:59.606513
 $ sudo mn --custom ~/sdndb/dtp.py --topo mytopo --test pingall
-$ sudo mn --custom ~/sdndb/dtp.py --topo mytopo --mac --switch ovsk --controller remote"""
+$ sudo mn --custom ~/sdndb/dtp.py --topo mytopo --mac --switch ovsk --controller remote
+"""
 
 from mininet.topo import Topo
 

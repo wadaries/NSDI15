@@ -373,7 +373,7 @@ v = plpy.execute("""\
          where nid = """ +str (f))
 inport = str (v[0]['port'])
 
-plpy.notice("sid = "+ str (s) + ", nid = " +str (n) + ", out_port =" + outport + ", in_port = "+ inport)
+plpy.notice("add sid = "+ str (s) + ", nid = " +str (n) + ", out_port =" + outport + ", in_port = "+ inport)
 
 mnstring = 'sudo ovs-ofctl add-flow s' + str (s) + ' in_port=' + inport + ',actions=output:' + outport
 mnstring2 = 'sudo ovs-ofctl add-flow s' + str (s) + ' in_port=' + outport + ',actions=output:' + inport
@@ -442,3 +442,46 @@ CREATE TRIGGER notify_insert_trigger
 -- (SELECT TMP.nid as sid, TMP.sid as nid, port
 -- FROM TMP
 -- WHERE TMP.nid = 4);
+
+CREATE OR REPLACE FUNCTION del_flow_fun ()
+RETURNS TRIGGER
+AS $$
+f = TD["old"]["pid"]
+s = TD["old"]["sid"]
+n = TD["old"]["nid"]
+
+u = plpy.execute("""\
+         select port
+         from get_port (""" +str (s)+""")  
+         where nid = """ +str (n))
+outport = str(u[0]['port'])
+
+v = plpy.execute("""\
+         select port
+         from get_port (""" +str (s)+""")
+         where nid = """ +str (f))
+inport = str (v[0]['port'])
+
+plpy.notice("remove sid = "+ str (s) + ", nid = " +str (n) + ", out_port =" + outport + ", in_port = "+ inport)
+
+mnstring = 'sudo ovs-ofctl del-flows s' + str (s) + ' in_port=' + inport
+mnstring2 = 'sudo ovs-ofctl del-flow s' + str (s) + ' in_port=' + outport
+
+import os
+import sys
+sys.path.append('/usr/local/lib/python2.7/site-packages/')
+import pxssh
+ssh = pxssh.pxssh()
+ssh.login ('mininet-vm', 'mininet', 'mininet')
+ssh.sendline (mnstring)
+ssh.sendline (mnstring2)
+ssh.logout ()
+
+return None;
+$$ LANGUAGE 'plpythonu' VOLATILE SECURITY DEFINER;
+
+
+CREATE TRIGGER del_flow_trigger
+     AFTER DELETE ON cf
+     FOR EACH ROW
+   EXECUTE PROCEDURE del_flow_fun();
