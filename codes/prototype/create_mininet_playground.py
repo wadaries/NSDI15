@@ -45,7 +45,7 @@ def create_mininet_topo (dbname):
     fo = open(filename, "w")
     fo.write ('"""' + str (datetime.datetime.now ()))
     fo.write ('\n$ sudo mn --custom ~/sdndb/dtp.py --topo mytopo --test pingall')
-    fo.write ('\n$ sudo mn --custom ~/sdndb/dtp.py --topo mytopo --mac --switch ovsk --controller remote')
+    fo.write ('\n$ sudo mn --custom ~/sdndb/dtp.py --topo mytopo --mac --switch ovsk --controller remote\n')
     fo.write ('"""')
 
     fo.write ('\n')
@@ -146,7 +146,7 @@ def load_data (dbname, username):
     finally:
         if conn: conn.close()
 
-def load_data2 (dbname, username):
+def load_topo3switch (dbname, username):
     try:
         conn = psycopg2.connect(database= dbname, user= username)
         conn.set_isolation_level(psycopg2.extensions.ISOLATION_LEVEL_AUTOCOMMIT) 
@@ -160,9 +160,9 @@ def load_data2 (dbname, username):
         INSERT INTO switches(sid) VALUES (4),(5),(6);
         INSERT INTO hosts(hid) VALUES (1),(2),(3);
         INSERT INTO tp(sid, nid) VALUES (1,4), (2,5), (3,6);
-        INSERT INTO tp(sid, nid) VALUES (4,5), (5,6), (6,4);
-        INSERT INTO tm(fid,src,dst,vol) VALUES (1,1,2,1), (2,1,3,2);""")
+        INSERT INTO tp(sid, nid) VALUES (4,5), (5,6), (6,4);""")
 
+        # INSERT INTO tm(fid,src,dst,vol) VALUES (1,1,2,1), (2,1,3,2);
     except psycopg2.DatabaseError, e:
         print "Unable to connect to database " + dbname + ", as user " + username
         print 'Error %s' % e    
@@ -211,7 +211,7 @@ def create_init_db_schema (dbname, username):
     create_db (dbname)
     add_pl_extension (dbname)
 
-    sql_script = os.getcwd() + '/sql_files/' + "playground.sql"
+    sql_script = os.getcwd() + '/sql_files/' + "mininet_playground.sql"
     init_schema (sql_script, username, dbname)
 
 if __name__ == '__main__':
@@ -222,7 +222,7 @@ if __name__ == '__main__':
     create_init_db_schema (dbname, username)
 
     # load_data (dbname, username)
-    load_data2 (dbname, username)
+    load_topo3switch (dbname, username)
 
     create_mininet_topo (dbname)
 
