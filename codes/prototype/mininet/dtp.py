@@ -1,4 +1,4 @@
-"""2015-02-17 13:24:55.231361
+"""2015-02-19 11:53:44.652450
 $ sudo mn --custom ~/sdndb/dtp.py --topo mytopo --test pingall
 $ sudo mn --custom ~/sdndb/dtp.py --topo mytopo --mac --switch ovsk --controller remote
 """
