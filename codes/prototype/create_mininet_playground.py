@@ -41,11 +41,12 @@ def create_mininet_topo (dbname):
             outid = 'h' + str (nid)
         return outid
 
-    filename = os.getcwd () + '/mininet/dtp.py'
+    timestamp = str (datetime.datetime.now ()) .replace(" ", "-").replace (":","-").replace (".","-")
+    filename = os.getcwd () + '/mininet/dtp'+ timestamp +'.py'
     fo = open(filename, "w")
     fo.write ('"""' + str (datetime.datetime.now ()))
-    fo.write ('\n$ sudo mn --custom ~/sdndb/dtp.py --topo mytopo --test pingall')
-    fo.write ('\n$ sudo mn --custom ~/sdndb/dtp.py --topo mytopo --mac --switch ovsk --controller remote\n')
+    fo.write ('\n$ sudo mn --custom ~/sdndb/dtp'+timestamp+'.py --topo mytopo --test pingall')
+    fo.write ('\n$ sudo mn --custom ~/sdndb/dtp'+timestamp+'.py --topo mytopo --mac --switch ovsk --controller remote\n')
     fo.write ('"""')
 
     fo.write ('\n')
